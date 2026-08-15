@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
+import jwt from 'jsonwebtoken';
 
 const router = Router();
 
@@ -20,9 +21,6 @@ const pinLimiter = rateLimit({
   },
 });
 
-// ── In-memory session store ───────────────────────────────────────────────────
-const VALID_TOKENS = new Set();
-
 // ── POST /api/auth/verify ─────────────────────────────────────────────────────
 router.post('/verify', pinLimiter, (req, res) => {
   const { pin } = req.body;
@@ -36,12 +34,8 @@ router.post('/verify', pinLimiter, (req, res) => {
     return res.status(401).json({ error: 'Incorrect PIN.' });
   }
 
-  // Issue a session token
-  const token = Buffer.from(`${pin}:${Date.now()}:${Math.random()}`).toString('base64url');
-  VALID_TOKENS.add(token);
-
-  // Auto-expire after 24 hours
-  setTimeout(() => VALID_TOKENS.delete(token), 24 * 60 * 60 * 1000);
+  // Issue a stateless JWT
+  const token = jwt.sign({ authenticated: true }, correctPin, { expiresIn: '24h' });
 
   console.log(`[Auth] Successful login from ${req.ip}`);
   return res.json({ token });
@@ -57,10 +51,18 @@ router.get('/config', (_req, res) => {
 // ── Auth middleware for protected routes ──────────────────────────────────────
 export function requireAuth(req, res, next) {
   const token = req.headers['x-auth-token'];
-  if (!token || !VALID_TOKENS.has(token)) {
+  const correctPin = process.env.APP_PIN;
+
+  if (!token) {
     return res.status(401).json({ error: 'Unauthorized. Please enter your PIN.' });
   }
-  next();
+
+  try {
+    jwt.verify(token, correctPin);
+    next();
+  } catch (err) {
+    return res.status(401).json({ error: 'Session expired or invalid. Please re-enter your PIN.' });
+  }
 }
 
 export default router;

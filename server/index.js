@@ -24,15 +24,21 @@ app.use('/api/analyze', analyzeRouter);
 // Health check
 app.get('/api/health', (_req, res) => res.json({ ok: true }));
 
-// ── Serve built frontend in production ───────────────────────
-if (process.env.NODE_ENV === 'production') {
+// ── Serve built frontend in production (if not on Vercel) ──────────
+if (process.env.NODE_ENV === 'production' && !process.env.VERCEL) {
   const distPath = join(__dirname, '../dist');
   app.use(express.static(distPath));
   app.get('*', (_req, res) => res.sendFile(join(distPath, 'index.html')));
 }
 
-app.listen(PORT, () => {
-  console.log(`✅ FitAI server running on port ${PORT}`);
-  console.log(`   Gemini key: ${process.env.GEMINI_API_KEY ? '✓ set' : '✗ MISSING – set GEMINI_API_KEY in .env'}`);
-  console.log(`   PIN:        ${process.env.APP_PIN       ? '✓ set' : '✗ MISSING – set APP_PIN in .env'}`);
-});
+// Export the app for Vercel Serverless Functions
+export default app;
+
+// Listen only if not executed by Vercel
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`✅ FitAI server running on port ${PORT}`);
+    console.log(`   Gemini key: ${process.env.GEMINI_API_KEY ? '✓ set' : '✗ MISSING – set GEMINI_API_KEY in .env'}`);
+    console.log(`   PIN:        ${process.env.APP_PIN       ? '✓ set' : '✗ MISSING – set APP_PIN in .env'}`);
+  });
+}
