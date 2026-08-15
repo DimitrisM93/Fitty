@@ -179,6 +179,18 @@ export default function Settings() {
             />
           </div>
           <div className="input-group">
+            <label className="input-label" htmlFor="profile-gender">Gender</label>
+            <select
+              id="profile-gender"
+              className="input"
+              value={profile.gender || 'male'}
+              onChange={e => setProfile(p => ({ ...p, gender: e.target.value }))}
+            >
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+            </select>
+          </div>
+          <div className="input-group">
             <label className="input-label" htmlFor="profile-weight">Weight (kg)</label>
             <input
               id="profile-weight"

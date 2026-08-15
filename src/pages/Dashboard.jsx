@@ -150,7 +150,11 @@ export default function Dashboard() {
 
   const parsedWeight = parseFloat(profile.weight);
   const parsedHeight = parseFloat(profile.height);
+  const parsedAge = parseInt(profile.age);
+  const isMale = profile.gender !== 'female';
+  
   const bmi = (parsedWeight && parsedHeight) ? (parsedWeight / Math.pow(parsedHeight / 100, 2)).toFixed(1) : null;
+  const bfp = (bmi && parsedAge) ? ((1.20 * bmi) + (0.23 * parsedAge) - (10.8 * (isMale ? 1 : 0)) - 5.4).toFixed(1) : null;
 
   const greeting = () => {
     const h = new Date().getHours();
@@ -181,6 +185,12 @@ export default function Dashboard() {
             <div className="glass-card" style={{ padding: '0.75rem', textAlign: 'center', minWidth: '70px' }}>
               <div className="text-xs text-muted font-medium mb-1">BMI</div>
               <div className="font-bold gradient-text text-lg">{bmi}</div>
+            </div>
+          )}
+          {bfp && (
+            <div className="glass-card" style={{ padding: '0.75rem', textAlign: 'center', minWidth: '70px' }}>
+              <div className="text-xs text-muted font-medium mb-1">Body Fat</div>
+              <div className="font-bold gradient-text text-lg">{bfp}%</div>
             </div>
           )}
         </div>

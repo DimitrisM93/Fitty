@@ -16,8 +16,13 @@ export function setGeminiKey(key) {
 
 export function getUserProfile() {
   const raw = localStorage.getItem(STORAGE_KEYS.USER_PROFILE);
-  if (!raw) return { name: '', age: '', weight: '', height: '', goal: 2000 };
-  try { return JSON.parse(raw); } catch { return { name: '', age: '', weight: '', height: '', goal: 2000 }; }
+  const defaultProfile = { name: '', age: '', weight: '', height: '', gender: 'male', goal: 2000 };
+  if (!raw) return defaultProfile;
+  try { 
+    const p = JSON.parse(raw); 
+    if (!p.gender) p.gender = 'male';
+    return p;
+  } catch { return defaultProfile; }
 }
 
 export function setUserProfile(profile) {
