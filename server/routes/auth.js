@@ -34,8 +34,9 @@ router.post('/verify', pinLimiter, (req, res) => {
     return res.status(401).json({ error: 'Incorrect PIN.' });
   }
 
-  // Issue a stateless JWT
-  const token = jwt.sign({ authenticated: true }, correctPin, { expiresIn: '24h' });
+  // Issue a stateless JWT with a stable user ID (single-user personal app)
+  const userId = 'default_user';
+  const token = jwt.sign({ authenticated: true, userId }, correctPin, { expiresIn: '30d' });
 
   console.log(`[Auth] Successful login from ${req.ip}`);
   return res.json({ token });
@@ -58,7 +59,8 @@ export function requireAuth(req, res, next) {
   }
 
   try {
-    jwt.verify(token, correctPin);
+    const decoded = jwt.verify(token, correctPin);
+    req.userId = decoded.userId || 'default_user';
     next();
   } catch (err) {
     return res.status(401).json({ error: 'Session expired or invalid. Please re-enter your PIN.' });

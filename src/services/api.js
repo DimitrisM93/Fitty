@@ -67,3 +67,62 @@ export async function analyzeMealViaServer(imageBase64, mimeType = 'image/jpeg',
   if (!res.ok) throw new Error(data.error || 'Analysis failed');
   return data;
 }
+
+// ── Meals ─────────────────────────────────────────────────────
+export async function fetchMeals(date) {
+  const res = await fetch(`${BASE}/api/meals?date=${date}`, { headers: authHeaders() });
+  if (!res.ok) throw new Error('Failed to fetch meals');
+  return res.json();
+}
+
+export async function saveMeal(meal) {
+  const res = await fetch(`${BASE}/api/meals`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify(meal),
+  });
+  if (!res.ok) throw new Error('Failed to save meal');
+  return res.json();
+}
+
+export async function deleteMeal(id) {
+  await fetch(`${BASE}/api/meals/${id}`, { method: 'DELETE', headers: authHeaders() });
+}
+
+// ── Weight Logs ───────────────────────────────────────────────
+export async function fetchWeightLogs() {
+  const res = await fetch(`${BASE}/api/weight-logs`, { headers: authHeaders() });
+  if (!res.ok) throw new Error('Failed to fetch weight logs');
+  return res.json();
+}
+
+export async function saveWeightLogApi(date, weight) {
+  const res = await fetch(`${BASE}/api/weight-logs`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify({ date, weight }),
+  });
+  if (!res.ok) throw new Error('Failed to save weight log');
+  return res.json();
+}
+
+export async function deleteWeightLogApi(id) {
+  await fetch(`${BASE}/api/weight-logs/${id}`, { method: 'DELETE', headers: authHeaders() });
+}
+
+// ── Profile ───────────────────────────────────────────────────
+export async function fetchProfile() {
+  const res = await fetch(`${BASE}/api/profile`, { headers: authHeaders() });
+  if (!res.ok) return null;
+  return res.json();
+}
+
+export async function saveProfileApi(profile) {
+  const res = await fetch(`${BASE}/api/profile`, {
+    method: 'PUT',
+    headers: authHeaders(),
+    body: JSON.stringify(profile),
+  });
+  if (!res.ok) throw new Error('Failed to save profile');
+  return res.json();
+}

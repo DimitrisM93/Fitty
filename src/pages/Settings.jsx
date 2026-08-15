@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { getUserProfile, setUserProfile } from '../services/storage';
+import { useState, useEffect } from 'react';
+import { getUserProfile } from '../services/storage';
+import { fetchProfile, saveProfileApi } from '../services/api';
 import { isConnected, connectGoogleFit, disconnectGoogleFit } from '../services/googleFit';
 import { clearAuthToken } from '../services/api';
 import { useToast } from '../context/ToastContext';
@@ -11,14 +12,39 @@ export default function Settings() {
   const [connecting, setConnecting] = useState(false);
   const showToast = useToast();
 
+  useEffect(() => {
+    fetchProfile().then(p => {
+      if (p) setProfile(prev => ({
+        ...prev,
+        name: p.name || '',
+        age: p.age || '',
+        weight: p.weight || '',
+        height: p.height || '',
+        gender: p.gender || 'male',
+        goal: p.calorie_goal || 2000,
+      }));
+    }).catch(() => {});
+  }, []);
+
   const lockApp = () => {
     clearAuthToken();
     window.location.reload();
   };
 
-  const saveProfile = () => {
-    setUserProfile(profile);
-    showToast('Profile saved ✓', 'success');
+  const saveProfile = async () => {
+    try {
+      await saveProfileApi({
+        name: profile.name,
+        age: profile.age ? parseInt(profile.age) : null,
+        weight: profile.weight ? parseFloat(profile.weight) : null,
+        height: profile.height ? parseFloat(profile.height) : null,
+        gender: profile.gender || 'male',
+        calorie_goal: parseInt(profile.goal) || 2000,
+      });
+      showToast('Profile saved ✓', 'success');
+    } catch {
+      showToast('Failed to save profile', 'error');
+    }
   };
 
   const handleConnectFit = async () => {

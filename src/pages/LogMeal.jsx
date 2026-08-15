@@ -1,7 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
-import { analyzeMealViaServer } from '../services/api';
+import { analyzeMealViaServer, saveMeal } from '../services/api';
 import { imageFileToBase64 } from '../services/gemini';
-import { saveMeal } from '../services/db';
 import { useToast } from '../context/ToastContext';
 import './LogMeal.css';
 

@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
-  ResponsiveContainer, LineChart, Line, XAxis, YAxis,
-  CartesianGrid, Tooltip, Area, AreaChart,
+  ResponsiveContainer, AreaChart, Area, XAxis, YAxis,
+  CartesianGrid, Tooltip,
 } from 'recharts';
-import { getWeightLogs, saveWeightLog, deleteWeightLog } from '../services/storage';
+import { fetchWeightLogs, saveWeightLogApi, deleteWeightLogApi } from '../services/api';
 import { useToast } from '../context/ToastContext';
 import './Progress.css';
 
@@ -19,12 +19,16 @@ function CustomTooltip({ active, payload }) {
 }
 
 export default function Progress() {
-  const [logs, setLogs] = useState(getWeightLogs);
+  const [logs, setLogs] = useState([]);
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [weight, setWeight] = useState('');
   const showToast = useToast();
 
-  const handleAdd = () => {
+  useEffect(() => {
+    fetchWeightLogs().then(setLogs).catch(() => {});
+  }, []);
+
+  const handleAdd = async () => {
     const w = parseFloat(weight);
     if (!w || w < 20 || w > 300) {
       showToast('Enter a valid weight (20–300 kg)', 'error');
@@ -34,16 +38,26 @@ export default function Progress() {
       showToast('Please select a date', 'error');
       return;
     }
-    const updated = saveWeightLog(date, w);
-    setLogs(updated);
-    setWeight('');
-    showToast('Weight logged ✓', 'success');
+    try {
+      await saveWeightLogApi(date, w);
+      const updated = await fetchWeightLogs();
+      setLogs(updated);
+      setWeight('');
+      showToast('Weight logged ✓', 'success');
+    } catch {
+      showToast('Failed to save. Please try again.', 'error');
+    }
   };
 
-  const handleDelete = (id) => {
-    const updated = deleteWeightLog(id);
-    setLogs(updated);
-    showToast('Entry removed', 'success');
+  const handleDelete = async (id) => {
+    try {
+      await deleteWeightLogApi(id);
+      const updated = await fetchWeightLogs();
+      setLogs(updated);
+      showToast('Entry removed', 'success');
+    } catch {
+      showToast('Failed to delete.', 'error');
+    }
   };
 
   // Prepare chart data — format dates for display

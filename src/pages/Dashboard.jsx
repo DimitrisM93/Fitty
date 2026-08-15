@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { getMealsForDate, getActivityForDate } from '../services/db';
-import { getUserProfile } from '../services/storage';
+import { fetchMeals } from '../services/api';
+import { fetchProfile } from '../services/api';
 import { isConnected, fetchTodayStats, fetchWeeklyCalories } from '../services/googleFit';
-import { saveActivitySnapshot } from '../services/db';
+import { saveActivitySnapshot, getActivityForDate } from '../services/db';
 import './Dashboard.css';
 
 function CalorieArc({ consumed, burned, goal }) {
@@ -106,7 +106,7 @@ export default function Dashboard() {
   const [meals, setMeals] = useState([]);
   const [activity, setActivity] = useState({ calories: 0, steps: 0, heartRate: 0, activeMinutes: 0 });
   const [weekData, setWeekData] = useState([]);
-  const [profile] = useState(getUserProfile);
+  const [profile, setProfile] = useState({ name: '', goal: 2000, weight: '', height: '', age: '', gender: 'male' });
   const [loading, setLoading] = useState(true);
   const connected = isConnected();
 
@@ -115,11 +115,13 @@ export default function Dashboard() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [todayMeals, cachedActivity] = await Promise.all([
-        getMealsForDate(today),
+      const [todayMeals, serverProfile, cachedActivity] = await Promise.all([
+        fetchMeals(today),
+        fetchProfile(),
         getActivityForDate(today),
       ]);
       setMeals(todayMeals);
+      if (serverProfile) setProfile(p => ({ ...p, ...serverProfile, goal: serverProfile.calorie_goal || p.goal }));
       if (cachedActivity) setActivity(cachedActivity);
 
       if (connected) {

@@ -5,6 +5,10 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import analyzeRouter from './routes/analyze.js';
 import authRouter from './routes/auth.js';
+import mealsRouter from './routes/meals.js';
+import weightLogsRouter from './routes/weightLogs.js';
+import profileRouter from './routes/profile.js';
+import { initDb } from './db.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -18,8 +22,11 @@ app.use(cors({
 }));
 
 // ── API Routes ──────────────────────────────────────────────
-app.use('/api/auth',    authRouter);
-app.use('/api/analyze', analyzeRouter);
+app.use('/api/auth',         authRouter);
+app.use('/api/analyze',      analyzeRouter);
+app.use('/api/meals',        mealsRouter);
+app.use('/api/weight-logs',  weightLogsRouter);
+app.use('/api/profile',      profileRouter);
 
 // Health check
 app.get('/api/health', (_req, res) => res.json({ ok: true }));
@@ -31,6 +38,9 @@ if (process.env.NODE_ENV === 'production' && !process.env.VERCEL) {
   app.get('*', (_req, res) => res.sendFile(join(distPath, 'index.html')));
 }
 
+// Initialize DB tables then start server
+initDb().catch(err => console.error('DB init error:', err));
+
 // Export the app for Vercel Serverless Functions
 export default app;
 
@@ -40,5 +50,6 @@ if (!process.env.VERCEL) {
     console.log(`✅ FitAI server running on port ${PORT}`);
     console.log(`   Gemini key: ${process.env.GEMINI_API_KEY ? '✓ set' : '✗ MISSING – set GEMINI_API_KEY in .env'}`);
     console.log(`   PIN:        ${process.env.APP_PIN       ? '✓ set' : '✗ MISSING – set APP_PIN in .env'}`);
+    console.log(`   Database:   ${process.env.DATABASE_URL  ? '✓ set' : '✗ MISSING – DATABASE_URL not found'}`);
   });
 }
