@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenAI } from '@google/genai';
 import { requireAuth } from './auth.js';
 
 const router = Router();
@@ -47,23 +47,29 @@ router.post('/meal', requireAuth, async (req, res) => {
   }
 
   try {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    const ai = new GoogleGenAI({ apiKey });
 
-    const promptParts = [MEAL_ANALYSIS_PROMPT];
+    const parts = [{ text: MEAL_ANALYSIS_PROMPT }];
     
     if (textQuery) {
-      promptParts.push(`User's description: ${textQuery}`);
+      parts.push({ text: `User's description: ${textQuery}` });
     }
 
     if (imageBase64) {
-      promptParts.push({
-        inlineData: { data: imageBase64, mimeType },
+      parts.push({
+        inlineData: { mimeType, data: imageBase64 },
       });
     }
 
-    const result = await model.generateContent(promptParts);
-    const text = result.response.text();
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: [{
+        role: 'user',
+        parts: parts
+      }]
+    });
+    
+    const text = response.text;
 
     // Strip markdown code fences if Gemini wraps the JSON
     const cleaned = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
