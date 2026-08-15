@@ -34,27 +34,35 @@ Be as accurate as possible. If you cannot identify a food item clearly, provide 
 All macros should be in grams. Calories in kcal.`;
 
 // POST /api/analyze/meal
-// Body: { imageBase64: string, mimeType: string }
+// Body: { imageBase64?: string, mimeType?: string, textQuery?: string }
 router.post('/meal', requireAuth, async (req, res) => {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     return res.status(500).json({ error: 'Gemini API key not configured on server.' });
   }
 
-  const { imageBase64, mimeType = 'image/jpeg' } = req.body;
-  if (!imageBase64) {
-    return res.status(400).json({ error: 'Missing imageBase64 in request body.' });
+  const { imageBase64, mimeType = 'image/jpeg', textQuery } = req.body;
+  if (!imageBase64 && !textQuery) {
+    return res.status(400).json({ error: 'Must provide either an image or a text description.' });
   }
 
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
-    const imagePart = {
-      inlineData: { data: imageBase64, mimeType },
-    };
+    const promptParts = [MEAL_ANALYSIS_PROMPT];
+    
+    if (textQuery) {
+      promptParts.push(`User's description: ${textQuery}`);
+    }
 
-    const result = await model.generateContent([MEAL_ANALYSIS_PROMPT, imagePart]);
+    if (imageBase64) {
+      promptParts.push({
+        inlineData: { data: imageBase64, mimeType },
+      });
+    }
+
+    const result = await model.generateContent(promptParts);
     const text = result.response.text();
 
     // Strip markdown code fences if Gemini wraps the JSON

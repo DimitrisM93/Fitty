@@ -90,8 +90,10 @@ function AnalysisResult({ result, onSave, onRetry, imageUrl }) {
 
 export default function LogMeal() {
   const [step, setStep] = useState('upload'); // upload | analyzing | result | saved
+  const [inputMode, setInputMode] = useState('photo'); // photo | text
   const [imageFile, setImageFile] = useState(null);
   const [imageUrl, setImageUrl] = useState('');
+  const [textQuery, setTextQuery] = useState('');
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
   const fileInputRef = useRef();
@@ -113,19 +115,29 @@ export default function LogMeal() {
   }, [handleFileSelect]);
 
   const analyze = useCallback(async () => {
-    if (!imageFile) return;
+    if (inputMode === 'photo' && !imageFile) return;
+    if (inputMode === 'text' && !textQuery.trim()) return;
+
     setStep('analyzing');
     setError('');
     try {
-      const { base64, mimeType } = await imageFileToBase64(imageFile);
-      const analysis = await analyzeMealViaServer(base64, mimeType);
+      let base64 = '';
+      let mime = '';
+      
+      if (inputMode === 'photo' && imageFile) {
+        const parsed = await imageFileToBase64(imageFile);
+        base64 = parsed.base64;
+        mime = parsed.mimeType;
+      }
+
+      const analysis = await analyzeMealViaServer(base64, mime, textQuery.trim());
       setResult(analysis);
       setStep('result');
     } catch (err) {
       setError(err.message || 'Analysis failed. Please try again.');
-      setStep('preview');
+      setStep('upload'); // back to beginning so they can fix text or image
     }
-  }, [imageFile]);
+  }, [imageFile, textQuery, inputMode]);
 
   const handleSave = useCallback(async () => {
     if (!result) return;
@@ -151,97 +163,108 @@ export default function LogMeal() {
       {/* Header */}
       <div className="page-header">
         <h1><span className="gradient-text">AI</span> Meal Analyzer</h1>
-        <p className="text-muted text-sm mt-2">Take a photo of your meal and let Gemini calculate the calories</p>
+        <p className="text-muted text-sm mt-2">Take a photo of your meal or describe it, and let Gemini calculate the calories</p>
       </div>
 
       {/* Upload step */}
       {step === 'upload' && (
-        <div className="animate-fade-in-up">
-          {/* Camera button */}
-          <div className="capture-primary glass-card p-6">
-            <button
-              id="camera-capture-btn"
-              className="camera-btn"
-              onClick={() => cameraInputRef.current?.click()}
+        <div className="upload-container glass-card p-6 animate-fade-in">
+          
+          <div className="input-mode-tabs mb-6">
+            <button 
+              className={`mode-tab ${inputMode === 'photo' ? 'active' : ''}`}
+              onClick={() => setInputMode('photo')}
             >
-              <div className="camera-icon">📷</div>
-              <p className="font-bold text-lg">Take a Photo</p>
-              <p className="text-muted text-sm">Use your camera to snap the meal</p>
+              📷 Photo
             </button>
-            <input
-              ref={cameraInputRef}
-              type="file"
-              accept="image/*"
-              capture="environment"
-              style={{ display: 'none' }}
-              onChange={e => handleFileSelect(e.target.files?.[0])}
-            />
+            <button 
+              className={`mode-tab ${inputMode === 'text' ? 'active' : ''}`}
+              onClick={() => setInputMode('text')}
+            >
+              ⌨️ Text
+            </button>
           </div>
 
-          <div className="divider-label">
-            <span className="divider-text">or upload from gallery</span>
-          </div>
+          {inputMode === 'photo' ? (
+            <>
+              <div className="upload-circle">
+                <div className="upload-icon">📸</div>
+              </div>
+              <h2 className="text-xl font-bold mt-4">Log a Meal</h2>
+              <p className="text-muted text-sm text-center mt-2 mb-6">
+                Take a photo or upload an image to automatically track calories and macros.
+              </p>
 
-          {/* Dropzone */}
-          <div
-            className="dropzone glass-card"
-            onDragOver={e => e.preventDefault()}
-            onDrop={handleDropzone}
-            onClick={() => fileInputRef.current?.click()}
-            role="button"
-            tabIndex={0}
-            aria-label="Upload meal image"
-            onKeyDown={e => e.key === 'Enter' && fileInputRef.current?.click()}
-          >
-            <div className="dropzone-icon">🖼️</div>
-            <p className="font-semibold">Drop image here</p>
-            <p className="text-muted text-sm">or click to browse</p>
-            <input
-              ref={fileInputRef}
-              id="meal-file-input"
-              type="file"
-              accept="image/*"
-              style={{ display: 'none' }}
-              onChange={e => handleFileSelect(e.target.files?.[0])}
-            />
-          </div>
+              {error && <p className="text-danger text-sm text-center mb-4">{error}</p>}
+
+              <div className="upload-actions">
+                <input
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  ref={cameraInputRef}
+                  onChange={(e) => handleFileSelect(e.target.files?.[0])}
+                  className="hidden-input"
+                />
+                <button
+                  className="btn btn-primary w-full"
+                  onClick={() => cameraInputRef.current?.click()}
+                >
+                  Take Photo
+                </button>
+
+                <input
+                  type="file"
+                  accept="image/*"
+                  ref={fileInputRef}
+                  onChange={(e) => handleFileSelect(e.target.files?.[0])}
+                  className="hidden-input"
+                />
+                <button
+                  className="btn btn-secondary w-full"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  Upload from Gallery
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <h2 className="text-xl font-bold mb-2">Describe your meal</h2>
+              <p className="text-muted text-sm mb-4">
+                Enter ingredients and portions (e.g., "200g roast potatoes and 1 chicken breast").
+              </p>
+              
+              {error && <p className="text-danger text-sm text-center mb-4">{error}</p>}
+
+              <textarea 
+                className="input text-input-area mb-4"
+                rows={5}
+                placeholder="200g roast potatoes..."
+                value={textQuery}
+                onChange={(e) => setTextQuery(e.target.value)}
+              />
+              <button 
+                className="btn btn-primary w-full"
+                onClick={analyze}
+                disabled={!textQuery.trim()}
+              >
+                Analyze Meal ✨
+              </button>
+            </>
+          )}
         </div>
       )}
 
-      {/* Preview step */}
-      {step === 'preview' && (
-        <div className="animate-fade-in-up">
-          <div className="preview-wrapper">
-            <img src={imageUrl} alt="Meal preview" className="preview-image"/>
-            <button
-              className="preview-change-btn btn btn-ghost btn-sm"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              Change
-            </button>
+      {/* Preview (only for images) */}
+      {step === 'preview' && inputMode === 'photo' && (
+        <div className="preview-container animate-fade-in">
+          <img src={imageUrl} alt="Meal preview" className="preview-image"/>
+          <div className="flex gap-3 mt-4">
+            <button onClick={reset} className="btn btn-ghost w-full">Retake</button>
+            <button onClick={analyze} className="btn btn-primary w-full">Analyze ✨</button>
           </div>
-          {error && (
-            <div className="error-box mt-4">
-              <span>⚠️ {error}</span>
-            </div>
-          )}
-          <div className="flex gap-3 mt-6">
-            <button onClick={reset} className="btn btn-ghost">Cancel</button>
-            <button
-              id="analyze-btn"
-              onClick={analyze}
-              className="btn btn-primary w-full btn-lg"
-            >
-              ✨ Analyze with Gemini
-            </button>
-          </div>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            style={{ display: 'none' }}
-            onChange={e => handleFileSelect(e.target.files?.[0])}
-          />
+          {error && <p className="text-danger text-sm text-center mt-4">{error}</p>}
         </div>
       )}
 

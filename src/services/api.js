@@ -42,11 +42,20 @@ export async function verifyPin(pin) {
 }
 
 // ── Meal Analysis ─────────────────────────────────────────────
-export async function analyzeMealViaServer(imageBase64, mimeType = 'image/jpeg') {
+export async function analyzeMealViaServer(imageBase64, mimeType = 'image/jpeg', textQuery = '') {
+  const body = {};
+  if (imageBase64) {
+    body.imageBase64 = imageBase64;
+    body.mimeType = mimeType;
+  }
+  if (textQuery) {
+    body.textQuery = textQuery;
+  }
+
   const res = await fetch(`${BASE}/api/analyze/meal`, {
     method: 'POST',
     headers: authHeaders(),
-    body: JSON.stringify({ imageBase64, mimeType }),
+    body: JSON.stringify(body),
   });
 
   if (res.status === 401) {
