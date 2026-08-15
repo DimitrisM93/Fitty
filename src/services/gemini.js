@@ -1,4 +1,3 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import { getGeminiKey } from './storage';
 
 const MEAL_ANALYSIS_PROMPT = `You are a professional nutritionist and food recognition AI.
@@ -30,34 +29,7 @@ Return ONLY a valid JSON object with this exact structure (no markdown, no extra
 Be as accurate as possible. If you cannot identify a food item clearly, provide your best estimate.
 All macros should be in grams. Calories in kcal.`;
 
-export async function analyzeMeal(imageBase64, mimeType = 'image/jpeg') {
-  const apiKey = getGeminiKey();
-  if (!apiKey) {
-    throw new Error('No Gemini API key set. Please add your API key in Settings.');
-  }
 
-  const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-
-  const imagePart = {
-    inlineData: {
-      data: imageBase64,
-      mimeType,
-    },
-  };
-
-  const result = await model.generateContent([MEAL_ANALYSIS_PROMPT, imagePart]);
-  const text = result.response.text();
-
-  // Strip markdown code blocks if present
-  const cleaned = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-
-  try {
-    return JSON.parse(cleaned);
-  } catch {
-    throw new Error('Failed to parse Gemini response. Please try again.');
-  }
-}
 
 export function imageFileToBase64(file) {
   return new Promise((resolve, reject) => {
