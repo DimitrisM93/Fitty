@@ -1,0 +1,179 @@
+.pin-gate {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Animated background glows */
+.pin-bg-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+}
+
+.pin-bg-glow--1 {
+  width: 400px;
+  height: 400px;
+  background: rgba(110, 231, 183, 0.12);
+  top: -100px;
+  left: -100px;
+  animation: drift1 8s ease-in-out infinite alternate;
+}
+
+.pin-bg-glow--2 {
+  width: 350px;
+  height: 350px;
+  background: rgba(129, 140, 248, 0.12);
+  bottom: -80px;
+  right: -80px;
+  animation: drift2 10s ease-in-out infinite alternate;
+}
+
+@keyframes drift1 {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(40px, 40px) scale(1.1); }
+}
+
+@keyframes drift2 {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(-40px, -40px) scale(1.15); }
+}
+
+/* Card */
+.pin-card {
+  position: relative;
+  z-index: 1;
+  background: rgba(15, 19, 32, 0.85);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  padding: var(--space-10) var(--space-8);
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  box-shadow: var(--shadow-lg), 0 0 60px rgba(110, 231, 183, 0.08);
+  animation: fadeInUp 0.5s ease forwards;
+}
+
+.pin-logo {
+  font-size: 3rem;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.pin-title {
+  font-size: 2.25rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.pin-subtitle {
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+  text-align: center;
+}
+
+/* PIN input row */
+.pin-inputs {
+  display: flex;
+  gap: var(--space-3);
+  margin: var(--space-4) 0 var(--space-2);
+}
+
+.pin-digit {
+  width: 60px;
+  height: 68px;
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  text-align: center;
+  font-family: var(--font);
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+  caret-color: transparent;
+}
+
+.pin-digit:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(110, 231, 183, 0.2);
+  transform: scale(1.05);
+}
+
+.pin-digit--filled {
+  border-color: var(--color-primary);
+  background: rgba(110, 231, 183, 0.08);
+}
+
+.pin-inputs--compact {
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 340px;
+}
+
+.pin-digit--sm {
+  width: 44px;
+  height: 52px;
+  font-size: 1.25rem;
+}
+
+/* Locked / rate-limited state */
+.pin-locked {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-6) 0;
+}
+
+.pin-locked-icon {
+  font-size: 2.5rem;
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%       { transform: translateX(-8px); }
+  40%       { transform: translateX(8px); }
+  60%       { transform: translateX(-6px); }
+  80%       { transform: translateX(6px); }
+}
+
+.pin-shake {
+  animation: shake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) forwards;
+}
+
+.pin-error {
+  color: var(--color-danger);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.pin-loading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.pin-hint {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: var(--space-2);
+}

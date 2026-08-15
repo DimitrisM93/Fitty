@@ -1,0 +1,195 @@
+.connect-section { text-align: center; }
+
+.connect-watch-icon {
+  font-size: 4rem;
+  display: block;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.connect-steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  text-align: left;
+}
+
+.connect-step {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  font-size: 0.875rem;
+}
+
+.step-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--grad-primary);
+  color: #0a0d14;
+  font-weight: 800;
+  font-size: 0.8125rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Calorie burn card */
+.burn-card { position: relative; overflow: hidden; }
+
+.burn-value {
+  font-size: 4rem;
+  font-weight: 900;
+  line-height: 1;
+  margin: var(--space-2) 0;
+}
+
+.burn-flame {
+  position: absolute;
+  right: var(--space-5);
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 3.5rem;
+  opacity: 0.3;
+  animation: float 2s ease-in-out infinite;
+}
+
+/* Two-column layout */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+/* Step ring */
+.step-ring-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-ring-center {
+  position: absolute;
+  text-align: center;
+}
+
+.step-count {
+  font-size: 1.375rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.step-label {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+}
+
+.step-sub {
+  font-size: 0.6875rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+/* Heart Rate Gauge */
+.hr-display {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: var(--space-3) 0;
+}
+
+.hr-value {
+  font-size: 2.5rem;
+  font-weight: 900;
+  line-height: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.hr-unit {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.hr-bar-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.hr-bar-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width 0.8s ease;
+}
+
+.hr-zones {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.625rem;
+  font-weight: 600;
+}
+
+/* Active minutes */
+.active-min-val {
+  font-size: 3rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+/* Weekly burn chart */
+.week-burn-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  height: 100px;
+}
+
+.week-bar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  height: 100%;
+}
+
+.week-bar-track {
+  flex: 1;
+  width: 100%;
+  background: var(--color-surface);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+}
+
+.week-bar-fill-warm {
+  width: 100%;
+  background: var(--grad-warm);
+  border-radius: var(--radius-sm);
+  min-height: 4px;
+  transition: height 0.8s ease;
+}
+
+.week-bar-label {
+  font-size: 0.625rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.week-bar-val {
+  font-size: 0.5625rem;
+  color: var(--text-muted);
+}

@@ -1,0 +1,102 @@
+.settings-section-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.settings-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.gemini-icon  { background: rgba(110, 231, 183, 0.12); }
+.watch-icon   { background: rgba(129, 140, 248, 0.12); }
+.profile-icon { background: rgba(251, 146, 60, 0.12); }
+
+/* Key input */
+.key-input-wrapper {
+  position: relative;
+}
+
+.key-input-wrapper .input {
+  padding-right: 48px;
+}
+
+.key-toggle-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 4px;
+  line-height: 1;
+}
+
+/* Settings help */
+.settings-help {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+}
+
+.settings-link {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+.settings-link:hover { text-decoration: underline; }
+
+/* Connected status */
+.connected-status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* Setup note */
+.setup-note {
+  padding: 0;
+}
+
+.setup-list {
+  padding-left: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  list-style: decimal;
+}
+
+.setup-list code {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 1px 4px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+}
+
+/* Profile grid */
+.profile-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+/* About */
+.about-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.about-logo {
+  font-size: 1.75rem;
+}
