@@ -49,27 +49,32 @@ router.post('/meal', requireAuth, async (req, res) => {
   try {
     const ai = new GoogleGenAI({ apiKey });
 
-    const parts = [{ text: MEAL_ANALYSIS_PROMPT }];
+    const contentParts = [
+      { type: 'text', text: MEAL_ANALYSIS_PROMPT }
+    ];
     
     if (textQuery) {
-      parts.push({ text: `User's description: ${textQuery}` });
+      contentParts.push({ type: 'text', text: `User's description: ${textQuery}` });
     }
 
     if (imageBase64) {
-      parts.push({
-        inlineData: { mimeType, data: imageBase64 },
+      contentParts.push({
+        type: 'inlineData',
+        inlineData: { mimeType, data: imageBase64 }
       });
     }
 
-    const response = await ai.models.generateContent({
+    const interaction = await ai.interactions.create({
       model: 'gemini-2.5-flash',
-      contents: [{
-        role: 'user',
-        parts: parts
-      }]
+      input: [
+        {
+          type: 'user_input',
+          content: contentParts
+        }
+      ]
     });
     
-    const text = response.text;
+    const text = interaction.output_text;
 
     // Strip markdown code fences if Gemini wraps the JSON
     const cleaned = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
