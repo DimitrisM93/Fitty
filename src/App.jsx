@@ -5,6 +5,7 @@ import BottomNav from './components/BottomNav';
 import Dashboard from './pages/Dashboard';
 import LogMeal from './pages/LogMeal';
 import Activity from './pages/Activity';
+import Progress from './pages/Progress';
 import Settings from './pages/Settings';
 import PinGate from './pages/PinGate';
 import { isAuthenticated } from './services/api';
@@ -23,6 +24,7 @@ export default function App() {
           <Route path="/"          element={<Dashboard />} />
           <Route path="/log-meal"  element={<LogMeal />} />
           <Route path="/activity"  element={<Activity />} />
+          <Route path="/progress" element={<Progress />} />
           <Route path="/settings"  element={<Settings />} />
         </Routes>
       </main>
