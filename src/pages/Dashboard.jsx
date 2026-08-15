@@ -146,6 +146,7 @@ export default function Dashboard() {
   const totalProtein = meals.reduce((s, m) => s + (m.total_protein || 0), 0);
   const totalCarbs = meals.reduce((s, m) => s + (m.total_carbs || 0), 0);
   const totalFat = meals.reduce((s, m) => s + (m.total_fat || 0), 0);
+  const totalFiber = meals.reduce((s, m) => s + (m.total_fiber || 0), 0);
 
   const greeting = () => {
     const h = new Date().getHours();
@@ -157,12 +158,20 @@ export default function Dashboard() {
   return (
     <div className="page animate-fade-in">
       {/* Header */}
-      <div className="page-header">
-        <p className="text-muted text-sm">{greeting()}{profile.name ? `, ${profile.name}` : ''} 👋</p>
-        <h1 className="mt-2">Today's <span className="gradient-text">Balance</span></h1>
-        <p className="text-muted text-sm mt-2">
-          {new Date().toLocaleDateString('en', { weekday: 'long', month: 'long', day: 'numeric' })}
-        </p>
+      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div>
+          <p className="text-muted text-sm">{greeting()}{profile.name ? `, ${profile.name}` : ''} 👋</p>
+          <h1 className="mt-2">Today's <span className="gradient-text">Balance</span></h1>
+          <p className="text-muted text-sm mt-2">
+            {new Date().toLocaleDateString('en', { weekday: 'long', month: 'long', day: 'numeric' })}
+          </p>
+        </div>
+        {profile.weight && (
+          <div className="glass-card" style={{ padding: '0.75rem', textAlign: 'center', minWidth: '70px' }}>
+            <div className="text-xs text-muted font-medium mb-1">Weight</div>
+            <div className="font-bold gradient-text text-lg">{profile.weight}{String(profile.weight).match(/[a-z]/i) ? '' : ' kg'}</div>
+          </div>
+        )}
       </div>
 
       {/* Calorie Arc */}
@@ -191,6 +200,7 @@ export default function Dashboard() {
           <MacroBar label="Protein" value={Math.round(totalProtein)} max={150} color="var(--grad-primary)"/>
           <MacroBar label="Carbs"   value={Math.round(totalCarbs)}   max={300} color="var(--grad-cool)"/>
           <MacroBar label="Fat"     value={Math.round(totalFat)}     max={80}  color="var(--grad-warm)"/>
+          <MacroBar label="Fiber"   value={Math.round(totalFiber)}   max={30}  color="#10b981"/>
         </div>
       </div>
 
