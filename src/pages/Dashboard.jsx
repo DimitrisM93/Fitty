@@ -148,6 +148,10 @@ export default function Dashboard() {
   const totalFat = meals.reduce((s, m) => s + (m.total_fat || 0), 0);
   const totalFiber = meals.reduce((s, m) => s + (m.total_fiber || 0), 0);
 
+  const parsedWeight = parseFloat(profile.weight);
+  const parsedHeight = parseFloat(profile.height);
+  const bmi = (parsedWeight && parsedHeight) ? (parsedWeight / Math.pow(parsedHeight / 100, 2)).toFixed(1) : null;
+
   const greeting = () => {
     const h = new Date().getHours();
     if (h < 12) return 'Good morning';
@@ -166,12 +170,20 @@ export default function Dashboard() {
             {new Date().toLocaleDateString('en', { weekday: 'long', month: 'long', day: 'numeric' })}
           </p>
         </div>
-        {profile.weight && (
-          <div className="glass-card" style={{ padding: '0.75rem', textAlign: 'center', minWidth: '70px' }}>
-            <div className="text-xs text-muted font-medium mb-1">Weight</div>
-            <div className="font-bold gradient-text text-lg">{profile.weight}{String(profile.weight).match(/[a-z]/i) ? '' : ' kg'}</div>
-          </div>
-        )}
+        <div style={{ display: 'flex', gap: '8px' }}>
+          {profile.weight && (
+            <div className="glass-card" style={{ padding: '0.75rem', textAlign: 'center', minWidth: '70px' }}>
+              <div className="text-xs text-muted font-medium mb-1">Weight</div>
+              <div className="font-bold gradient-text text-lg">{profile.weight}{String(profile.weight).match(/[a-z]/i) ? '' : ' kg'}</div>
+            </div>
+          )}
+          {bmi && (
+            <div className="glass-card" style={{ padding: '0.75rem', textAlign: 'center', minWidth: '70px' }}>
+              <div className="text-xs text-muted font-medium mb-1">BMI</div>
+              <div className="font-bold gradient-text text-lg">{bmi}</div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Calorie Arc */}
