@@ -59,8 +59,9 @@ router.post('/meal', requireAuth, async (req, res) => {
 
     if (imageBase64) {
       contentParts.push({
-        type: 'inlineData',
-        inlineData: { mimeType, data: imageBase64 }
+        type: 'image',
+        mime_type: mimeType,
+        data: imageBase64
       });
     }
 
