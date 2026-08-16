@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
-import { analyzeMealViaServer, saveMeal } from '../services/api';
+import { analyzeMealViaServer, saveMeal, fetchFavorites, saveFavorite, deleteFavorite } from '../services/api';
 import { imageFileToBase64 } from '../services/gemini';
 import { useToast } from '../context/ToastContext';
 import './LogMeal.css';
@@ -107,6 +107,73 @@ export default function LogMeal() {
   const fileInputRef = useRef();
   const cameraInputRef = useRef();
   const showToast = useToast();
+
+  const [favorites, setFavorites] = useState([]);
+  const [isCreatingFav, setIsCreatingFav] = useState(false);
+  const [favForm, setFavForm] = useState({ name: '', meal_type: 'snack', total_calories: '', total_protein: '', total_carbs: '', total_fat: '', notes: '' });
+
+  React.useEffect(() => {
+    if (inputMode === 'favorites') {
+      fetchFavorites().then(setFavorites).catch(() => showToast('Failed to load favorites', 'error'));
+    }
+  }, [inputMode, showToast]);
+
+  const handleCreateFavorite = useCallback(async () => {
+    const cals = parseInt(favForm.total_calories);
+    if (!favForm.name || !cals || cals <= 0) {
+      setError('Please enter a name and calories');
+      return;
+    }
+    setError('');
+    try {
+      const saved = await saveFavorite({ 
+        ...favForm, 
+        total_calories: cals, 
+        total_protein: parseFloat(favForm.total_protein)||0, 
+        total_carbs: parseFloat(favForm.total_carbs)||0, 
+        total_fat: parseFloat(favForm.total_fat)||0 
+      });
+      setFavorites(prev => [saved, ...prev]);
+      setIsCreatingFav(false);
+      setFavForm({ name: '', meal_type: 'snack', total_calories: '', total_protein: '', total_carbs: '', total_fat: '', notes: '' });
+      showToast('Favorite created!', 'success');
+    } catch {
+      showToast('Failed to create favorite', 'error');
+    }
+  }, [favForm, showToast]);
+
+  const handleDeleteFavorite = useCallback(async (id) => {
+    if (!window.confirm('Delete this favorite?')) return;
+    try {
+      await deleteFavorite(id);
+      setFavorites(prev => prev.filter(f => f.id !== id));
+      showToast('Favorite deleted', 'success');
+    } catch {
+      showToast('Failed to delete', 'error');
+    }
+  }, [showToast]);
+
+  const handleLogFavorite = useCallback(async (fav) => {
+    try {
+      const meal = {
+        meal_type: fav.meal_type,
+        total_calories: fav.total_calories,
+        total_protein: fav.total_protein,
+        total_carbs: fav.total_carbs,
+        total_fat: fav.total_fat,
+        total_fiber: fav.total_fiber,
+        items: [],
+        confidence: 'manual',
+        notes: fav.notes || '',
+      };
+      await saveMeal(meal);
+      setResult(meal);
+      showToast('Favorite logged! 🎉', 'success');
+      setStep('saved');
+    } catch {
+      showToast('Failed to log favorite', 'error');
+    }
+  }, [showToast]);
 
   const handleFileSelect = useCallback((file) => {
     if (!file || !file.type.startsWith('image/')) return;
@@ -229,6 +296,12 @@ export default function LogMeal() {
             >
               🔢 Quick
             </button>
+            <button 
+              className={`mode-tab ${inputMode === 'favorites' ? 'active' : ''}`}
+              onClick={() => setInputMode('favorites')}
+            >
+              ⭐ Favs
+            </button>
           </div>
 
           {inputMode === 'photo' ? (
@@ -298,6 +371,93 @@ export default function LogMeal() {
                 Analyze Meal ✨
               </button>
             </>
+          ) : inputMode === 'favorites' ? (
+            <div className="favorites-container">
+              <div className="flex justify-between items-center mb-4">
+                <div>
+                  <h2 className="text-xl font-bold">Favorite Meals</h2>
+                  <p className="text-muted text-sm">Quick-add your go-to meals.</p>
+                </div>
+                {!isCreatingFav && (
+                  <button className="btn btn-sm btn-primary" onClick={() => setIsCreatingFav(true)}>+ New</button>
+                )}
+              </div>
+
+              {error && <p className="text-danger text-sm text-center mb-4">{error}</p>}
+
+              {isCreatingFav ? (
+                <div className="quick-add-form slide-down">
+                  <div className="input-group">
+                    <label className="input-label">Meal Name *</label>
+                    <input type="text" className="input" placeholder="e.g. Greek Yogurt Bowl" value={favForm.name} onChange={e => setFavForm(f => ({ ...f, name: e.target.value }))} autoFocus />
+                  </div>
+                  <div className="input-group">
+                    <label className="input-label">Meal Type</label>
+                    <select className="input" value={favForm.meal_type} onChange={e => setFavForm(f => ({ ...f, meal_type: e.target.value }))}>
+                      <option value="breakfast">Breakfast</option>
+                      <option value="lunch">Lunch</option>
+                      <option value="dinner">Dinner</option>
+                      <option value="snack">Snack</option>
+                    </select>
+                  </div>
+                  <div className="input-group">
+                    <label className="input-label">Total Calories (kcal) *</label>
+                    <input type="number" className="input quick-cal-input" placeholder="e.g. 350" value={favForm.total_calories} onChange={e => setFavForm(f => ({ ...f, total_calories: e.target.value }))} />
+                  </div>
+                  <div className="quick-macro-grid">
+                    <div className="input-group">
+                      <label className="input-label">Protein (g)</label>
+                      <input type="number" className="input" placeholder="0" value={favForm.total_protein} onChange={e => setFavForm(f => ({ ...f, total_protein: e.target.value }))} />
+                    </div>
+                    <div className="input-group">
+                      <label className="input-label">Carbs (g)</label>
+                      <input type="number" className="input" placeholder="0" value={favForm.total_carbs} onChange={e => setFavForm(f => ({ ...f, total_carbs: e.target.value }))} />
+                    </div>
+                    <div className="input-group">
+                      <label className="input-label">Fat (g)</label>
+                      <input type="number" className="input" placeholder="0" value={favForm.total_fat} onChange={e => setFavForm(f => ({ ...f, total_fat: e.target.value }))} />
+                    </div>
+                  </div>
+                  <div className="input-group">
+                    <label className="input-label">Ingredients / Notes</label>
+                    <input type="text" className="input" placeholder="e.g. 200g yogurt, 1 tsp honey..." value={favForm.notes} onChange={e => setFavForm(f => ({ ...f, notes: e.target.value }))} />
+                  </div>
+                  <div className="flex gap-3 mt-4">
+                    <button className="btn btn-ghost w-full" onClick={() => setIsCreatingFav(false)}>Cancel</button>
+                    <button className="btn btn-primary w-full" onClick={handleCreateFavorite} disabled={!favForm.name || !favForm.total_calories}>Save Favorite ✓</button>
+                  </div>
+                </div>
+              ) : (
+                <div className="favorites-list">
+                  {favorites.length === 0 ? (
+                    <div className="text-center p-6 bg-[rgba(255,255,255,0.02)] rounded-xl border border-[rgba(255,255,255,0.05)] mt-4">
+                      <div className="text-4xl mb-2 opacity-50">⭐</div>
+                      <p className="text-muted text-sm">You haven't saved any favorites yet.<br/>Create one to quickly log your daily staples!</p>
+                    </div>
+                  ) : (
+                    favorites.map(fav => (
+                      <div key={fav.id} className="favorite-card">
+                        <div className="fav-info" onClick={() => handleLogFavorite(fav)}>
+                          <div className="flex justify-between items-center">
+                            <h3 className="font-bold text-lg">{fav.name}</h3>
+                            <span className="gradient-text font-bold text-lg">{fav.total_calories} kcal</span>
+                          </div>
+                          <p className="text-xs text-muted mb-2">{fav.meal_type} {fav.notes ? `· ${fav.notes}` : ''}</p>
+                          <div className="flex gap-2">
+                            <span className="text-xs" style={{ color: MACRO_COLORS.protein }}>P {fav.total_protein}g</span>
+                            <span className="text-xs" style={{ color: MACRO_COLORS.carbs }}>C {fav.total_carbs}g</span>
+                            <span className="text-xs" style={{ color: MACRO_COLORS.fat }}>F {fav.total_fat}g</span>
+                          </div>
+                        </div>
+                        <button className="fav-delete-btn" onClick={(e) => { e.stopPropagation(); handleDeleteFavorite(fav.id); }}>
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                        </button>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
           ) : (
             <>
               <h2 className="text-xl font-bold mb-2">Quick Add Calories</h2>

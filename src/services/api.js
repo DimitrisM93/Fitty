@@ -105,6 +105,29 @@ export async function updateMeal(id, meal) {
   return res.json();
 }
 
+// ── Favorites ──────────────────────────────────────────────────
+export async function fetchFavorites() {
+  const res = await fetch(`${BASE}/api/favorites`, { headers: authHeaders() });
+  if (!res.ok) throw new Error('Failed to fetch favorites');
+  return res.json();
+}
+
+export async function saveFavorite(favorite) {
+  const res = await fetch(`${BASE}/api/favorites`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify(favorite),
+  });
+  if (!res.ok) throw new Error('Failed to save favorite');
+  return res.json();
+}
+
+export async function deleteFavorite(id) {
+  const res = await fetch(`${BASE}/api/favorites/${id}`, { method: 'DELETE', headers: authHeaders() });
+  if (!res.ok) throw new Error('Failed to delete favorite');
+  return res.json();
+}
+
 // ── Weight Logs ───────────────────────────────────────────────
 export async function fetchWeightLogs() {
   const res = await fetch(`${BASE}/api/weight-logs`, { headers: authHeaders() });

@@ -51,6 +51,20 @@ export async function initDb() {
         gender TEXT DEFAULT 'male',
         calorie_goal INT DEFAULT 2000
       );
+
+      CREATE TABLE IF NOT EXISTS favorite_meals (
+        id SERIAL PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        name TEXT NOT NULL,
+        meal_type TEXT DEFAULT 'snack',
+        total_calories INT DEFAULT 0,
+        total_protein REAL DEFAULT 0,
+        total_carbs REAL DEFAULT 0,
+        total_fat REAL DEFAULT 0,
+        total_fiber REAL DEFAULT 0,
+        notes TEXT,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      );
     `);
     console.log('✅ Database tables ready');
   } finally {

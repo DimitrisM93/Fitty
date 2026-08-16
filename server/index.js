@@ -6,6 +6,7 @@ import { dirname, join } from 'path';
 import analyzeRouter from './routes/analyze.js';
 import authRouter from './routes/auth.js';
 import mealsRouter from './routes/meals.js';
+import favoritesRouter from './routes/favorites.js';
 import weightLogsRouter from './routes/weightLogs.js';
 import profileRouter from './routes/profile.js';
 import { initDb } from './db.js';
@@ -25,6 +26,7 @@ app.use(cors({
 app.use('/api/auth',         authRouter);
 app.use('/api/analyze',      analyzeRouter);
 app.use('/api/meals',        mealsRouter);
+app.use('/api/favorites',    favoritesRouter);
 app.use('/api/weight-logs',  weightLogsRouter);
 app.use('/api/profile',      profileRouter);
 

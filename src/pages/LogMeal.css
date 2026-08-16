@@ -312,6 +312,63 @@
 }
 
 .quick-macro-grid .input {
-  text-align: center;
-  padding: 10px 8px;
+  font-size: 0.875rem;
+  padding: 8px 12px;
+}
+
+/* ─── Favorites Tab ─── */
+.favorites-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.favorites-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.favorite-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.favorite-card:hover {
+  background: var(--color-surface-hover);
+  border-color: var(--color-border-strong);
+}
+
+.fav-info {
+  flex: 1;
+}
+
+.fav-delete-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+}
+
+.fav-delete-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.fav-delete-btn:hover {
+  color: var(--color-danger);
+  background: rgba(248, 113, 113, 0.1);
 }
