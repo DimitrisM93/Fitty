@@ -221,3 +221,147 @@
   font-size: 2.5rem;
   margin-bottom: var(--space-3);
 }
+
+/* Meal Item Wrapper (with actions row) */
+.meal-item-wrapper {
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  transition: border-color var(--transition);
+}
+
+.meal-item-wrapper .meal-item {
+  background: none;
+  border: none;
+  border-radius: 0;
+}
+
+/* Meal Action Buttons */
+.meal-actions {
+  display: flex;
+  gap: 1px;
+  border-top: 1px solid var(--color-border);
+}
+
+.meal-action-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  transition: all var(--transition);
+}
+
+.meal-action-btn:hover {
+  background: var(--color-surface-hover);
+  color: var(--text-secondary);
+}
+
+.meal-action-edit:hover {
+  color: var(--color-secondary);
+}
+
+.meal-action-delete:hover {
+  color: var(--color-danger);
+}
+
+.meal-action-delete.confirming {
+  background: rgba(248, 113, 113, 0.12);
+  color: var(--color-danger);
+  animation: pulse-border 0.6s ease-in-out infinite;
+}
+
+.delete-confirm-text {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+@keyframes pulse-border {
+  0%, 100% { background: rgba(248, 113, 113, 0.08); }
+  50% { background: rgba(248, 113, 113, 0.18); }
+}
+
+/* Separator between action buttons */
+.meal-actions .meal-action-btn + .meal-action-btn {
+  border-left: 1px solid var(--color-border);
+}
+
+/* ─── Edit Modal (Bottom Sheet) ─── */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 900;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.modal-sheet {
+  width: 100%;
+  max-width: var(--max-width);
+  background: var(--color-bg-2);
+  border: 1px solid var(--color-border-strong);
+  border-bottom: none;
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  padding: var(--space-4) var(--space-6) var(--space-8);
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.modal-handle {
+  width: 40px;
+  height: 4px;
+  background: var(--color-border-strong);
+  border-radius: var(--radius-full);
+  margin: 0 auto var(--space-5);
+}
+
+.modal-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: var(--space-5);
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.modal-macro-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.modal-actions {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.35s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+}

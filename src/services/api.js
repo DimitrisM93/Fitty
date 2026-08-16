@@ -89,6 +89,16 @@ export async function deleteMeal(id) {
   await fetch(`${BASE}/api/meals/${id}`, { method: 'DELETE', headers: authHeaders() });
 }
 
+export async function updateMeal(id, meal) {
+  const res = await fetch(`${BASE}/api/meals/${id}`, {
+    method: 'PUT',
+    headers: authHeaders(),
+    body: JSON.stringify(meal),
+  });
+  if (!res.ok) throw new Error('Failed to update meal');
+  return res.json();
+}
+
 // ── Weight Logs ───────────────────────────────────────────────
 export async function fetchWeightLogs() {
   const res = await fetch(`${BASE}/api/weight-logs`, { headers: authHeaders() });

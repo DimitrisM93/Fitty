@@ -89,12 +89,21 @@ function AnalysisResult({ result, onSave, onRetry, imageUrl }) {
 
 export default function LogMeal() {
   const [step, setStep] = useState('upload'); // upload | analyzing | result | saved
-  const [inputMode, setInputMode] = useState('photo'); // photo | text
+  const [inputMode, setInputMode] = useState('photo'); // photo | text | quick
   const [imageFile, setImageFile] = useState(null);
   const [imageUrl, setImageUrl] = useState('');
   const [textQuery, setTextQuery] = useState('');
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
+  const [quickForm, setQuickForm] = useState({
+    meal_type: 'snack',
+    total_calories: '',
+    total_protein: '',
+    total_carbs: '',
+    total_fat: '',
+    notes: '',
+  });
+  const [quickSaving, setQuickSaving] = useState(false);
   const fileInputRef = useRef();
   const cameraInputRef = useRef();
   const showToast = useToast();
@@ -149,12 +158,44 @@ export default function LogMeal() {
     }
   }, [result, imageUrl, showToast]);
 
+  const handleQuickSave = useCallback(async () => {
+    const cals = parseInt(quickForm.total_calories);
+    if (!cals || cals <= 0) {
+      setError('Please enter calories');
+      return;
+    }
+    setQuickSaving(true);
+    setError('');
+    try {
+      const meal = {
+        meal_type: quickForm.meal_type,
+        total_calories: cals,
+        total_protein: parseFloat(quickForm.total_protein) || 0,
+        total_carbs: parseFloat(quickForm.total_carbs) || 0,
+        total_fat: parseFloat(quickForm.total_fat) || 0,
+        total_fiber: 0,
+        items: [],
+        confidence: 'manual',
+        notes: quickForm.notes || '',
+      };
+      await saveMeal(meal);
+      setResult(meal);
+      showToast('Calories saved! 🎉', 'success');
+      setStep('saved');
+    } catch {
+      showToast('Failed to save', 'error');
+    } finally {
+      setQuickSaving(false);
+    }
+  }, [quickForm, showToast]);
+
   const reset = useCallback(() => {
     setStep('upload');
     setImageFile(null);
     setImageUrl('');
     setResult(null);
     setError('');
+    setQuickForm({ meal_type: 'snack', total_calories: '', total_protein: '', total_carbs: '', total_fat: '', notes: '' });
   }, []);
 
   return (
@@ -181,6 +222,12 @@ export default function LogMeal() {
               onClick={() => setInputMode('text')}
             >
               ⌨️ Text
+            </button>
+            <button 
+              className={`mode-tab ${inputMode === 'quick' ? 'active' : ''}`}
+              onClick={() => setInputMode('quick')}
+            >
+              🔢 Quick
             </button>
           </div>
 
@@ -227,7 +274,7 @@ export default function LogMeal() {
                 </button>
               </div>
             </>
-          ) : (
+          ) : inputMode === 'text' ? (
             <>
               <h2 className="text-xl font-bold mb-2">Describe your meal</h2>
               <p className="text-muted text-sm mb-4">
@@ -250,6 +297,95 @@ export default function LogMeal() {
               >
                 Analyze Meal ✨
               </button>
+            </>
+          ) : (
+            <>
+              <h2 className="text-xl font-bold mb-2">Quick Add Calories</h2>
+              <p className="text-muted text-sm mb-4">
+                Manually log calories and macros without AI analysis.
+              </p>
+
+              {error && <p className="text-danger text-sm text-center mb-4">{error}</p>}
+
+              <div className="quick-add-form">
+                <div className="input-group">
+                  <label className="input-label">Meal Type</label>
+                  <select
+                    className="input"
+                    value={quickForm.meal_type}
+                    onChange={e => setQuickForm(f => ({ ...f, meal_type: e.target.value }))}
+                  >
+                    <option value="breakfast">Breakfast</option>
+                    <option value="lunch">Lunch</option>
+                    <option value="dinner">Dinner</option>
+                    <option value="snack">Snack</option>
+                  </select>
+                </div>
+
+                <div className="input-group">
+                  <label className="input-label">Calories (kcal) *</label>
+                  <input
+                    type="number"
+                    className="input quick-cal-input"
+                    placeholder="e.g. 350"
+                    value={quickForm.total_calories}
+                    onChange={e => setQuickForm(f => ({ ...f, total_calories: e.target.value }))}
+                    autoFocus
+                  />
+                </div>
+
+                <div className="quick-macro-grid">
+                  <div className="input-group">
+                    <label className="input-label">Protein (g)</label>
+                    <input
+                      type="number"
+                      className="input"
+                      placeholder="0"
+                      value={quickForm.total_protein}
+                      onChange={e => setQuickForm(f => ({ ...f, total_protein: e.target.value }))}
+                    />
+                  </div>
+                  <div className="input-group">
+                    <label className="input-label">Carbs (g)</label>
+                    <input
+                      type="number"
+                      className="input"
+                      placeholder="0"
+                      value={quickForm.total_carbs}
+                      onChange={e => setQuickForm(f => ({ ...f, total_carbs: e.target.value }))}
+                    />
+                  </div>
+                  <div className="input-group">
+                    <label className="input-label">Fat (g)</label>
+                    <input
+                      type="number"
+                      className="input"
+                      placeholder="0"
+                      value={quickForm.total_fat}
+                      onChange={e => setQuickForm(f => ({ ...f, total_fat: e.target.value }))}
+                    />
+                  </div>
+                </div>
+
+                <div className="input-group">
+                  <label className="input-label">Notes</label>
+                  <input
+                    type="text"
+                    className="input"
+                    placeholder="Optional notes..."
+                    value={quickForm.notes}
+                    onChange={e => setQuickForm(f => ({ ...f, notes: e.target.value }))}
+                  />
+                </div>
+
+                <button
+                  className="btn btn-primary w-full mt-4"
+                  onClick={handleQuickSave}
+                  disabled={quickSaving || !quickForm.total_calories}
+                >
+                  {quickSaving ? 'Saving…' : 'Save Calories ✓'}
+                </button>
+              </div>
             </>
           )}
         </div>

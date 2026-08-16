@@ -284,3 +284,34 @@
   justify-content: center;
   box-shadow: var(--shadow-glow-green);
 }
+
+/* Quick Add Form */
+.quick-add-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.quick-cal-input {
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  padding: var(--space-4) var(--space-4);
+  letter-spacing: 0.03em;
+}
+
+.quick-cal-input::placeholder {
+  font-weight: 400;
+  font-size: 1.125rem;
+}
+
+.quick-macro-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.quick-macro-grid .input {
+  text-align: center;
+  padding: 10px 8px;
+}

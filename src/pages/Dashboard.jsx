@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { fetchMeals } from '../services/api';
+import { fetchMeals, deleteMeal, updateMeal } from '../services/api';
 import { fetchProfile } from '../services/api';
 import { isConnected, fetchTodayStats, fetchWeeklyCalories } from '../services/googleFit';
 import { saveActivitySnapshot, getActivityForDate } from '../services/db';
+import { useToast } from '../context/ToastContext';
 import './Dashboard.css';
 
 function CalorieArc({ consumed, burned, goal }) {
@@ -108,7 +109,12 @@ export default function Dashboard() {
   const [weekData, setWeekData] = useState([]);
   const [profile, setProfile] = useState({ name: '', goal: 2000, weight: '', height: '', age: '', gender: 'male' });
   const [loading, setLoading] = useState(true);
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+  const [editingMeal, setEditingMeal] = useState(null);
+  const [editForm, setEditForm] = useState({});
+  const [saving, setSaving] = useState(false);
   const connected = isConnected();
+  const showToast = useToast();
 
   const today = new Date().toISOString().split('T')[0];
 
@@ -140,6 +146,64 @@ export default function Dashboard() {
   }, [today, connected]);
 
   useEffect(() => { load(); }, [load]);
+
+  // Auto-cancel delete confirmation after 2.5s
+  useEffect(() => {
+    if (confirmDeleteId === null) return;
+    const timer = setTimeout(() => setConfirmDeleteId(null), 2500);
+    return () => clearTimeout(timer);
+  }, [confirmDeleteId]);
+
+  const handleDelete = useCallback(async (id) => {
+    if (confirmDeleteId !== id) {
+      setConfirmDeleteId(id);
+      return;
+    }
+    try {
+      await deleteMeal(id);
+      setMeals(prev => prev.filter(m => m.id !== id));
+      setConfirmDeleteId(null);
+      showToast('Meal deleted', 'success');
+    } catch {
+      showToast('Failed to delete meal', 'error');
+    }
+  }, [confirmDeleteId, showToast]);
+
+  const openEdit = useCallback((meal) => {
+    setEditingMeal(meal);
+    setEditForm({
+      meal_type: meal.meal_type || 'meal',
+      total_calories: meal.total_calories || 0,
+      total_protein: meal.total_protein || 0,
+      total_carbs: meal.total_carbs || 0,
+      total_fat: meal.total_fat || 0,
+      total_fiber: meal.total_fiber || 0,
+      notes: meal.notes || '',
+    });
+  }, []);
+
+  const handleEditSave = useCallback(async () => {
+    if (!editingMeal) return;
+    setSaving(true);
+    try {
+      const updated = await updateMeal(editingMeal.id, {
+        ...editingMeal,
+        ...editForm,
+        total_calories: parseInt(editForm.total_calories) || 0,
+        total_protein: parseFloat(editForm.total_protein) || 0,
+        total_carbs: parseFloat(editForm.total_carbs) || 0,
+        total_fat: parseFloat(editForm.total_fat) || 0,
+        total_fiber: parseFloat(editForm.total_fiber) || 0,
+      });
+      setMeals(prev => prev.map(m => m.id === editingMeal.id ? updated : m));
+      setEditingMeal(null);
+      showToast('Meal updated! ✓', 'success');
+    } catch {
+      showToast('Failed to update meal', 'error');
+    } finally {
+      setSaving(false);
+    }
+  }, [editingMeal, editForm, showToast]);
 
   const consumed = meals.reduce((s, m) => s + (m.total_calories || 0), 0);
   const burned = activity.calories;
@@ -295,28 +359,150 @@ export default function Dashboard() {
         ) : (
           <div className="meal-list">
             {meals.map(meal => (
-              <div key={meal.id} className="meal-item">
-                {meal.imageUrl && (
-                  <img src={meal.imageUrl} alt={meal.meal_type || 'meal'} className="meal-thumb"/>
-                )}
-                <div className="meal-info">
-                  <p className="font-semibold">{meal.meal_type
-                    ? meal.meal_type.charAt(0).toUpperCase() + meal.meal_type.slice(1)
-                    : 'Meal'}</p>
-                  <p className="text-muted text-sm">
-                    {meal.items?.slice(0, 2).map(i => i.name).join(', ')}
-                    {meal.items?.length > 2 ? ` +${meal.items.length - 2} more` : ''}
-                  </p>
+              <div key={meal.id} className="meal-item-wrapper">
+                <div className="meal-item">
+                  {meal.imageUrl && (
+                    <img src={meal.imageUrl} alt={meal.meal_type || 'meal'} className="meal-thumb"/>
+                  )}
+                  <div className="meal-info">
+                    <p className="font-semibold">{meal.meal_type
+                      ? meal.meal_type.charAt(0).toUpperCase() + meal.meal_type.slice(1)
+                      : 'Meal'}</p>
+                    <p className="text-muted text-sm">
+                      {meal.items?.slice(0, 2).map(i => i.name).join(', ')}
+                      {meal.items?.length > 2 ? ` +${meal.items.length - 2} more` : ''}
+                    </p>
+                  </div>
+                  <div className="meal-cal">
+                    <span className="gradient-text font-bold">{meal.total_calories}</span>
+                    <span className="text-xs text-muted">kcal</span>
+                  </div>
                 </div>
-                <div className="meal-cal">
-                  <span className="gradient-text font-bold">{meal.total_calories}</span>
-                  <span className="text-xs text-muted">kcal</span>
+                <div className="meal-actions">
+                  <button
+                    className="meal-action-btn meal-action-edit"
+                    onClick={() => openEdit(meal)}
+                    title="Edit meal"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                    </svg>
+                  </button>
+                  <button
+                    className={`meal-action-btn meal-action-delete ${confirmDeleteId === meal.id ? 'confirming' : ''}`}
+                    onClick={() => handleDelete(meal.id)}
+                    title={confirmDeleteId === meal.id ? 'Tap again to confirm' : 'Delete meal'}
+                  >
+                    {confirmDeleteId === meal.id ? (
+                      <span className="delete-confirm-text">Confirm?</span>
+                    ) : (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                      </svg>
+                    )}
+                  </button>
                 </div>
               </div>
             ))}
           </div>
         )}
       </div>
+
+      {/* Edit Meal Modal */}
+      {editingMeal && (
+        <div className="modal-overlay animate-fade-in" onClick={() => setEditingMeal(null)}>
+          <div className="modal-sheet animate-slide-up" onClick={e => e.stopPropagation()}>
+            <div className="modal-handle"/>
+            <h3 className="modal-title">Edit Meal</h3>
+
+            <div className="modal-form">
+              <div className="input-group">
+                <label className="input-label">Meal Type</label>
+                <select
+                  className="input"
+                  value={editForm.meal_type}
+                  onChange={e => setEditForm(f => ({ ...f, meal_type: e.target.value }))}
+                >
+                  <option value="breakfast">Breakfast</option>
+                  <option value="lunch">Lunch</option>
+                  <option value="dinner">Dinner</option>
+                  <option value="snack">Snack</option>
+                  <option value="meal">Other</option>
+                </select>
+              </div>
+
+              <div className="input-group">
+                <label className="input-label">Calories (kcal)</label>
+                <input
+                  type="number"
+                  className="input"
+                  value={editForm.total_calories}
+                  onChange={e => setEditForm(f => ({ ...f, total_calories: e.target.value }))}
+                />
+              </div>
+
+              <div className="modal-macro-grid">
+                <div className="input-group">
+                  <label className="input-label">Protein (g)</label>
+                  <input
+                    type="number"
+                    className="input"
+                    value={editForm.total_protein}
+                    onChange={e => setEditForm(f => ({ ...f, total_protein: e.target.value }))}
+                  />
+                </div>
+                <div className="input-group">
+                  <label className="input-label">Carbs (g)</label>
+                  <input
+                    type="number"
+                    className="input"
+                    value={editForm.total_carbs}
+                    onChange={e => setEditForm(f => ({ ...f, total_carbs: e.target.value }))}
+                  />
+                </div>
+                <div className="input-group">
+                  <label className="input-label">Fat (g)</label>
+                  <input
+                    type="number"
+                    className="input"
+                    value={editForm.total_fat}
+                    onChange={e => setEditForm(f => ({ ...f, total_fat: e.target.value }))}
+                  />
+                </div>
+                <div className="input-group">
+                  <label className="input-label">Fiber (g)</label>
+                  <input
+                    type="number"
+                    className="input"
+                    value={editForm.total_fiber}
+                    onChange={e => setEditForm(f => ({ ...f, total_fiber: e.target.value }))}
+                  />
+                </div>
+              </div>
+
+              <div className="input-group">
+                <label className="input-label">Notes</label>
+                <input
+                  type="text"
+                  className="input"
+                  placeholder="Optional notes..."
+                  value={editForm.notes}
+                  onChange={e => setEditForm(f => ({ ...f, notes: e.target.value }))}
+                />
+              </div>
+            </div>
+
+            <div className="modal-actions">
+              <button className="btn btn-ghost w-full" onClick={() => setEditingMeal(null)}>Cancel</button>
+              <button className="btn btn-primary w-full" onClick={handleEditSave} disabled={saving}>
+                {saving ? 'Saving…' : 'Save Changes'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

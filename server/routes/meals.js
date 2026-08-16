@@ -30,6 +30,21 @@ router.post('/', requireAuth, async (req, res) => {
   res.json(rows[0]);
 });
 
+// PUT /api/meals/:id
+router.put('/:id', requireAuth, async (req, res) => {
+  const userId = req.userId;
+  const { meal_type, total_calories, total_protein, total_carbs, total_fat, total_fiber, items, confidence, notes, image_url } = req.body;
+
+  const { rows } = await pool.query(
+    `UPDATE meals SET meal_type = $1, total_calories = $2, total_protein = $3, total_carbs = $4,
+     total_fat = $5, total_fiber = $6, items = $7, confidence = $8, notes = $9, image_url = $10
+     WHERE id = $11 AND user_id = $12 RETURNING *`,
+    [meal_type, total_calories || 0, total_protein || 0, total_carbs || 0, total_fat || 0, total_fiber || 0, JSON.stringify(items || []), confidence, notes, image_url, req.params.id, userId]
+  );
+  if (rows.length === 0) return res.status(404).json({ error: 'Meal not found' });
+  res.json(rows[0]);
+});
+
 // DELETE /api/meals/:id
 router.delete('/:id', requireAuth, async (req, res) => {
   const userId = req.userId;
