@@ -164,7 +164,7 @@ export default function LogMeal() {
         total_fiber: fav.total_fiber,
         items: [],
         confidence: 'manual',
-        notes: fav.notes || '',
+        notes: fav.name + (fav.notes ? ` - ${fav.notes}` : ''),
       };
       await saveMeal(meal);
       setResult(meal);

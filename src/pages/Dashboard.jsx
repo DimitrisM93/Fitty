@@ -528,12 +528,16 @@ export default function Dashboard() {
                     <img src={meal.imageUrl} alt={meal.meal_type || 'meal'} className="meal-thumb"/>
                   )}
                   <div className="meal-info">
-                    <p className="font-semibold">{meal.meal_type
-                      ? meal.meal_type.charAt(0).toUpperCase() + meal.meal_type.slice(1)
-                      : 'Meal'}</p>
+                    <p className="font-semibold">
+                      {meal.items && meal.items.length > 0
+                        ? meal.items.slice(0, 2).map(i => i.name).join(', ') + (meal.items.length > 2 ? ` +${meal.items.length - 2} more` : '')
+                        : meal.notes || (meal.meal_type ? meal.meal_type.charAt(0).toUpperCase() + meal.meal_type.slice(1) : 'Meal')
+                      }
+                    </p>
                     <p className="text-muted text-sm">
-                      {meal.items?.slice(0, 2).map(i => i.name).join(', ')}
-                      {meal.items?.length > 2 ? ` +${meal.items.length - 2} more` : ''}
+                      {meal.meal_type
+                        ? meal.meal_type.charAt(0).toUpperCase() + meal.meal_type.slice(1)
+                        : 'Meal'}
                     </p>
                   </div>
                   <div className="meal-cal">
