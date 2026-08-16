@@ -24,42 +24,66 @@ const pinLimiter = rateLimit({
 // ── POST /api/auth/verify ─────────────────────────────────────────────────────
 router.post('/verify', pinLimiter, (req, res) => {
   const { pin } = req.body;
-  const correctPin = process.env.APP_PIN;
+  const legacyPin = process.env.APP_PIN;
+  const usersEnv = process.env.USERS;
+  const jwtSecret = process.env.JWT_SECRET || legacyPin;
 
-  if (!correctPin) {
-    return res.status(500).json({ error: 'Server PIN not configured.' });
+  if (!legacyPin && !usersEnv) {
+    return res.status(500).json({ error: 'Server auth not configured.' });
   }
 
-  if (!pin || pin.trim() !== correctPin.trim()) {
-    return res.status(401).json({ error: 'Incorrect PIN.' });
+  let userId = null;
+
+  // 1. Check USERS env var mapping (e.g. "1234:default_user,5678:anna")
+  if (usersEnv && pin) {
+    const pairs = usersEnv.split(',').map(s => s.trim().split(':'));
+    const userMatch = pairs.find(([p]) => p === pin.trim());
+    if (userMatch && userMatch[1]) {
+      userId = userMatch[1].trim();
+    }
   }
 
-  // Issue a stateless JWT with a stable user ID (single-user personal app)
-  const userId = 'default_user';
-  const token = jwt.sign({ authenticated: true, userId }, correctPin, { expiresIn: '30d' });
+  // 2. Safeguard fallback to legacy APP_PIN if not matched in USERS
+  if (!userId) {
+    if (!legacyPin || !pin || pin.trim() !== legacyPin.trim()) {
+      return res.status(401).json({ error: 'Incorrect PIN.' });
+    }
+    userId = 'default_user';
+  }
 
-  console.log(`[Auth] Successful login from ${req.ip}`);
+  // Issue a stateless JWT
+  const token = jwt.sign({ authenticated: true, userId }, jwtSecret, { expiresIn: '30d' });
+
+  console.log(`[Auth] Successful login from ${req.ip} for user: ${userId}`);
   return res.json({ token });
 });
 
 // ── GET /api/auth/config ──────────────────────────────────────────────────────
 // Returns public config (PIN length) so the frontend renders the right number of boxes
 router.get('/config', (_req, res) => {
-  const pinLength = process.env.APP_PIN?.length || 4;
+  let pinLength = 4;
+  if (process.env.APP_PIN) {
+    pinLength = process.env.APP_PIN.length;
+  } else if (process.env.USERS) {
+    const firstPair = process.env.USERS.split(',')[0];
+    if (firstPair && firstPair.includes(':')) {
+      pinLength = firstPair.split(':')[0].trim().length;
+    }
+  }
   res.json({ pinLength });
 });
 
 // ── Auth middleware for protected routes ──────────────────────────────────────
 export function requireAuth(req, res, next) {
   const token = req.headers['x-auth-token'];
-  const correctPin = process.env.APP_PIN;
+  const jwtSecret = process.env.JWT_SECRET || process.env.APP_PIN;
 
   if (!token) {
     return res.status(401).json({ error: 'Unauthorized. Please enter your PIN.' });
   }
 
   try {
-    const decoded = jwt.verify(token, correctPin);
+    const decoded = jwt.verify(token, jwtSecret);
     req.userId = decoded.userId || 'default_user';
     next();
   } catch (err) {
