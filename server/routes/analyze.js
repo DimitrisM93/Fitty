@@ -4,34 +4,21 @@ import { requireAuth } from './auth.js';
 
 const router = Router();
 
-const MEAL_ANALYSIS_PROMPT = `You are a professional nutritionist and food recognition AI.
-Analyze this meal image and provide a detailed nutritional breakdown.
+const MEAL_ANALYSIS_PROMPT = `Analyze this meal (image or description) and return its nutritional breakdown.
+Return ONLY raw JSON with no markdown formatting, no code fences, and no conversational text.
 
-Return ONLY a valid JSON object with this exact structure (no markdown, no extra text):
+Required JSON Schema:
 {
-  "items": [
-    {
-      "name": "Food item name",
-      "portion": "estimated portion size (e.g. 150g, 1 cup, 1 slice)",
-      "calories": 250,
-      "protein": 12,
-      "carbs": 30,
-      "fat": 8,
-      "fiber": 2
-    }
-  ],
-  "total_calories": 250,
-  "total_protein": 12,
-  "total_carbs": 30,
-  "total_fat": 8,
-  "total_fiber": 2,
+  "items": [{"name": "string", "portion": "string", "calories": "number", "protein": "number", "carbs": "number", "fat": "number", "fiber": "number"}],
+  "total_calories": "number",
+  "total_protein": "number",
+  "total_carbs": "number",
+  "total_fat": "number",
+  "total_fiber": "number",
   "meal_type": "breakfast|lunch|dinner|snack",
   "confidence": "high|medium|low",
-  "notes": "Any important notes about the meal or estimation accuracy"
-}
-
-Be as accurate as possible. If you cannot identify a food item clearly, provide your best estimate.
-All macros should be in grams. Calories in kcal.`;
+  "notes": "string"
+}`;
 
 // POST /api/analyze/meal
 // Body: { imageBase64?: string, mimeType?: string, textQuery?: string }
