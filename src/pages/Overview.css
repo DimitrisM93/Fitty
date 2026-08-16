@@ -1,0 +1,286 @@
+/* ─── Overview Tabs ─── */
+.overview-tabs {
+  display: flex;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  padding: 4px;
+  gap: 4px;
+}
+
+.overview-tab {
+  flex: 1;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font);
+  font-weight: 600;
+  font-size: 0.875rem;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.overview-tab.active {
+  background: var(--color-surface-hover);
+  color: var(--text-primary);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+/* ─── Period Navigation ─── */
+.period-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+.period-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.period-arrow:hover:not(:disabled) {
+  background: var(--color-surface-hover);
+  border-color: var(--color-border-strong);
+  color: var(--text-primary);
+}
+
+.period-arrow:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.period-label {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--text-primary);
+  min-width: 160px;
+  text-align: center;
+}
+
+/* ─── Summary Cards ─── */
+.overview-summary {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3);
+}
+
+.overview-stat-card {
+  padding: var(--space-4);
+  text-align: center;
+}
+
+.overview-stat-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.overview-stat-label {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-top: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ─── Bar Chart ─── */
+.overview-bar-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 120px;
+  margin-top: var(--space-3);
+}
+
+.overview-bar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  height: 100%;
+}
+
+.overview-bar-value {
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  min-height: 14px;
+}
+
+.overview-bar-track {
+  flex: 1;
+  width: 100%;
+  background: var(--color-surface);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+}
+
+.overview-bar-fill {
+  width: 100%;
+  background: var(--grad-primary);
+  border-radius: var(--radius-sm);
+  min-height: 2px;
+  transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.overview-bar-label {
+  font-size: 0.625rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+/* ─── Macro Row ─── */
+.overview-macro-row {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.overview-macro-card {
+  flex: 1;
+  text-align: center;
+  padding: var(--space-3);
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+}
+
+.overview-macro-value {
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.overview-macro-label {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+/* ─── Heatmap Calendar ─── */
+.heatmap {
+  margin-top: var(--space-3);
+}
+
+.heatmap-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+  margin-bottom: 4px;
+}
+
+.heatmap-weekdays span {
+  text-align: center;
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.heatmap-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+}
+
+.heatmap-cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  transition: all var(--transition);
+}
+
+.heatmap-cell.mini {
+  width: 14px;
+  height: 14px;
+  aspect-ratio: auto;
+}
+
+.heatmap-cell.intensity-0 { background: var(--color-surface); }
+.heatmap-cell.intensity-1 { background: rgba(110, 231, 183, 0.15); color: var(--text-secondary); }
+.heatmap-cell.intensity-2 { background: rgba(110, 231, 183, 0.3); color: var(--text-primary); }
+.heatmap-cell.intensity-3 { background: rgba(110, 231, 183, 0.45); color: var(--text-primary); }
+.heatmap-cell.intensity-4 { background: rgba(110, 231, 183, 0.65); color: #0a0d14; }
+.heatmap-cell.intensity-5 { background: rgba(251, 146, 60, 0.6); color: #0a0d14; } /* over goal */
+
+.heatmap-legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin-top: var(--space-3);
+}
+
+/* ─── Day Breakdown ─── */
+.day-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.day-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.day-row-date {
+  display: flex;
+  flex-direction: column;
+  min-width: 60px;
+  flex-shrink: 0;
+}
+
+.day-row-weekday {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.day-row-day {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.day-row-bar {
+  flex: 1;
+  height: 8px;
+  background: var(--color-surface);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.day-row-fill {
+  height: 100%;
+  background: var(--grad-primary);
+  border-radius: var(--radius-full);
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.day-row-cal {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  min-width: 50px;
+  flex-shrink: 0;
+}

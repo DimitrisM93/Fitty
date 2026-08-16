@@ -17,6 +17,19 @@ router.get('/', requireAuth, async (req, res) => {
   res.json(rows);
 });
 
+// GET /api/meals/range?from=YYYY-MM-DD&to=YYYY-MM-DD
+router.get('/range', requireAuth, async (req, res) => {
+  const userId = req.userId;
+  const { from, to } = req.query;
+  if (!from || !to) return res.status(400).json({ error: 'from and to query params required' });
+
+  const { rows } = await pool.query(
+    'SELECT * FROM meals WHERE user_id = $1 AND meal_date >= $2 AND meal_date <= $3 ORDER BY meal_date ASC, logged_at ASC',
+    [userId, from, to]
+  );
+  res.json(rows);
+});
+
 // POST /api/meals
 router.post('/', requireAuth, async (req, res) => {
   const userId = req.userId;

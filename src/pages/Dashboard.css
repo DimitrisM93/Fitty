@@ -78,6 +78,230 @@
 .macro-bar-label { color: var(--text-secondary); font-weight: 500; }
 .macro-bar-value { font-weight: 700; }
 
+/* Stats Row (Weight/BMI/BF) */
+.stats-row {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.stat-card-mini {
+  padding: 0.75rem;
+  text-align: center;
+  min-width: 70px;
+  flex: 1;
+}
+
+.text-lg { font-size: 1.125rem; }
+.font-medium { font-weight: 500; }
+
+/* ─── Date Navigation ─── */
+.date-nav-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.date-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.date-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.date-arrow:hover:not(:disabled) {
+  background: var(--color-surface-hover);
+  border-color: var(--color-border-strong);
+  color: var(--text-primary);
+}
+
+.date-arrow:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.date-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--text-primary);
+  font-family: var(--font);
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.date-pill:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 12px rgba(110, 231, 183, 0.15);
+}
+
+.date-chevron {
+  transition: transform var(--transition);
+}
+
+.date-chevron.open {
+  transform: rotate(180deg);
+}
+
+.today-btn {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-family: var(--font);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--radius-full);
+  transition: all var(--transition);
+}
+
+.today-btn:hover {
+  background: rgba(110, 231, 183, 0.1);
+}
+
+/* ─── Calendar Dropdown ─── */
+.calendar-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: var(--space-2);
+  background: var(--color-bg-2);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  width: 300px;
+  z-index: 500;
+  box-shadow: var(--shadow-lg);
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+}
+
+.calendar-month-label {
+  font-weight: 700;
+  font-size: 0.9375rem;
+}
+
+.calendar-nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--text-secondary);
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.calendar-nav-btn:hover {
+  background: var(--color-surface-hover);
+  color: var(--text-primary);
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  margin-bottom: 4px;
+}
+
+.calendar-weekdays span {
+  text-align: center;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 4px 0;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.calendar-cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font);
+  transition: all var(--transition);
+}
+
+.calendar-cell.empty {
+  cursor: default;
+}
+
+.calendar-cell:not(.empty):hover {
+  background: var(--color-surface-hover);
+  color: var(--text-primary);
+}
+
+.calendar-cell.today {
+  border: 1px solid var(--color-primary);
+  color: var(--color-primary);
+}
+
+.calendar-cell.selected {
+  background: var(--grad-primary);
+  color: #0a0d14;
+  font-weight: 700;
+}
+
+.calendar-dot {
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--color-primary);
+}
+
+.calendar-cell.selected .calendar-dot {
+  background: #0a0d14;
+}
+
 /* Stat Grid */
 .stat-grid {
   display: grid;

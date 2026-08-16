@@ -75,6 +75,12 @@ export async function fetchMeals(date) {
   return res.json();
 }
 
+export async function fetchMealsRange(from, to) {
+  const res = await fetch(`${BASE}/api/meals/range?from=${from}&to=${to}`, { headers: authHeaders() });
+  if (!res.ok) throw new Error('Failed to fetch meals range');
+  return res.json();
+}
+
 export async function saveMeal(meal) {
   const res = await fetch(`${BASE}/api/meals`, {
     method: 'POST',

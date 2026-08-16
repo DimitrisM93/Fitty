@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { fetchMeals, deleteMeal, updateMeal } from '../services/api';
+import { fetchMeals, fetchMealsRange, deleteMeal, updateMeal } from '../services/api';
 import { fetchProfile } from '../services/api';
 import { isConnected, fetchTodayStats, fetchWeeklyCalories } from '../services/googleFit';
 import { saveActivitySnapshot, getActivityForDate } from '../services/db';
@@ -103,7 +103,79 @@ function WeekChart({ data }) {
   );
 }
 
+// ─── Calendar Picker ─────────────────────────────────────────
+function CalendarPicker({ selectedDate, onSelect, onClose, mealDates }) {
+  const [viewDate, setViewDate] = useState(() => {
+    const d = new Date(selectedDate + 'T00:00:00');
+    return { year: d.getFullYear(), month: d.getMonth() };
+  });
+
+  const days = useMemo(() => {
+    const first = new Date(viewDate.year, viewDate.month, 1);
+    const startDay = first.getDay() || 7; // Mon=1
+    const daysInMonth = new Date(viewDate.year, viewDate.month + 1, 0).getDate();
+    const cells = [];
+    // Padding for days before the 1st (Monday start)
+    for (let i = 1; i < startDay; i++) cells.push(null);
+    for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+    return cells;
+  }, [viewDate]);
+
+  const monthLabel = new Date(viewDate.year, viewDate.month).toLocaleDateString('en', { month: 'long', year: 'numeric' });
+  const todayStr = new Date().toISOString().split('T')[0];
+
+  const prevMonth = () => setViewDate(v => {
+    const m = v.month - 1;
+    return m < 0 ? { year: v.year - 1, month: 11 } : { ...v, month: m };
+  });
+  const nextMonth = () => setViewDate(v => {
+    const m = v.month + 1;
+    return m > 11 ? { year: v.year + 1, month: 0 } : { ...v, month: m };
+  });
+
+  const toDateStr = (day) => {
+    const m = String(viewDate.month + 1).padStart(2, '0');
+    const d = String(day).padStart(2, '0');
+    return `${viewDate.year}-${m}-${d}`;
+  };
+
+  return (
+    <div className="calendar-dropdown animate-scale-in">
+      <div className="calendar-header">
+        <button className="calendar-nav-btn" onClick={prevMonth}>‹</button>
+        <span className="calendar-month-label">{monthLabel}</span>
+        <button className="calendar-nav-btn" onClick={nextMonth}>›</button>
+      </div>
+      <div className="calendar-weekdays">
+        {['Mo','Tu','We','Th','Fr','Sa','Su'].map(d => <span key={d}>{d}</span>)}
+      </div>
+      <div className="calendar-grid">
+        {days.map((day, i) => {
+          if (day === null) return <span key={`e${i}`} className="calendar-cell empty"/>;
+          const ds = toDateStr(day);
+          const isSelected = ds === selectedDate;
+          const isToday = ds === todayStr;
+          const hasMeals = mealDates.has(ds);
+          return (
+            <button
+              key={ds}
+              className={`calendar-cell${isSelected ? ' selected' : ''}${isToday ? ' today' : ''}`}
+              onClick={() => { onSelect(ds); onClose(); }}
+            >
+              {day}
+              {hasMeals && <span className="calendar-dot"/>}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+
 export default function Dashboard() {
+  const todayStr = new Date().toISOString().split('T')[0];
+  const [selectedDate, setSelectedDate] = useState(todayStr);
   const [meals, setMeals] = useState([]);
   const [activity, setActivity] = useState({ calories: 0, steps: 0, heartRate: 0, activeMinutes: 0 });
   const [weekData, setWeekData] = useState([]);
@@ -113,39 +185,63 @@ export default function Dashboard() {
   const [editingMeal, setEditingMeal] = useState(null);
   const [editForm, setEditForm] = useState({});
   const [saving, setSaving] = useState(false);
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [mealDates, setMealDates] = useState(new Set());
   const connected = isConnected();
   const showToast = useToast();
 
-  const today = new Date().toISOString().split('T')[0];
+  const isToday = selectedDate === todayStr;
 
-  const load = useCallback(async () => {
+  // Load meals for selected date + profile (once)
+  const loadMeals = useCallback(async (date) => {
     setLoading(true);
     try {
-      const [todayMeals, serverProfile, cachedActivity] = await Promise.all([
-        fetchMeals(today),
-        fetchProfile(),
-        getActivityForDate(today),
-      ]);
-      setMeals(todayMeals);
-      if (serverProfile) setProfile(p => ({ ...p, ...serverProfile, goal: serverProfile.calorie_goal || p.goal }));
-      if (cachedActivity) setActivity(cachedActivity);
-
-      if (connected) {
-        try {
-          const [stats, weekly] = await Promise.all([fetchTodayStats(), fetchWeeklyCalories()]);
-          setActivity(stats);
-          setWeekData(weekly);
-          await saveActivitySnapshot(stats);
-        } catch {
-          // silently use cached data
-        }
-      }
+      const dateMeals = await fetchMeals(date);
+      setMeals(dateMeals);
     } finally {
       setLoading(false);
     }
-  }, [today, connected]);
+  }, []);
 
-  useEffect(() => { load(); }, [load]);
+  // Initial load: profile + activity + meal dates for calendar dots
+  useEffect(() => {
+    (async () => {
+      try {
+        const [serverProfile, cachedActivity] = await Promise.all([
+          fetchProfile(),
+          getActivityForDate(todayStr),
+        ]);
+        if (serverProfile) setProfile(p => ({ ...p, ...serverProfile, goal: serverProfile.calorie_goal || p.goal }));
+        if (cachedActivity) setActivity(cachedActivity);
+
+        if (connected) {
+          try {
+            const [stats, weekly] = await Promise.all([fetchTodayStats(), fetchWeeklyCalories()]);
+            setActivity(stats);
+            setWeekData(weekly);
+            await saveActivitySnapshot(stats);
+          } catch {
+            // silently use cached data
+          }
+        }
+
+        // Fetch last 60 days of meals for calendar dots
+        const sixtyAgo = new Date();
+        sixtyAgo.setDate(sixtyAgo.getDate() - 60);
+        const from = sixtyAgo.toISOString().split('T')[0];
+        try {
+          const rangeMeals = await fetchMealsRange(from, todayStr);
+          const dates = new Set(rangeMeals.map(m => m.meal_date?.split('T')[0] || m.meal_date));
+          setMealDates(dates);
+        } catch { /* ignore */ }
+      } catch { /* ignore */ }
+    })();
+  }, [todayStr, connected]);
+
+  // Load meals when selected date changes
+  useEffect(() => {
+    loadMeals(selectedDate);
+  }, [selectedDate, loadMeals]);
 
   // Auto-cancel delete confirmation after 2.5s
   useEffect(() => {
@@ -153,6 +249,16 @@ export default function Dashboard() {
     const timer = setTimeout(() => setConfirmDeleteId(null), 2500);
     return () => clearTimeout(timer);
   }, [confirmDeleteId]);
+
+  // Date navigation
+  const shiftDate = useCallback((days) => {
+    const d = new Date(selectedDate + 'T00:00:00');
+    d.setDate(d.getDate() + days);
+    const str = d.toISOString().split('T')[0];
+    // Don't go into the future
+    if (str > todayStr) return;
+    setSelectedDate(str);
+  }, [selectedDate, todayStr]);
 
   const handleDelete = useCallback(async (id) => {
     if (confirmDeleteId !== id) {
@@ -206,7 +312,7 @@ export default function Dashboard() {
   }, [editingMeal, editForm, showToast]);
 
   const consumed = meals.reduce((s, m) => s + (m.total_calories || 0), 0);
-  const burned = activity.calories;
+  const burned = isToday ? activity.calories : 0;
   const goal = parseInt(profile.goal) || 2000;
 
   const totalProtein = meals.reduce((s, m) => s + (m.total_protein || 0), 0);
@@ -229,37 +335,71 @@ export default function Dashboard() {
     return 'Good evening';
   };
 
+  const dateLabel = new Date(selectedDate + 'T00:00:00').toLocaleDateString('en', { weekday: 'short', month: 'short', day: 'numeric' });
+  const headerTitle = isToday ? "Today's" : dateLabel + "'s";
+
   return (
     <div className="page animate-fade-in">
       {/* Header */}
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <div>
-          <p className="text-muted text-sm">{greeting()}{profile.name ? `, ${profile.name}` : ''} 👋</p>
-          <h1 className="mt-2">Today's <span className="gradient-text">Balance</span></h1>
-          <p className="text-muted text-sm mt-2">
-            {new Date().toLocaleDateString('en', { weekday: 'long', month: 'long', day: 'numeric' })}
-          </p>
+      <div className="page-header">
+        <p className="text-muted text-sm">{greeting()}{profile.name ? `, ${profile.name}` : ''} 👋</p>
+        <h1 className="mt-2">{headerTitle} <span className="gradient-text">Balance</span></h1>
+      </div>
+
+      {/* Stats Row */}
+      <div className="stats-row mb-4">
+        {profile.weight && (
+          <div className="glass-card stat-card-mini">
+            <div className="text-xs text-muted font-medium mb-1">Weight</div>
+            <div className="font-bold gradient-text text-lg">{profile.weight}{String(profile.weight).match(/[a-z]/i) ? '' : ' kg'}</div>
+          </div>
+        )}
+        {bmi && (
+          <div className="glass-card stat-card-mini">
+            <div className="text-xs text-muted font-medium mb-1">BMI</div>
+            <div className="font-bold gradient-text text-lg">{bmi}</div>
+          </div>
+        )}
+        {bfp && (
+          <div className="glass-card stat-card-mini">
+            <div className="text-xs text-muted font-medium mb-1">Body Fat</div>
+            <div className="font-bold gradient-text text-lg">{bfp}%</div>
+          </div>
+        )}
+      </div>
+
+      {/* Date Picker Pill */}
+      <div className="date-nav-container mb-4">
+        <div className="date-nav">
+          <button className="date-arrow" onClick={() => shiftDate(-1)} aria-label="Previous day">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <button className="date-pill" onClick={() => setCalendarOpen(o => !o)}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            <span>{isToday ? 'Today' : dateLabel}</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={`date-chevron ${calendarOpen ? 'open' : ''}`}><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <button className="date-arrow" onClick={() => shiftDate(1)} disabled={isToday} aria-label="Next day">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
         </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          {profile.weight && (
-            <div className="glass-card" style={{ padding: '0.75rem', textAlign: 'center', minWidth: '70px' }}>
-              <div className="text-xs text-muted font-medium mb-1">Weight</div>
-              <div className="font-bold gradient-text text-lg">{profile.weight}{String(profile.weight).match(/[a-z]/i) ? '' : ' kg'}</div>
-            </div>
-          )}
-          {bmi && (
-            <div className="glass-card" style={{ padding: '0.75rem', textAlign: 'center', minWidth: '70px' }}>
-              <div className="text-xs text-muted font-medium mb-1">BMI</div>
-              <div className="font-bold gradient-text text-lg">{bmi}</div>
-            </div>
-          )}
-          {bfp && (
-            <div className="glass-card" style={{ padding: '0.75rem', textAlign: 'center', minWidth: '70px' }}>
-              <div className="text-xs text-muted font-medium mb-1">Body Fat</div>
-              <div className="font-bold gradient-text text-lg">{bfp}%</div>
-            </div>
-          )}
-        </div>
+
+        {!isToday && (
+          <button className="today-btn" onClick={() => setSelectedDate(todayStr)}>
+            ↩ Today
+          </button>
+        )}
+
+        {calendarOpen && (
+          <CalendarPicker
+            selectedDate={selectedDate}
+            onSelect={setSelectedDate}
+            onClose={() => setCalendarOpen(false)}
+            mealDates={mealDates}
+          />
+        )}
       </div>
 
       {/* Calorie Arc */}
@@ -283,7 +423,7 @@ export default function Dashboard() {
 
       {/* Macro Breakdown */}
       <div className="glass-card p-6 mb-4">
-        <p className="section-title">Today's Macros</p>
+        <p className="section-title">Macros</p>
         <div className="flex flex-col gap-3">
           <MacroBar label="Protein" value={Math.round(totalProtein)} max={150} color="var(--grad-primary)"/>
           <MacroBar label="Carbs"   value={Math.round(totalCarbs)}   max={300} color="var(--grad-cool)"/>
@@ -292,8 +432,8 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Activity Stats */}
-      {connected ? (
+      {/* Activity Stats (only for today) */}
+      {isToday && (connected ? (
         <div className="glass-card p-6 mb-4">
           <div className="flex items-center justify-between mb-4">
             <p className="section-title" style={{ marginBottom: 0 }}>Activity</p>
@@ -331,20 +471,20 @@ export default function Dashboard() {
             </svg>
           </div>
         </Link>
-      )}
+      ))}
 
-      {/* Weekly Chart */}
-      {weekData.length > 0 && (
+      {/* Weekly Chart (only for today) */}
+      {isToday && weekData.length > 0 && (
         <div className="glass-card p-6 mb-4">
           <p className="section-title">7-Day Burn</p>
           <WeekChart data={weekData} />
         </div>
       )}
 
-      {/* Today's Meals */}
+      {/* Meals */}
       <div className="glass-card p-6 mb-4">
         <div className="flex items-center justify-between mb-4">
-          <p className="section-title" style={{ marginBottom: 0 }}>Today's Meals</p>
+          <p className="section-title" style={{ marginBottom: 0 }}>Meals</p>
           <Link to="/log-meal" className="btn btn-sm btn-ghost">+ Add</Link>
         </div>
 
@@ -353,8 +493,8 @@ export default function Dashboard() {
         ) : meals.length === 0 ? (
           <div className="empty-state">
             <div className="empty-icon">🍽️</div>
-            <p>No meals logged yet</p>
-            <Link to="/log-meal" className="btn btn-primary btn-sm mt-4">Log First Meal</Link>
+            <p>No meals logged{isToday ? ' yet' : ''}</p>
+            {isToday && <Link to="/log-meal" className="btn btn-primary btn-sm mt-4">Log First Meal</Link>}
           </div>
         ) : (
           <div className="meal-list">
