@@ -58,7 +58,7 @@ export default function PinGate({ onUnlock }) {
     }
     if (e.key === 'Enter') {
       const pin = digits.join('');
-      if (pin.length === pinLength) submit(pin);
+      if (pin.length > 0) submit(pin);
     }
   };
 
@@ -162,6 +162,17 @@ export default function PinGate({ onUnlock }) {
                 <span className="text-sm text-muted">Verifying…</span>
               </div>
             )}
+
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
+              <button 
+                className="btn btn-primary"
+                style={{ width: '100%', maxWidth: '200px' }}
+                onClick={() => submit(digits.join(''))}
+                disabled={!digits.some(d => d) || loading}
+              >
+                Unlock
+              </button>
+            </div>
           </>
         )}
 

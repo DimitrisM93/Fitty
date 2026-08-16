@@ -62,14 +62,18 @@ router.post('/verify', pinLimiter, (req, res) => {
 // Returns public config (PIN length) so the frontend renders the right number of boxes
 router.get('/config', (_req, res) => {
   let pinLength = 4;
-  if (process.env.APP_PIN) {
-    pinLength = process.env.APP_PIN.length;
-  } else if (process.env.USERS) {
-    const firstPair = process.env.USERS.split(',')[0];
-    if (firstPair && firstPair.includes(':')) {
-      pinLength = firstPair.split(':')[0].trim().length;
-    }
+  if (process.env.USERS) {
+    const lengths = process.env.USERS.split(',').map(pair => {
+      const parts = pair.split(':');
+      return parts.length === 2 ? parts[0].trim().length : 0;
+    });
+    pinLength = Math.max(...lengths, 4);
   }
+  
+  if (process.env.APP_PIN && process.env.APP_PIN.length > pinLength) {
+    pinLength = process.env.APP_PIN.length;
+  }
+  
   res.json({ pinLength });
 });
 
