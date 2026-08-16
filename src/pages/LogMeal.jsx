@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { analyzeMealViaServer, saveMeal, fetchFavorites, saveFavorite, deleteFavorite } from '../services/api';
 import { imageFileToBase64 } from '../services/gemini';
 import { useToast } from '../context/ToastContext';
@@ -89,7 +89,7 @@ function AnalysisResult({ result, onSave, onRetry, imageUrl }) {
 
 export default function LogMeal() {
   const [step, setStep] = useState('upload'); // upload | analyzing | result | saved
-  const [inputMode, setInputMode] = useState('photo'); // photo | text | quick
+  const [inputMode, setInputMode] = useState('photo'); // photo | text | quick | favorites
   const [imageFile, setImageFile] = useState(null);
   const [imageUrl, setImageUrl] = useState('');
   const [textQuery, setTextQuery] = useState('');
@@ -112,7 +112,7 @@ export default function LogMeal() {
   const [isCreatingFav, setIsCreatingFav] = useState(false);
   const [favForm, setFavForm] = useState({ name: '', meal_type: 'snack', total_calories: '', total_protein: '', total_carbs: '', total_fat: '', notes: '' });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (inputMode === 'favorites') {
       fetchFavorites().then(setFavorites).catch(() => showToast('Failed to load favorites', 'error'));
     }
