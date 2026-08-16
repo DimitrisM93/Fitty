@@ -5,7 +5,7 @@ import { requireAuth } from './auth.js';
 const router = Router();
 
 const MEAL_ANALYSIS_PROMPT = `Analyze this meal (image or description) and return its nutritional breakdown.
-Return ONLY raw JSON with no markdown formatting, no code fences, and no conversational text.
+CRITICAL: You MUST respond ONLY with valid JSON. Do NOT include ANY markdown formatting, backticks, conversational text, explanations, or thinking. Start your response with { and end it with }.
 
 Required JSON Schema:
 {
@@ -52,55 +52,17 @@ router.post('/meal', requireAuth, async (req, res) => {
       });
     }
 
-    const responseSchema = {
-      type: "OBJECT",
-      properties: {
-        items: {
-          type: "ARRAY",
-          items: {
-            type: "OBJECT",
-            properties: {
-              name: { type: "STRING" },
-              portion: { type: "STRING" },
-              calories: { type: "NUMBER" },
-              protein: { type: "NUMBER" },
-              carbs: { type: "NUMBER" },
-              fat: { type: "NUMBER" },
-              fiber: { type: "NUMBER" }
-            },
-            required: ["name", "portion", "calories", "protein", "carbs", "fat", "fiber"]
-          }
-        },
-        total_calories: { type: "NUMBER" },
-        total_protein: { type: "NUMBER" },
-        total_carbs: { type: "NUMBER" },
-        total_fat: { type: "NUMBER" },
-        total_fiber: { type: "NUMBER" },
-        meal_type: { type: "STRING" },
-        confidence: { type: "STRING" },
-        notes: { type: "STRING" }
-      },
-      required: ["items", "total_calories", "total_protein", "total_carbs", "total_fat", "total_fiber", "meal_type", "confidence", "notes"]
-    };
-
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: contentParts,
-      config: {
-        responseMimeType: 'application/json',
-        responseSchema: responseSchema
-      }
+    const interaction = await ai.interactions.create({
+      model: 'gemini-3.6-flash',
+      input: [
+        {
+          type: 'user_input',
+          content: contentParts
+        }
+      ]
     });
     
-    let text = "";
-    if (typeof response.text === 'function') {
-      text = response.text();
-    } else if (typeof response.text === 'string') {
-      text = response.text;
-    } else {
-      text = response.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
-    }
-    
+    const text = interaction.output_text || "{}";
     const cleaned = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
     const parsed = JSON.parse(cleaned);
 
