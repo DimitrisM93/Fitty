@@ -9,6 +9,7 @@ import Progress from './pages/Progress';
 import Overview from './pages/Overview';
 import Settings from './pages/Settings';
 import PinGate from './pages/PinGate';
+import OAuthCallback from './pages/OAuthCallback';
 import { isAuthenticated } from './services/api';
 
 export default function App() {
@@ -28,6 +29,7 @@ export default function App() {
           <Route path="/progress" element={<Progress />} />
           <Route path="/overview" element={<Overview />} />
           <Route path="/settings"  element={<Settings />} />
+          <Route path="/oauth/callback" element={<OAuthCallback />} />
         </Routes>
       </main>
       <BottomNav />
