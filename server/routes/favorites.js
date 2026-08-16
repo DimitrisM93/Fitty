@@ -9,7 +9,7 @@ router.get('/', requireAuth, async (req, res) => {
   try {
     const result = await pool.query(
       'SELECT * FROM favorite_meals WHERE user_id = $1 ORDER BY created_at DESC',
-      [req.user.id]
+      [req.userId]
     );
     res.json(result.rows);
   } catch (err) {
@@ -33,7 +33,7 @@ router.post('/', requireAuth, async (req, res) => {
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
        RETURNING *`,
       [
-        req.user.id, 
+        req.userId, 
         name, 
         meal_type || 'snack', 
         total_calories, 
@@ -56,7 +56,7 @@ router.delete('/:id', requireAuth, async (req, res) => {
   try {
     const result = await pool.query(
       'DELETE FROM favorite_meals WHERE id = $1 AND user_id = $2 RETURNING id',
-      [req.params.id, req.user.id]
+      [req.params.id, req.userId]
     );
 
     if (result.rowCount === 0) {
