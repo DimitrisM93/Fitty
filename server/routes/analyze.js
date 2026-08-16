@@ -52,26 +52,62 @@ router.post('/meal', requireAuth, async (req, res) => {
       });
     }
 
-    const interaction = await ai.interactions.create({
-      model: 'gemini-3.6-flash',
-      input: [
-        {
-          type: 'user_input',
-          content: contentParts
-        }
-      ]
+    const responseSchema = {
+      type: "OBJECT",
+      properties: {
+        items: {
+          type: "ARRAY",
+          items: {
+            type: "OBJECT",
+            properties: {
+              name: { type: "STRING" },
+              portion: { type: "STRING" },
+              calories: { type: "NUMBER" },
+              protein: { type: "NUMBER" },
+              carbs: { type: "NUMBER" },
+              fat: { type: "NUMBER" },
+              fiber: { type: "NUMBER" }
+            },
+            required: ["name", "portion", "calories", "protein", "carbs", "fat", "fiber"]
+          }
+        },
+        total_calories: { type: "NUMBER" },
+        total_protein: { type: "NUMBER" },
+        total_carbs: { type: "NUMBER" },
+        total_fat: { type: "NUMBER" },
+        total_fiber: { type: "NUMBER" },
+        meal_type: { type: "STRING" },
+        confidence: { type: "STRING" },
+        notes: { type: "STRING" }
+      },
+      required: ["items", "total_calories", "total_protein", "total_carbs", "total_fat", "total_fiber", "meal_type", "confidence", "notes"]
+    };
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: contentParts,
+      config: {
+        responseMimeType: 'application/json',
+        responseSchema: responseSchema
+      }
     });
     
-    const text = interaction.output_text;
-
-    // Strip markdown code fences if Gemini wraps the JSON
+    let text = "";
+    if (typeof response.text === 'function') {
+      text = response.text();
+    } else if (typeof response.text === 'string') {
+      text = response.text;
+    } else {
+      text = response.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
+    }
+    
     const cleaned = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
     const parsed = JSON.parse(cleaned);
 
     return res.json(parsed);
   } catch (err) {
     console.error('Gemini error:', err.message);
-    return res.status(500).json({ error: 'Failed to analyze image. ' + err.message });
+    return res.status(500).json({ error: 'Failed to analyze meal. ' + err.message });
   }
 });
 
