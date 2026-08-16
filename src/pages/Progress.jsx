@@ -198,7 +198,7 @@ export default function Progress() {
               <div key={entry.id} className="weight-entry">
                 <div className="weight-entry-info">
                   <div className="weight-entry-icon">⚖️</div>
-                  <div>
+                  <div className="weight-entry-text-container">
                     <div className="weight-entry-value gradient-text">{entry.weight} kg</div>
                     <div className="weight-entry-date">
                       {new Date(entry.date + 'T00:00:00').toLocaleDateString('en', {
