@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { fetchMeals, fetchMealsRange, deleteMeal, updateMeal } from '../services/api';
+import { fetchMeals, fetchMealsRange, deleteMeal, updateMeal, saveFavorite } from '../services/api';
 import { fetchProfile } from '../services/api';
 import { isConnected, fetchTodayStats, fetchWeeklyCalories } from '../services/googleFit';
 import { saveActivitySnapshot, getActivityForDate } from '../services/db';
@@ -259,6 +259,28 @@ export default function Dashboard() {
     if (str > todayStr) return;
     setSelectedDate(str);
   }, [selectedDate, todayStr]);
+
+  const handleFavorite = useCallback(async (meal) => {
+    try {
+      const name = meal.items && meal.items.length > 0 
+        ? meal.items[0].name 
+        : `${meal.meal_type.charAt(0).toUpperCase() + meal.meal_type.slice(1)}`;
+      
+      await saveFavorite({
+        name,
+        meal_type: meal.meal_type,
+        total_calories: meal.total_calories,
+        total_protein: meal.total_protein,
+        total_carbs: meal.total_carbs,
+        total_fat: meal.total_fat,
+        total_fiber: meal.total_fiber,
+        notes: meal.items?.map(i => i.name).join(', ') || meal.notes || ''
+      });
+      showToast('Saved to Favorites! ⭐', 'success');
+    } catch (err) {
+      showToast('Failed to save favorite', 'error');
+    }
+  }, [showToast]);
 
   const handleDelete = useCallback(async (id) => {
     if (confirmDeleteId !== id) {
@@ -519,6 +541,15 @@ export default function Dashboard() {
                   </div>
                 </div>
                 <div className="meal-actions">
+                  <button
+                    className="meal-action-btn"
+                    onClick={() => handleFavorite(meal)}
+                    title="Save to Favorites"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                    </svg>
+                  </button>
                   <button
                     className="meal-action-btn meal-action-edit"
                     onClick={() => openEdit(meal)}
