@@ -262,9 +262,10 @@ export default function Dashboard() {
 
   const handleFavorite = useCallback(async (meal) => {
     try {
+      const typeStr = meal.meal_type || 'meal';
       const name = meal.items && meal.items.length > 0 
         ? meal.items[0].name 
-        : `${meal.meal_type.charAt(0).toUpperCase() + meal.meal_type.slice(1)}`;
+        : `${typeStr.charAt(0).toUpperCase() + typeStr.slice(1)}`;
       
       await saveFavorite({
         name,

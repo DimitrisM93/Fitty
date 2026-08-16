@@ -22,7 +22,7 @@ router.get('/', requireAuth, async (req, res) => {
 router.post('/', requireAuth, async (req, res) => {
   const { name, meal_type, total_calories, total_protein, total_carbs, total_fat, total_fiber, notes } = req.body;
   
-  if (!name || !total_calories) {
+  if (!name || total_calories == null) {
     return res.status(400).json({ error: 'Name and total calories are required' });
   }
 
