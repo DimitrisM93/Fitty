@@ -5,6 +5,7 @@ import { fetchProfile } from '../services/api';
 import { isConnected, fetchTodayStats, fetchWeeklySteps } from '../services/googleFit';
 import { saveActivitySnapshot, getActivityForDate } from '../services/db';
 import { useToast } from '../context/ToastContext';
+import WeekChart from '../components/WeekChart';
 import './Dashboard.css';
 
 function CalorieArc({ consumed, goal }) {
@@ -64,28 +65,6 @@ function MacroBar({ label, value, max, color }) {
   );
 }
 
-function WeekChart({ data }) {
-  if (!data || data.length === 0) return null;
-  const max = Math.max(...data.map(d => d.steps), 1);
-
-  return (
-    <div className="week-chart">
-      {data.map((d, i) => (
-        <div key={i} className="week-bar-col">
-          <div className="week-bar-track">
-            <div
-              className="week-bar-fill"
-              style={{ height: `${(d.steps / max) * 100}%`, background: 'var(--color-secondary)' }}
-            />
-          </div>
-          <span className="week-bar-label">{d.date}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// ─── Calendar Picker ─────────────────────────────────────────
 function CalendarPicker({ selectedDate, onSelect, onClose, mealDates }) {
   const [viewDate, setViewDate] = useState(() => {
     const d = new Date(selectedDate + 'T00:00:00');
