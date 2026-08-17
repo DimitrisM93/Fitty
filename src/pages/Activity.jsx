@@ -217,8 +217,7 @@ export default function Activity() {
             <button onClick={handleDisconnect} className="btn btn-ghost btn-sm">Disconnect</button>
           </div>
 
-          {/* Calorie burn */}
-          <CalorieBurnCard calories={stats.calories}/>
+          {/* Calorie burn removed */}
 
           {/* Steps + Heart Rate row */}
           <div className="two-col mt-4">
@@ -243,29 +242,7 @@ export default function Activity() {
             </div>
           </div>
 
-          {/* Weekly burn chart */}
-          {weekData.length > 0 && (
-            <div className="glass-card p-6 mt-4">
-              <p className="section-title">7-Day Calorie Burn</p>
-              <div className="week-burn-chart mt-4">
-                {weekData.map((d, i) => {
-                  const max = Math.max(...weekData.map(x => x.calories), 1);
-                  return (
-                    <div key={i} className="week-bar-col">
-                      <div className="week-bar-track">
-                        <div
-                          className="week-bar-fill-warm"
-                          style={{ height: `${(d.calories / max) * 100}%` }}
-                        />
-                      </div>
-                      <span className="week-bar-label">{d.date}</span>
-                      <span className="week-bar-val">{d.calories}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
+          {/* Weekly burn chart removed */}
         </>
       )}
     </div>
