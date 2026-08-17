@@ -122,6 +122,16 @@ export async function saveFavorite(favorite) {
   return res.json();
 }
 
+export async function updateFavorite(id, favorite) {
+  const res = await fetch(`${BASE}/api/favorites/${id}`, {
+    method: 'PUT',
+    headers: authHeaders(),
+    body: JSON.stringify(favorite),
+  });
+  if (!res.ok) throw new Error('Failed to update favorite');
+  return res.json();
+}
+
 export async function deleteFavorite(id) {
   const res = await fetch(`${BASE}/api/favorites/${id}`, { method: 'DELETE', headers: authHeaders() });
   if (!res.ok) throw new Error('Failed to delete favorite');

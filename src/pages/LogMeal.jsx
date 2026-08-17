@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { analyzeMealViaServer, saveMeal, fetchFavorites, saveFavorite, deleteFavorite } from '../services/api';
+import { analyzeMealViaServer, saveMeal, fetchFavorites, saveFavorite, deleteFavorite, updateFavorite } from '../services/api';
 import { imageFileToBase64 } from '../services/gemini';
 import { useToast } from '../context/ToastContext';
 import './LogMeal.css';
@@ -110,7 +110,7 @@ export default function LogMeal() {
 
   const [favorites, setFavorites] = useState([]);
   const [isCreatingFav, setIsCreatingFav] = useState(false);
-  const [favForm, setFavForm] = useState({ name: '', meal_type: 'snack', total_calories: '', total_protein: '', total_carbs: '', total_fat: '', notes: '' });
+  const [favForm, setFavForm] = useState({ id: null, name: '', total_calories: '', total_protein: '', total_carbs: '', total_fat: '', notes: '' });
 
   useEffect(() => {
     if (inputMode === 'favorites') {
@@ -118,29 +118,47 @@ export default function LogMeal() {
     }
   }, [inputMode, showToast]);
 
-  const handleCreateFavorite = useCallback(async () => {
-    const cals = parseInt(favForm.total_calories);
-    if (!favForm.name || !cals || cals <= 0) {
-      setError('Please enter a name and calories');
-      return;
-    }
-    setError('');
+  const handleCreateFavorite = async () => {
     try {
-      const saved = await saveFavorite({ 
-        ...favForm, 
-        total_calories: cals, 
-        total_protein: parseFloat(favForm.total_protein)||0, 
-        total_carbs: parseFloat(favForm.total_carbs)||0, 
-        total_fat: parseFloat(favForm.total_fat)||0 
-      });
-      setFavorites(prev => [saved, ...prev]);
+      const payload = {
+        name: favForm.name,
+        meal_type: 'snack',
+        total_calories: parseInt(favForm.total_calories) || 0,
+        total_protein: parseFloat(favForm.total_protein) || 0,
+        total_carbs: parseFloat(favForm.total_carbs) || 0,
+        total_fat: parseFloat(favForm.total_fat) || 0,
+        notes: favForm.notes || ''
+      };
+      
+      if (favForm.id) {
+        await updateFavorite(favForm.id, payload);
+        showToast('Favorite updated ✓', 'success');
+      } else {
+        await saveFavorite(payload);
+        showToast('Favorite saved ✓', 'success');
+      }
+      
+      const updated = await fetchFavorites();
+      setFavorites(updated);
       setIsCreatingFav(false);
-      setFavForm({ name: '', meal_type: 'snack', total_calories: '', total_protein: '', total_carbs: '', total_fat: '', notes: '' });
-      showToast('Favorite created!', 'success');
+      setFavForm({ id: null, name: '', total_calories: '', total_protein: '', total_carbs: '', total_fat: '', notes: '' });
     } catch {
-      showToast('Failed to create favorite', 'error');
+      showToast('Failed to save favorite.', 'error');
     }
-  }, [favForm, showToast]);
+  };
+
+  const handleEditFavorite = (fav) => {
+    setFavForm({
+      id: fav.id,
+      name: fav.name || '',
+      total_calories: fav.total_calories || '',
+      total_protein: fav.total_protein || '',
+      total_carbs: fav.total_carbs || '',
+      total_fat: fav.total_fat || '',
+      notes: fav.notes || ''
+    });
+    setIsCreatingFav(true);
+  };
 
   const handleDeleteFavorite = useCallback(async (id) => {
     if (!window.confirm('Delete this favorite?')) return;
@@ -156,12 +174,12 @@ export default function LogMeal() {
   const handleLogFavorite = useCallback(async (fav) => {
     try {
       const meal = {
-        meal_type: fav.meal_type,
+        meal_type: fav.meal_type || 'snack',
         total_calories: fav.total_calories,
         total_protein: fav.total_protein,
         total_carbs: fav.total_carbs,
         total_fat: fav.total_fat,
-        total_fiber: fav.total_fiber,
+        total_fiber: 0,
         items: [],
         confidence: 'manual',
         notes: fav.name + (fav.notes ? ` - ${fav.notes}` : ''),
@@ -182,12 +200,6 @@ export default function LogMeal() {
     setStep('preview');
     setError('');
   }, []);
-
-  const handleDropzone = useCallback((e) => {
-    e.preventDefault();
-    const file = e.dataTransfer?.files?.[0];
-    if (file) handleFileSelect(file);
-  }, [handleFileSelect]);
 
   const analyze = useCallback(async () => {
     if (inputMode === 'photo' && !imageFile) return;
@@ -210,7 +222,7 @@ export default function LogMeal() {
       setStep('result');
     } catch (err) {
       setError(err.message || 'Analysis failed. Please try again.');
-      setStep('upload'); // back to beginning so they can fix text or image
+      setStep('upload');
     }
   }, [imageFile, textQuery, inputMode]);
 
@@ -267,41 +279,18 @@ export default function LogMeal() {
 
   return (
     <div className="page">
-      {/* Header */}
       <div className="page-header">
         <h1><span className="gradient-text">AI</span> Meal Analyzer</h1>
         <p className="text-muted text-sm mt-2">Take a photo of your meal or describe it, and let Gemini calculate the calories</p>
       </div>
 
-      {/* Upload step */}
       {step === 'upload' && (
         <div className="upload-container glass-card p-6 animate-fade-in">
-          
           <div className="input-mode-tabs mb-6">
-            <button 
-              className={`mode-tab ${inputMode === 'photo' ? 'active' : ''}`}
-              onClick={() => setInputMode('photo')}
-            >
-              📷 Photo
-            </button>
-            <button 
-              className={`mode-tab ${inputMode === 'text' ? 'active' : ''}`}
-              onClick={() => setInputMode('text')}
-            >
-              ⌨️ Text
-            </button>
-            <button 
-              className={`mode-tab ${inputMode === 'quick' ? 'active' : ''}`}
-              onClick={() => setInputMode('quick')}
-            >
-              🔢 Quick
-            </button>
-            <button 
-              className={`mode-tab ${inputMode === 'favorites' ? 'active' : ''}`}
-              onClick={() => setInputMode('favorites')}
-            >
-              ⭐ Favs
-            </button>
+            <button className={`mode-tab ${inputMode === 'photo' ? 'active' : ''}`} onClick={() => setInputMode('photo')}>📷 Photo</button>
+            <button className={`mode-tab ${inputMode === 'text' ? 'active' : ''}`} onClick={() => setInputMode('text')}>⌨️ Text</button>
+            <button className={`mode-tab ${inputMode === 'quick' ? 'active' : ''}`} onClick={() => setInputMode('quick')}>🔢 Quick</button>
+            <button className={`mode-tab ${inputMode === 'favorites' ? 'active' : ''}`} onClick={() => setInputMode('favorites')}>⭐ Favs</button>
           </div>
 
           {inputMode === 'photo' ? (
@@ -310,66 +299,22 @@ export default function LogMeal() {
                 <div className="upload-icon">📸</div>
               </div>
               <h2 className="text-xl font-bold mt-4">Log a Meal</h2>
-              <p className="text-muted text-sm text-center mt-2 mb-6">
-                Take a photo or upload an image to automatically track calories and macros.
-              </p>
-
+              <p className="text-muted text-sm text-center mt-2 mb-6">Take a photo or upload an image to automatically track calories and macros.</p>
               {error && <p className="text-danger text-sm text-center mb-4">{error}</p>}
-
               <div className="upload-actions">
-                <input
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  ref={cameraInputRef}
-                  onChange={(e) => handleFileSelect(e.target.files?.[0])}
-                  className="hidden-input"
-                />
-                <button
-                  className="btn btn-primary w-full"
-                  onClick={() => cameraInputRef.current?.click()}
-                >
-                  Take Photo
-                </button>
-
-                <input
-                  type="file"
-                  accept="image/*"
-                  ref={fileInputRef}
-                  onChange={(e) => handleFileSelect(e.target.files?.[0])}
-                  className="hidden-input"
-                />
-                <button
-                  className="btn btn-secondary w-full"
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  Upload from Gallery
-                </button>
+                <input type="file" accept="image/*" capture="environment" ref={cameraInputRef} onChange={(e) => handleFileSelect(e.target.files?.[0])} className="hidden-input"/>
+                <button className="btn btn-primary w-full" onClick={() => cameraInputRef.current?.click()}>Take Photo</button>
+                <input type="file" accept="image/*" ref={fileInputRef} onChange={(e) => handleFileSelect(e.target.files?.[0])} className="hidden-input"/>
+                <button className="btn btn-secondary w-full" onClick={() => fileInputRef.current?.click()}>Upload from Gallery</button>
               </div>
             </>
           ) : inputMode === 'text' ? (
             <>
               <h2 className="text-xl font-bold mb-2">Describe your meal</h2>
-              <p className="text-muted text-sm mb-4">
-                Enter ingredients and portions (e.g., "200g roast potatoes and 1 chicken breast").
-              </p>
-              
+              <p className="text-muted text-sm mb-4">Enter ingredients and portions (e.g., "200g roast potatoes and 1 chicken breast").</p>
               {error && <p className="text-danger text-sm text-center mb-4">{error}</p>}
-
-              <textarea 
-                className="input text-input-area mb-4"
-                rows={5}
-                placeholder="200g roast potatoes..."
-                value={textQuery}
-                onChange={(e) => setTextQuery(e.target.value)}
-              />
-              <button 
-                className="btn btn-primary w-full"
-                onClick={analyze}
-                disabled={!textQuery.trim()}
-              >
-                Analyze Meal ✨
-              </button>
+              <textarea className="input text-input-area mb-4" rows={5} placeholder="200g roast potatoes..." value={textQuery} onChange={(e) => setTextQuery(e.target.value)}/>
+              <button className="btn btn-primary w-full" onClick={analyze} disabled={!textQuery.trim()}>Analyze Meal ✨</button>
             </>
           ) : inputMode === 'favorites' ? (
             <div className="favorites-container">
@@ -379,7 +324,7 @@ export default function LogMeal() {
                   <p className="text-muted text-sm">Quick-add your go-to meals.</p>
                 </div>
                 {!isCreatingFav && (
-                  <button className="btn btn-sm btn-primary" onClick={() => setIsCreatingFav(true)}>+ New</button>
+                  <button className="btn btn-sm btn-primary" onClick={() => { setFavForm({ id: null, name: '', total_calories: '', total_protein: '', total_carbs: '', total_fat: '', notes: '' }); setIsCreatingFav(true); }}>+ New</button>
                 )}
               </div>
 
@@ -437,7 +382,7 @@ export default function LogMeal() {
                   ) : (
                     favorites.map(fav => (
                       <div key={fav.id} className="favorite-card">
-                        <div className="fav-info" onClick={() => handleLogFavorite(fav)}>
+                        <div className="fav-info" onClick={() => handleEditFavorite(fav)} style={{ cursor: 'pointer' }}>
                           <div className="flex justify-between items-center">
                             <h3 className="font-bold text-lg">{fav.name}</h3>
                             <span className="gradient-text font-bold text-lg">{fav.total_calories} kcal</span>
@@ -449,9 +394,14 @@ export default function LogMeal() {
                             <span className="text-xs" style={{ color: MACRO_COLORS.fat }}>F {fav.total_fat}g</span>
                           </div>
                         </div>
-                        <button className="fav-delete-btn" onClick={(e) => { e.stopPropagation(); handleDeleteFavorite(fav.id); }}>
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                        </button>
+                        <div className="fav-actions flex flex-col gap-2">
+                          <button className="fav-add-btn" onClick={(e) => { e.stopPropagation(); handleLogFavorite(fav); }} title="Log this meal now">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: '20px', height: '20px', color: 'var(--color-primary)' }}><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                          </button>
+                          <button className="fav-delete-btn" onClick={(e) => { e.stopPropagation(); handleDeleteFavorite(fav.id); }}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: '18px', height: '18px' }}><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                          </button>
+                        </div>
                       </div>
                     ))
                   )}

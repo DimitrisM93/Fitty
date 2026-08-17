@@ -372,3 +372,20 @@
   color: var(--color-danger);
   background: rgba(248, 113, 113, 0.1);
 }
+
+.fav-add-btn {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+}
+
+.fav-add-btn:hover {
+  background: rgba(110, 231, 183, 0.1);
+}
