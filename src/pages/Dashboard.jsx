@@ -8,6 +8,21 @@ import { useToast } from '../context/ToastContext';
 import WeekChart from '../components/WeekChart';
 import './Dashboard.css';
 
+function LiveClock() {
+  const [time, setTime] = useState(new Date());
+  
+  useEffect(() => {
+    const timer = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <div className="font-mono text-lg font-bold" style={{ color: 'var(--color-primary)' }}>
+      {time.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' })}
+    </div>
+  );
+}
+
 function CalorieArc({ consumed, goal }) {
   const pct = Math.min(consumed / goal, 1);
   const r = 80;
@@ -325,9 +340,12 @@ export default function Dashboard() {
   return (
     <div className="page animate-fade-in">
       {/* Header */}
-      <div className="page-header">
-        <p className="text-muted text-sm">{greeting()}{profile.name ? `, ${profile.name}` : ''} 👋</p>
-        <h1 className="mt-2">{headerTitle} <span className="gradient-text">Balance</span></h1>
+      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div>
+          <p className="text-muted text-sm">{greeting()}{profile.name ? `, ${profile.name}` : ''} 👋</p>
+          <h1 className="mt-2">{headerTitle} <span className="gradient-text">Balance</span></h1>
+        </div>
+        <LiveClock />
       </div>
 
       {/* Stats Row */}
