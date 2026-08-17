@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { fetchMeals, fetchMealsRange, deleteMeal, updateMeal, saveFavorite } from '../services/api';
 import { fetchProfile } from '../services/api';
-import { isConnected, fetchTodayStats, fetchWeeklyCalories } from '../services/googleFit';
+import { isConnected, fetchTodayStats, fetchWeeklySteps } from '../services/googleFit';
 import { saveActivitySnapshot, getActivityForDate } from '../services/db';
 import { useToast } from '../context/ToastContext';
 import './Dashboard.css';
@@ -66,7 +66,7 @@ function MacroBar({ label, value, max, color }) {
 
 function WeekChart({ data }) {
   if (!data || data.length === 0) return null;
-  const max = Math.max(...data.map(d => d.calories), 1);
+  const max = Math.max(...data.map(d => d.steps), 1);
 
   return (
     <div className="week-chart">
@@ -75,7 +75,7 @@ function WeekChart({ data }) {
           <div className="week-bar-track">
             <div
               className="week-bar-fill"
-              style={{ height: `${(d.calories / max) * 100}%` }}
+              style={{ height: `${(d.steps / max) * 100}%`, background: 'var(--color-secondary)' }}
             />
           </div>
           <span className="week-bar-label">{d.date}</span>
@@ -198,7 +198,7 @@ export default function Dashboard() {
 
         if (connected) {
           try {
-            const [stats, weekly] = await Promise.all([fetchTodayStats(), fetchWeeklyCalories()]);
+            const [stats, weekly] = await Promise.all([fetchTodayStats(), fetchWeeklySteps()]);
             setActivity(stats);
             setWeekData(weekly);
             await saveActivitySnapshot(stats);
@@ -465,7 +465,7 @@ export default function Dashboard() {
       {/* Weekly Chart (only for today) */}
       {isToday && weekData.length > 0 && (
         <div className="glass-card p-6 mb-4">
-          <p className="section-title">7-Day Burn</p>
+          <p className="section-title">7-Day Steps</p>
           <WeekChart data={weekData} />
         </div>
       )}

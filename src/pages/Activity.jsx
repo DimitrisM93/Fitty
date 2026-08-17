@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { isConnected, connectGoogleFit, disconnectGoogleFit, fetchTodayStats, fetchWeeklyCalories } from '../services/googleFit';
+import { isConnected, connectGoogleFit, disconnectGoogleFit, fetchTodayStats, fetchWeeklySteps } from '../services/googleFit';
 import { saveActivitySnapshot, getActivityForDate, getActivityForWeek } from '../services/db';
 import { useToast } from '../context/ToastContext';
 import './Activity.css';
@@ -100,13 +100,13 @@ export default function Activity() {
       if (cached && !live) setStats(cached);
 
       if (connected) {
-        const [todayStats, weekly] = await Promise.all([fetchTodayStats(), fetchWeeklyCalories()]);
+        const [todayStats, weekly] = await Promise.all([fetchTodayStats(), fetchWeeklySteps()]);
         setStats(todayStats);
         setWeekData(weekly);
         await saveActivitySnapshot(todayStats);
       } else {
         const weekly = await getActivityForWeek();
-        setWeekData(weekly.map(w => ({ date: new Date(w.timestamp).toLocaleDateString('en', { weekday: 'short' }), calories: w.calories })));
+        setWeekData(weekly.map(w => ({ date: new Date(w.timestamp).toLocaleDateString('en', { weekday: 'short' }), steps: w.steps || 0 })));
       }
     } catch (err) {
       showToast(err.message, 'error');
@@ -242,7 +242,29 @@ export default function Activity() {
             </div>
           </div>
 
-          {/* Weekly burn chart removed */}
+          {/* Weekly Steps chart */}
+          {weekData.length > 0 && (
+            <div className="glass-card p-6 mt-4">
+              <p className="section-title">7-Day Steps</p>
+              <div className="week-burn-chart mt-4">
+                {weekData.map((d, i) => {
+                  const max = Math.max(...weekData.map(x => x.steps), 1);
+                  return (
+                    <div key={i} className="week-bar-col">
+                      <div className="week-bar-track">
+                        <div
+                          className="week-bar-fill"
+                          style={{ height: `${(d.steps / max) * 100}%`, background: 'var(--color-secondary)' }}
+                        />
+                      </div>
+                      <span className="week-bar-label">{d.date}</span>
+                      <span className="week-bar-val">{d.steps > 1000 ? (d.steps/1000).toFixed(1)+'k' : d.steps}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>

@@ -151,12 +151,12 @@ export async function fetchTodayStats() {
   return result;
 }
 
-export async function fetchWeeklyCalories() {
+export async function fetchWeeklySteps() {
   const end = now();
   const start = end - 7 * 24 * 60 * 60 * 1000;
 
   const requestBody = {
-    aggregateBy: [{ dataTypeName: 'com.google.calories.expended' }],
+    aggregateBy: [{ dataTypeName: 'com.google.step_count.delta' }],
     bucketByTime: { durationMillis: 24 * 60 * 60 * 1000 },
     startTimeMillis: start,
     endTimeMillis: end,
@@ -169,7 +169,7 @@ export async function fetchWeeklyCalories() {
     const date = new Date(parseInt(bucket.startTimeMillis)).toLocaleDateString('en', { weekday: 'short' });
     return {
       date,
-      calories: Math.round(point?.value?.[0]?.fpVal || 0),
+      steps: point?.value?.[0]?.intVal || 0,
     };
   });
 }
