@@ -62,7 +62,7 @@ router.put('/:id', requireAuth, async (req, res) => {
     const result = await pool.query(
       `UPDATE favorite_meals 
        SET name = $1, meal_type = $2, total_calories = $3, total_protein = $4, 
-           total_carbs = $5, total_fat = $6, total_fiber = $7, notes = $8, updated_at = NOW()
+           total_carbs = $5, total_fat = $6, total_fiber = $7, notes = $8
        WHERE id = $9 AND user_id = $10
        RETURNING *`,
       [
