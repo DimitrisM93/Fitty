@@ -104,7 +104,7 @@ function CalendarPicker({ selectedDate, onSelect, onClose, mealDates }) {
   }, [viewDate]);
 
   const monthLabel = new Date(viewDate.year, viewDate.month).toLocaleDateString('en', { month: 'long', year: 'numeric' });
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = new Date().toLocaleDateString('en-CA');
 
   const prevMonth = () => setViewDate(v => {
     const m = v.month - 1;
@@ -156,7 +156,7 @@ function CalendarPicker({ selectedDate, onSelect, onClose, mealDates }) {
 
 
 export default function Dashboard() {
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = new Date().toLocaleDateString('en-CA');
   const [selectedDate, setSelectedDate] = useState(todayStr);
   const [meals, setMeals] = useState([]);
   const [activity, setActivity] = useState({ calories: 0, steps: 0, heartRate: 0, activeMinutes: 0 });
@@ -210,7 +210,7 @@ export default function Dashboard() {
         // Fetch last 60 days of meals for calendar dots
         const sixtyAgo = new Date();
         sixtyAgo.setDate(sixtyAgo.getDate() - 60);
-        const from = sixtyAgo.toISOString().split('T')[0];
+        const from = sixtyAgo.toLocaleDateString('en-CA');
         try {
           const rangeMeals = await fetchMealsRange(from, todayStr);
           const dates = new Set(rangeMeals.map(m => m.meal_date?.split('T')[0] || m.meal_date));
@@ -236,7 +236,7 @@ export default function Dashboard() {
   const shiftDate = useCallback((days) => {
     const d = new Date(selectedDate + 'T00:00:00');
     d.setDate(d.getDate() + days);
-    const str = d.toISOString().split('T')[0];
+    const str = d.toLocaleDateString('en-CA');
     // Don't go into the future
     if (str > todayStr) return;
     setSelectedDate(str);

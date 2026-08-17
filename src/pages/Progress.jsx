@@ -20,7 +20,7 @@ function CustomTooltip({ active, payload }) {
 
 export default function Progress() {
   const [logs, setLogs] = useState([]);
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [date, setDate] = useState(new Date().toLocaleDateString('en-CA'));
   const [weight, setWeight] = useState('');
   const showToast = useToast();
 

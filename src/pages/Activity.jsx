@@ -91,7 +91,7 @@ export default function Activity() {
   const [stats, setStats]         = useState({ calories: 0, steps: 0, heartRate: 0, activeMinutes: 0 });
   const [weekData, setWeekData]   = useState([]);
   const showToast = useToast();
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date().toLocaleDateString('en-CA');
 
   const loadData = useCallback(async (live = false) => {
     if (live) setRefreshing(true);

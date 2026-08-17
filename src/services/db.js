@@ -23,7 +23,7 @@ async function getDB() {
 // ---- Meals ----
 export async function saveMeal(mealData) {
   const db = await getDB();
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date().toLocaleDateString('en-CA');
   return db.add('meals', { ...mealData, date: today, timestamp: Date.now() });
 }
 
@@ -47,7 +47,7 @@ export async function getMealsForWeek() {
 // ---- Activity snapshots (cached from Google Fit) ----
 export async function saveActivitySnapshot(data) {
   const db = await getDB();
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date().toLocaleDateString('en-CA');
   // Replace today's snapshot
   const existing = await db.getAllFromIndex('activity', 'date', today);
   for (const e of existing) await db.delete('activity', e.id);

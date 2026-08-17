@@ -4,7 +4,7 @@ import './Overview.css';
 
 // ─── Helpers ─────────────────────────────────────────────
 function formatDate(d) {
-  return d.toISOString().split('T')[0];
+  return d.toLocaleDateString('en-CA');
 }
 
 function getWeekRange(offset = 0) {
