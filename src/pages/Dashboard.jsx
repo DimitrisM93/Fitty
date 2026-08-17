@@ -7,8 +7,7 @@ import { saveActivitySnapshot, getActivityForDate } from '../services/db';
 import { useToast } from '../context/ToastContext';
 import './Dashboard.css';
 
-function CalorieArc({ consumed, burned, goal }) {
-  const net = consumed - burned;
+function CalorieArc({ consumed, goal }) {
   const pct = Math.min(consumed / goal, 1);
   const r = 80;
   const circ = 2 * Math.PI * r;
@@ -19,17 +18,6 @@ function CalorieArc({ consumed, burned, goal }) {
       <svg className="arc-svg" viewBox="0 0 200 200" width="200" height="200">
         {/* Background track */}
         <circle cx="100" cy="100" r={r} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="14"/>
-        {/* Burned arc (behind) */}
-        <circle
-          cx="100" cy="100" r={r}
-          fill="none"
-          stroke="url(#burnGrad)"
-          strokeWidth="14"
-          strokeDasharray={`${Math.min(burned / goal, 1) * circ} ${circ}`}
-          strokeLinecap="round"
-          transform="rotate(-90 100 100)"
-          opacity="0.5"
-        />
         {/* Consumed arc */}
         <circle
           cx="100" cy="100" r={r}
@@ -46,21 +34,15 @@ function CalorieArc({ consumed, burned, goal }) {
             <stop offset="0%" stopColor="#6ee7b7"/>
             <stop offset="100%" stopColor="#818cf8"/>
           </linearGradient>
-          <linearGradient id="burnGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#fb923c"/>
-            <stop offset="100%" stopColor="#f87171"/>
-          </linearGradient>
         </defs>
       </svg>
       <div className="arc-center">
-        <div className="arc-net" style={{ color: net > 0 ? 'var(--color-accent)' : 'var(--color-primary)' }}>
-          {net > 0 ? '+' : ''}{net}
+        <div className="arc-net" style={{ color: 'var(--color-primary)' }}>
+          {consumed}
         </div>
-        <div className="arc-net-label">kcal net</div>
+        <div className="arc-net-label">kcal</div>
         <div className="arc-sub">
-          <span style={{ color: 'var(--color-primary)' }}>↑ {consumed}</span>
-          <span style={{ color: 'var(--text-muted)' }}> / </span>
-          <span style={{ color: 'var(--color-accent)' }}>↓ {burned}</span>
+          <span style={{ color: 'var(--text-muted)' }}>Goal: {goal}</span>
         </div>
       </div>
     </div>
@@ -427,15 +409,11 @@ export default function Dashboard() {
 
       {/* Calorie Arc */}
       <div className="glass-card p-6 flex flex-col items-center mb-4">
-        <CalorieArc consumed={consumed} burned={burned} goal={goal} />
+        <CalorieArc consumed={consumed} goal={goal} />
         <div className="arc-legend">
           <div className="arc-legend-item">
             <span className="arc-legend-dot" style={{ background: 'var(--grad-primary)' }}/>
             <span>Consumed</span>
-          </div>
-          <div className="arc-legend-item">
-            <span className="arc-legend-dot" style={{ background: 'var(--grad-warm)' }}/>
-            <span>Burned</span>
           </div>
           <div className="arc-legend-item">
             <span className="arc-legend-dot" style={{ background: 'var(--color-border)' }}/>
@@ -463,10 +441,6 @@ export default function Dashboard() {
             <span className="chip chip-green">● Live</span>
           </div>
           <div className="stat-grid">
-            <div className="stat-block">
-              <div className="stat-value gradient-text-warm">{burned}</div>
-              <div className="stat-label">kcal burned</div>
-            </div>
             <div className="stat-block">
               <div className="stat-value" style={{ color: 'var(--color-secondary)' }}>{activity.steps.toLocaleString()}</div>
               <div className="stat-label">steps</div>
