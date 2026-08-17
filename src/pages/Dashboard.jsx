@@ -471,14 +471,6 @@ export default function Dashboard() {
               <div className="stat-value" style={{ color: 'var(--color-secondary)' }}>{activity.steps.toLocaleString()}</div>
               <div className="stat-label">steps</div>
             </div>
-            <div className="stat-block">
-              <div className="stat-value" style={{ color: 'var(--color-danger)' }}>{activity.heartRate || '–'}</div>
-              <div className="stat-label">bpm</div>
-            </div>
-            <div className="stat-block">
-              <div className="stat-value" style={{ color: 'var(--color-primary)' }}>{activity.activeMinutes}</div>
-              <div className="stat-label">active min</div>
-            </div>
           </div>
         </div>
       ) : (
