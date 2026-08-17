@@ -6,8 +6,12 @@
 }
 
 .progress-form .input-group {
-  flex: 1;
-  min-width: 120px;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.progress-form .input {
+  min-width: 0;
 }
 
 .progress-form .btn {
