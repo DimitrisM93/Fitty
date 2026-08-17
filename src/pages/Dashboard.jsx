@@ -434,7 +434,10 @@ export default function Dashboard() {
       {isToday && (connected ? (
         <div className="glass-card p-6 mb-4">
           <div className="flex items-center justify-between mb-4">
-            <p className="section-title" style={{ marginBottom: 0 }}>Activity</p>
+            <Link to="/activity" className="section-title" style={{ marginBottom: 0, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              Activity
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+            </Link>
             <span className="chip chip-green">● Live</span>
           </div>
           <div className="stat-grid">
