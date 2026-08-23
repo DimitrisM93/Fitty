@@ -267,35 +267,21 @@ export default function Overview() {
   const handleScreenshot = async () => {
     if (!reportRef.current) return;
     try {
+      // Temporarily remove animation class so it doesn't trigger opacity issues on clone
+      reportRef.current.classList.remove('animate-fade-in');
+      
+      // Add a slight delay as requested to let the DOM fully settle
+      await new Promise(resolve => setTimeout(resolve, 300));
+
       const canvas = await html2canvas(reportRef.current, {
         scale: 2,
         backgroundColor: '#0a0d14',
         useCORS: true,
-        onclone: (clonedDoc) => {
-          // Fix Tailwind opacity syntax bugs in html2canvas by forcing exact hex colors
-          const els = clonedDoc.querySelectorAll('.text-white, .gradient-text, .text-gray-200, .text-muted');
-          els.forEach(el => {
-            if (el.classList.contains('gradient-text')) {
-              el.style.background = 'none';
-              el.style.webkitTextFillColor = 'initial';
-              el.style.color = '#6ee7b7';
-            } else if (el.classList.contains('text-white')) {
-              el.style.color = '#ffffff';
-            } else if (el.classList.contains('text-gray-200')) {
-              el.style.color = '#e5e7eb';
-            } else if (el.classList.contains('text-muted')) {
-              el.style.color = '#94a3b8';
-            }
-          });
-          
-          // Fallback variable colors for specific elements that might fail
-          const borders = clonedDoc.querySelectorAll('[style*="var(--color-border)"]');
-          borders.forEach(el => {
-             if (el.style.borderBottom) el.style.borderBottom = '1px solid rgba(255,255,255,0.08)';
-             if (el.style.backgroundColor) el.style.backgroundColor = 'rgba(255,255,255,0.08)';
-          });
-        }
       });
+      
+      // Restore animation class
+      reportRef.current.classList.add('animate-fade-in');
+
       const dataUrl = canvas.toDataURL('image/png');
       const link = document.createElement('a');
       link.href = dataUrl;
@@ -303,6 +289,7 @@ export default function Overview() {
       link.click();
     } catch (error) {
       console.error('Failed to capture screenshot', error);
+      if (reportRef.current) reportRef.current.classList.add('animate-fade-in');
     }
   };
 
@@ -491,12 +478,12 @@ export default function Overview() {
                           paddingBottom: '28px'
                         }}>
                           <div className="flex justify-between items-end mb-4">
-                             <h3 className="font-bold text-xl text-white tracking-wide">
+                             <h3 className="font-bold text-xl tracking-wide" style={{ color: '#ffffff' }}>
                                {dateObj.toLocaleDateString('en', { weekday: 'short', month: 'short', day: 'numeric' })}
                              </h3>
                              <div className="text-right">
-                               <span className="font-bold text-2xl gradient-text">{dayCals}</span>
-                               <span className="text-xs text-muted ml-1">kcal</span>
+                               <span className="font-bold text-2xl" style={{ color: '#6ee7b7' }}>{dayCals}</span>
+                               <span className="text-xs ml-1" style={{ color: '#94a3b8' }}>kcal</span>
                              </div>
                           </div>
                           
@@ -522,10 +509,10 @@ export default function Overview() {
                               <div key={m.id}>
                                  <div className="flex justify-between items-center" style={{ padding: '24px 20px' }}>
                                     <div className="flex-1 pr-4">
-                                      <div className="text-[11px] font-bold uppercase tracking-wider mb-1" style={{ color: 'var(--text-secondary)' }}>
+                                      <div className="text-[11px] font-bold uppercase tracking-wider mb-1" style={{ color: '#94a3b8' }}>
                                         {m.meal_type ? m.meal_type : 'Meal'}
                                       </div>
-                                      <div className="font-medium text-white text-[15px] leading-snug">
+                                      <div className="font-medium text-[15px] leading-snug" style={{ color: '#ffffff' }}>
                                         {m.items && m.items.length > 0
                                           ? m.items.slice(0, 2).map(i => i.name).join(', ') + (m.items.length > 2 ? ` +${m.items.length - 2}` : '')
                                           : m.notes || 'Unnamed Meal'}
@@ -533,7 +520,7 @@ export default function Overview() {
                                     </div>
                                     
                                     <div className="text-right">
-                                      <div className="font-bold text-lg text-white mb-1">{m.total_calories} <span className="text-[11px] text-muted font-normal">kcal</span></div>
+                                      <div className="font-bold text-lg mb-1" style={{ color: '#ffffff' }}>{m.total_calories} <span className="text-[11px] font-normal" style={{ color: '#94a3b8' }}>kcal</span></div>
                                       <div className="flex justify-end gap-3 text-xs font-semibold">
                                         <span style={{color: 'var(--color-primary)'}}>{Math.round(m.total_protein || 0)}p</span>
                                         <span style={{color: 'var(--color-secondary)'}}>{Math.round(m.total_carbs || 0)}c</span>
