@@ -474,7 +474,7 @@ export default function Dashboard() {
       <div className="glass-card p-6 mb-4">
         <div className="flex items-center justify-between mb-4">
           <p className="section-title" style={{ marginBottom: 0 }}>Meals</p>
-          <Link to="/log-meal" className="btn btn-sm btn-ghost">+ Add</Link>
+          <Link to={`/log-meal?date=${selectedDate}`} className="btn btn-sm btn-ghost">+ Add</Link>
         </div>
 
         {loading ? (
@@ -483,7 +483,7 @@ export default function Dashboard() {
           <div className="empty-state">
             <div className="empty-icon">🍽️</div>
             <p>No meals logged{isToday ? ' yet' : ''}</p>
-            {isToday && <Link to="/log-meal" className="btn btn-primary btn-sm mt-4">Log First Meal</Link>}
+            <Link to={`/log-meal?date=${selectedDate}`} className="btn btn-primary btn-sm mt-4">Log First Meal</Link>
           </div>
         ) : (
           <div className="meal-list">
@@ -626,10 +626,10 @@ export default function Dashboard() {
 
               <div className="input-group">
                 <label className="input-label">Notes</label>
-                <input
-                  type="text"
-                  className="input"
+                <textarea
+                  className="textarea-notes"
                   placeholder="Optional notes..."
+                  rows={3}
                   value={editForm.notes}
                   onChange={e => setEditForm(f => ({ ...f, notes: e.target.value }))}
                 />

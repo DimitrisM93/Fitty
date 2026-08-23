@@ -425,7 +425,10 @@
 }
 
 .meal-info { flex: 1; min-width: 0; }
-.meal-info p { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.meal-info p { 
+  word-wrap: break-word; 
+  white-space: normal; 
+}
 
 .meal-cal {
   display: flex;
@@ -591,3 +594,4 @@
 .animate-slide-up {
   animation: slideUp 0.35s cubic-bezier(0.32, 0.72, 0, 1) forwards;
 }
+.textarea-notes { min-height: 80px; resize: vertical; line-height: 1.5; padding: 12px 16px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: var(--font); font-size: 0.9375rem; color: var(--text-primary); outline: none; width: 100%; box-sizing: border-box; white-space: pre-wrap; word-wrap: break-word; }

@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { analyzeMealViaServer, saveMeal, fetchFavorites, saveFavorite, deleteFavorite, updateFavorite } from '../services/api';
 import { imageFileToBase64 } from '../services/gemini';
 import { useToast } from '../context/ToastContext';
@@ -88,6 +89,8 @@ function AnalysisResult({ result, onSave, onRetry, imageUrl }) {
 }
 
 export default function LogMeal() {
+  const [searchParams] = useSearchParams();
+  const targetDate = searchParams.get('date');
   const [step, setStep] = useState('upload'); // upload | analyzing | result | saved
   const [inputMode, setInputMode] = useState('photo'); // photo | text | quick | favorites
   const [imageFile, setImageFile] = useState(null);
@@ -174,6 +177,7 @@ export default function LogMeal() {
   const handleLogFavorite = useCallback(async (fav) => {
     try {
       const meal = {
+        meal_date: targetDate || undefined,
         meal_type: fav.meal_type || 'snack',
         total_calories: fav.total_calories,
         total_protein: fav.total_protein,
@@ -191,7 +195,7 @@ export default function LogMeal() {
     } catch {
       showToast('Failed to log favorite', 'error');
     }
-  }, [showToast]);
+  }, [showToast, targetDate]);
 
   const handleFileSelect = useCallback((file) => {
     if (!file || !file.type.startsWith('image/')) return;
@@ -229,13 +233,13 @@ export default function LogMeal() {
   const handleSave = useCallback(async () => {
     if (!result) return;
     try {
-      await saveMeal({ ...result, imageUrl });
+      await saveMeal({ ...result, imageUrl, meal_date: targetDate || undefined });
       showToast('Meal saved! 🎉', 'success');
       setStep('saved');
     } catch {
       showToast('Failed to save meal', 'error');
     }
-  }, [result, imageUrl, showToast]);
+  }, [result, imageUrl, showToast, targetDate]);
 
   const handleQuickSave = useCallback(async () => {
     const cals = parseInt(quickForm.total_calories);
@@ -247,6 +251,7 @@ export default function LogMeal() {
     setError('');
     try {
       const meal = {
+        meal_date: targetDate || undefined,
         meal_type: quickForm.meal_type,
         total_calories: cals,
         total_protein: parseFloat(quickForm.total_protein) || 0,
@@ -266,7 +271,7 @@ export default function LogMeal() {
     } finally {
       setQuickSaving(false);
     }
-  }, [quickForm, showToast]);
+  }, [quickForm, showToast, targetDate]);
 
   const reset = useCallback(() => {
     setStep('upload');
@@ -365,7 +370,7 @@ export default function LogMeal() {
                   </div>
                   <div className="input-group">
                     <label className="input-label">Ingredients / Notes</label>
-                    <input type="text" className="input" placeholder="e.g. 200g yogurt, 1 tsp honey..." value={favForm.notes} onChange={e => setFavForm(f => ({ ...f, notes: e.target.value }))} />
+                    <textarea className="textarea-notes" placeholder="e.g. 200g yogurt, 1 tsp honey..." rows={2} value={favForm.notes} onChange={e => setFavForm(f => ({ ...f, notes: e.target.value }))} />
                   </div>
                   <div className="flex gap-3 mt-4">
                     <button className="btn btn-ghost w-full" onClick={() => setIsCreatingFav(false)}>Cancel</button>
@@ -479,10 +484,10 @@ export default function LogMeal() {
 
                 <div className="input-group">
                   <label className="input-label">Notes</label>
-                  <input
-                    type="text"
-                    className="input"
+                  <textarea
+                    className="textarea-notes"
                     placeholder="Optional notes..."
+                    rows={3}
                     value={quickForm.notes}
                     onChange={e => setQuickForm(f => ({ ...f, notes: e.target.value }))}
                   />
