@@ -370,7 +370,7 @@ export default function LogMeal() {
                   </div>
                   <div className="input-group">
                     <label className="input-label">Ingredients / Notes</label>
-                    <textarea className="textarea-notes" placeholder="e.g. 200g yogurt, 1 tsp honey..." rows={2} value={favForm.notes} onChange={e => setFavForm(f => ({ ...f, notes: e.target.value }))} />
+                    <textarea ref={favNotesRef} className="textarea-notes" placeholder="e.g. 200g yogurt, 1 tsp honey..." rows={2} value={favForm.notes} onChange={e => setFavForm(f => ({ ...f, notes: e.target.value }))} />
                   </div>
                   <div className="flex gap-3 mt-4">
                     <button className="btn btn-ghost w-full" onClick={() => setIsCreatingFav(false)}>Cancel</button>
@@ -485,6 +485,7 @@ export default function LogMeal() {
                 <div className="input-group">
                   <label className="input-label">Notes</label>
                   <textarea
+                    ref={quickNotesRef}
                     className="textarea-notes"
                     placeholder="Optional notes..."
                     rows={3}

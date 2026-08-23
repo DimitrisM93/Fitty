@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { fetchMeals, fetchMealsRange, deleteMeal, updateMeal, saveFavorite } from '../services/api';
 import { fetchProfile } from '../services/api';
@@ -163,6 +163,15 @@ export default function Dashboard() {
   const [saving, setSaving] = useState(false);
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [mealDates, setMealDates] = useState(new Set());
+  const notesRef = useRef(null);
+
+  useEffect(() => {
+    if (editingMeal && notesRef.current) {
+      notesRef.current.style.height = 'auto';
+      notesRef.current.style.height = `${notesRef.current.scrollHeight}px`;
+    }
+  }, [editForm.notes, editingMeal]);
+
   const connected = isConnected();
   const showToast = useToast();
 
@@ -627,6 +636,7 @@ export default function Dashboard() {
               <div className="input-group">
                 <label className="input-label">Notes</label>
                 <textarea
+                  ref={notesRef}
                   className="textarea-notes"
                   placeholder="Optional notes..."
                   rows={3}
