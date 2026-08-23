@@ -366,7 +366,7 @@ export default function Overview() {
                 <p className="text-muted text-sm">No meals logged in this period</p>
               </div>
             ) : (
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col">
                 {Object.entries(grouped)
                   .sort(([a], [b]) => b.localeCompare(a)) // Sort newest first
                   .map(([date, dayMeals]) => {
@@ -376,32 +376,56 @@ export default function Overview() {
                     const dayF = dayMeals.reduce((s, m) => s + (m.total_fat || 0), 0);
                     const dateObj = new Date(date + 'T00:00:00');
                     return (
-                      <div key={date} className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl overflow-hidden shadow-sm">
-                        <div className="p-4 bg-[rgba(255,255,255,0.02)] border-b border-[var(--color-border)]">
-                          <div className="flex justify-between items-center mb-2">
-                             <div className="font-semibold text-lg">{dateObj.toLocaleDateString('en', { weekday: 'short', month: 'short', day: 'numeric' })}</div>
-                             <div className="font-bold gradient-text">{dayCals} kcal</div>
+                      <div key={date} className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl overflow-hidden mb-6 shadow-md">
+                        {/* Header */}
+                        <div className="p-5 border-b border-[var(--color-border)]" style={{ background: 'linear-gradient(to right, rgba(255,255,255,0.02), rgba(255,255,255,0))' }}>
+                          <div className="flex justify-between items-end mb-4">
+                             <h3 className="font-bold text-xl text-white tracking-wide">
+                               {dateObj.toLocaleDateString('en', { weekday: 'short', month: 'short', day: 'numeric' })}
+                             </h3>
+                             <div className="text-right">
+                               <span className="font-bold text-2xl gradient-text">{dayCals}</span>
+                               <span className="text-xs text-muted ml-1">kcal</span>
+                             </div>
                           </div>
-                          <div className="flex gap-4 text-xs font-semibold">
-                             <span className="flex items-center gap-1" style={{color: 'var(--color-primary)'}}>{Math.round(dayP)}g P</span>
-                             <span className="flex items-center gap-1" style={{color: '#38bdf8'}}>{Math.round(dayC)}g C</span>
-                             <span className="flex items-center gap-1" style={{color: 'var(--color-accent)'}}>{Math.round(dayF)}g F</span>
+                          
+                          <div className="flex gap-6 text-sm font-medium mt-1">
+                             <div className="flex items-center gap-1.5" style={{color: 'var(--color-primary)'}}>
+                               <div className="w-2 h-2 rounded-full bg-current"></div>
+                               {Math.round(dayP)}g P
+                             </div>
+                             <div className="flex items-center gap-1.5" style={{color: 'var(--color-secondary)'}}>
+                               <div className="w-2 h-2 rounded-full bg-current"></div>
+                               {Math.round(dayC)}g C
+                             </div>
+                             <div className="flex items-center gap-1.5" style={{color: 'var(--color-accent)'}}>
+                               <div className="w-2 h-2 rounded-full bg-current"></div>
+                               {Math.round(dayF)}g F
+                             </div>
                           </div>
                         </div>
-                        <div className="p-3 flex flex-col gap-2">
-                           {dayMeals.map(m => (
-                              <div key={m.id} className="flex justify-between items-center text-sm p-2 rounded-lg hover:bg-[rgba(255,255,255,0.02)] transition-colors">
-                                 <div className="flex-1">
-                                   <div className="font-medium capitalize text-gray-200">
+
+                        {/* Meals */}
+                        <div className="flex flex-col">
+                           {dayMeals.map((m, idx) => (
+                              <div key={m.id} className={`p-5 flex justify-between items-center ${idx !== dayMeals.length - 1 ? 'border-b border-[var(--color-border)]' : ''}`}>
+                                 <div className="flex-1 pr-4">
+                                   <div className="text-[11px] font-bold uppercase tracking-wider mb-1" style={{ color: 'var(--text-secondary)' }}>
+                                     {m.meal_type ? m.meal_type : 'Meal'}
+                                   </div>
+                                   <div className="font-medium text-white text-[15px] leading-snug">
                                      {m.items && m.items.length > 0
-                                       ? m.items.slice(0, 2).map(i => i.name).join(', ') + (m.items.length > 2 ? ` +${m.items.length - 2} more` : '')
-                                       : m.notes || m.meal_type || 'Meal'}
+                                       ? m.items.slice(0, 2).map(i => i.name).join(', ') + (m.items.length > 2 ? ` +${m.items.length - 2}` : '')
+                                       : m.notes || 'Unnamed Meal'}
                                    </div>
                                  </div>
-                                 <div className="text-right pl-4">
-                                   <div className="font-semibold" style={{color: 'var(--color-accent)'}}>{m.total_calories} kcal</div>
-                                   <div className="text-[10px] font-medium mt-1">
-                                     <span style={{color: 'var(--color-primary)'}}>{Math.round(m.total_protein || 0)}p</span> • <span style={{color: '#38bdf8'}}>{Math.round(m.total_carbs || 0)}c</span> • <span style={{color: 'var(--color-accent)'}}>{Math.round(m.total_fat || 0)}f</span>
+                                 
+                                 <div className="text-right">
+                                   <div className="font-bold text-lg text-white mb-1">{m.total_calories} <span className="text-[11px] text-muted font-normal">kcal</span></div>
+                                   <div className="flex justify-end gap-3 text-xs font-semibold">
+                                     <span style={{color: 'var(--color-primary)'}}>{Math.round(m.total_protein || 0)}p</span>
+                                     <span style={{color: 'var(--color-secondary)'}}>{Math.round(m.total_carbs || 0)}c</span>
+                                     <span style={{color: 'var(--color-accent)'}}>{Math.round(m.total_fat || 0)}f</span>
                                    </div>
                                  </div>
                               </div>
