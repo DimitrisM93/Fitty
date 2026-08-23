@@ -382,10 +382,10 @@ export default function Overview() {
                              <div className="font-semibold text-lg">{dateObj.toLocaleDateString('en', { weekday: 'short', month: 'short', day: 'numeric' })}</div>
                              <div className="font-bold gradient-text">{dayCals} kcal</div>
                           </div>
-                          <div className="flex gap-4 text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>
-                             <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full" style={{background: 'var(--grad-primary)'}}/>{Math.round(dayP)}g P</span>
-                             <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full" style={{background: 'var(--grad-cool)'}}/>{Math.round(dayC)}g C</span>
-                             <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full" style={{background: 'var(--grad-warm)'}}/>{Math.round(dayF)}g F</span>
+                          <div className="flex gap-4 text-xs font-semibold">
+                             <span className="flex items-center gap-1" style={{color: 'var(--color-primary)'}}>{Math.round(dayP)}g P</span>
+                             <span className="flex items-center gap-1" style={{color: '#38bdf8'}}>{Math.round(dayC)}g C</span>
+                             <span className="flex items-center gap-1" style={{color: 'var(--color-accent)'}}>{Math.round(dayF)}g F</span>
                           </div>
                         </div>
                         <div className="p-3 flex flex-col gap-2">
@@ -399,8 +399,10 @@ export default function Overview() {
                                    </div>
                                  </div>
                                  <div className="text-right pl-4">
-                                   <div className="font-semibold text-gray-100">{m.total_calories} kcal</div>
-                                   <div className="text-[10px] text-gray-500">{Math.round(m.total_protein || 0)}p • {Math.round(m.total_carbs || 0)}c • {Math.round(m.total_fat || 0)}f</div>
+                                   <div className="font-semibold" style={{color: 'var(--color-accent)'}}>{m.total_calories} kcal</div>
+                                   <div className="text-[10px] font-medium mt-1">
+                                     <span style={{color: 'var(--color-primary)'}}>{Math.round(m.total_protein || 0)}p</span> • <span style={{color: '#38bdf8'}}>{Math.round(m.total_carbs || 0)}c</span> • <span style={{color: 'var(--color-accent)'}}>{Math.round(m.total_fat || 0)}f</span>
+                                   </div>
                                  </div>
                               </div>
                            ))}
