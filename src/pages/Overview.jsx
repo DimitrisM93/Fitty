@@ -26,6 +26,14 @@ function getMonthRange(offset = 0) {
   return { from: formatDate(first), to: formatDate(last), label: first.toLocaleDateString('en', { month: 'long', year: 'numeric' }) };
 }
 
+function get15DaysRange(offset = 0) {
+  const to = new Date();
+  to.setDate(to.getDate() + offset * 15);
+  const from = new Date(to);
+  from.setDate(to.getDate() - 14); // 15 days total
+  return { from: formatDate(from), to: formatDate(to), label: `${from.toLocaleDateString('en', { month: 'short', day: 'numeric' })} – ${to.toLocaleDateString('en', { month: 'short', day: 'numeric' })}` };
+}
+
 function groupByDate(meals) {
   const groups = {};
   for (const m of meals) {
@@ -110,18 +118,27 @@ function HeatmapCalendar({ year, month, dailyData, goal }) {
 
 // ─── Main Component ──────────────────────────────────────
 export default function Overview() {
-  const [tab, setTab] = useState('weekly'); // weekly | monthly
+  const [tab, setTab] = useState('weekly'); // weekly | 15days | monthly | custom
   const [offset, setOffset] = useState(0);
+  const [customRange, setCustomRange] = useState({
+    from: formatDate(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)),
+    to: formatDate(new Date())
+  });
   const [meals, setMeals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [goal, setGoal] = useState(2000);
 
   const range = useMemo(() => {
-    return tab === 'weekly' ? getWeekRange(offset) : getMonthRange(offset);
-  }, [tab, offset]);
+    if (tab === 'weekly') return getWeekRange(offset);
+    if (tab === '15days') return get15DaysRange(offset);
+    if (tab === 'monthly') return getMonthRange(offset);
+    return { from: customRange.from, to: customRange.to, label: 'Custom Range' };
+  }, [tab, offset, customRange]);
 
   useEffect(() => {
-    setOffset(0);
+    if (tab !== 'custom') {
+      setOffset(0);
+    }
   }, [tab]);
 
   useEffect(() => {
@@ -209,7 +226,7 @@ export default function Overview() {
       </div>
 
       {/* Tab Switcher */}
-      <div className="overview-tabs mb-4">
+      <div className="overview-tabs mb-4 flex-wrap" style={{ flexWrap: 'wrap', gap: '8px' }}>
         <button
           className={`overview-tab ${tab === 'weekly' ? 'active' : ''}`}
           onClick={() => setTab('weekly')}
@@ -217,23 +234,60 @@ export default function Overview() {
           Weekly
         </button>
         <button
+          className={`overview-tab ${tab === '15days' ? 'active' : ''}`}
+          onClick={() => setTab('15days')}
+        >
+          15 Days
+        </button>
+        <button
           className={`overview-tab ${tab === 'monthly' ? 'active' : ''}`}
           onClick={() => setTab('monthly')}
         >
           Monthly
         </button>
+        <button
+          className={`overview-tab ${tab === 'custom' ? 'active' : ''}`}
+          onClick={() => setTab('custom')}
+        >
+          Custom
+        </button>
       </div>
 
+      {tab === 'custom' && (
+        <div className="glass-card p-4 mb-4 flex gap-4 items-center justify-between">
+          <div className="flex flex-col flex-1">
+            <label className="text-xs text-muted mb-1">Start Date</label>
+            <input 
+              type="date" 
+              className="input text-sm p-2" 
+              value={customRange.from}
+              onChange={e => setCustomRange(c => ({ ...c, from: e.target.value }))}
+            />
+          </div>
+          <div className="flex flex-col flex-1">
+            <label className="text-xs text-muted mb-1">End Date</label>
+            <input 
+              type="date" 
+              className="input text-sm p-2" 
+              value={customRange.to}
+              onChange={e => setCustomRange(c => ({ ...c, to: e.target.value }))}
+            />
+          </div>
+        </div>
+      )}
+
       {/* Period Navigation */}
-      <div className="period-nav mb-4">
-        <button className="period-arrow" onClick={() => setOffset(o => o - 1)}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-        </button>
-        <span className="period-label">{range.label}</span>
-        <button className="period-arrow" onClick={() => setOffset(o => o + 1)} disabled={offset >= 0}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-        </button>
-      </div>
+      {tab !== 'custom' && (
+        <div className="period-nav mb-4">
+          <button className="period-arrow" onClick={() => setOffset(o => o - 1)}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <span className="period-label">{range.label}</span>
+          <button className="period-arrow" onClick={() => setOffset(o => o + 1)} disabled={offset >= 0}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+      )}
 
       {loading ? (
         <div className="flex justify-center p-6"><div className="spinner"/></div>
@@ -274,19 +328,19 @@ export default function Overview() {
 
           {/* Avg Macros */}
           <div className="glass-card p-6 mb-4">
-            <p className="section-title">Average Daily Macros</p>
-            <div className="overview-macro-row">
-              <div className="overview-macro-card">
-                <div className="overview-macro-value" style={{ color: 'var(--color-primary)' }}>{avgProtein}g</div>
-                <div className="overview-macro-label">Protein</div>
+            <p className="section-title">Overall Period Macros</p>
+            <div className="flex flex-col gap-4">
+              <div className="flex justify-between items-center text-sm">
+                <span className="font-semibold text-[var(--color-primary)]">Protein</span>
+                <span>Total: <b className="text-white">{Math.round(totalProtein)}g</b> (Avg: {avgProtein}g)</span>
               </div>
-              <div className="overview-macro-card">
-                <div className="overview-macro-value" style={{ color: 'var(--color-secondary)' }}>{avgCarbs}g</div>
-                <div className="overview-macro-label">Carbs</div>
+              <div className="flex justify-between items-center text-sm">
+                <span className="font-semibold text-[var(--color-secondary)]">Carbs</span>
+                <span>Total: <b className="text-white">{Math.round(totalCarbs)}g</b> (Avg: {avgCarbs}g)</span>
               </div>
-              <div className="overview-macro-card">
-                <div className="overview-macro-value" style={{ color: 'var(--color-accent)' }}>{avgFat}g</div>
-                <div className="overview-macro-label">Fat</div>
+              <div className="flex justify-between items-center text-sm">
+                <span className="font-semibold text-[var(--color-accent)]">Fat</span>
+                <span>Total: <b className="text-white">{Math.round(totalFat)}g</b> (Avg: {avgFat}g)</span>
               </div>
             </div>
           </div>
@@ -304,33 +358,52 @@ export default function Overview() {
             </div>
           )}
 
-          {/* Day Breakdown */}
+          {/* Day Breakdown Detailed Report */}
           <div className="glass-card p-6 mb-4">
-            <p className="section-title">Day-by-Day</p>
+            <p className="section-title">Detailed Report</p>
             {daysWithData === 0 ? (
               <div className="empty-state">
                 <p className="text-muted text-sm">No meals logged in this period</p>
               </div>
             ) : (
-              <div className="day-breakdown">
+              <div className="flex flex-col gap-4">
                 {Object.entries(grouped)
-                  .sort(([a], [b]) => a.localeCompare(b))
+                  .sort(([a], [b]) => b.localeCompare(a)) // Sort newest first
                   .map(([date, dayMeals]) => {
                     const dayCals = dayMeals.reduce((s, m) => s + (m.total_calories || 0), 0);
-                    const pct = Math.min(dayCals / goal, 1);
+                    const dayP = dayMeals.reduce((s, m) => s + (m.total_protein || 0), 0);
+                    const dayC = dayMeals.reduce((s, m) => s + (m.total_carbs || 0), 0);
+                    const dayF = dayMeals.reduce((s, m) => s + (m.total_fat || 0), 0);
                     const dateObj = new Date(date + 'T00:00:00');
                     return (
-                      <div key={date} className="day-row">
-                        <div className="day-row-date">
-                          <span className="day-row-weekday">{dateObj.toLocaleDateString('en', { weekday: 'short' })}</span>
-                          <span className="day-row-day">{dateObj.toLocaleDateString('en', { month: 'short', day: 'numeric' })}</span>
+                      <div key={date} className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl overflow-hidden shadow-sm">
+                        <div className="p-4 bg-[rgba(255,255,255,0.02)] border-b border-[var(--color-border)]">
+                          <div className="flex justify-between items-center mb-2">
+                             <div className="font-semibold text-lg">{dateObj.toLocaleDateString('en', { weekday: 'short', month: 'short', day: 'numeric' })}</div>
+                             <div className="font-bold gradient-text">{dayCals} kcal</div>
+                          </div>
+                          <div className="flex gap-4 text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>
+                             <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full" style={{background: 'var(--grad-primary)'}}/>{Math.round(dayP)}g P</span>
+                             <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full" style={{background: 'var(--grad-cool)'}}/>{Math.round(dayC)}g C</span>
+                             <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full" style={{background: 'var(--grad-warm)'}}/>{Math.round(dayF)}g F</span>
+                          </div>
                         </div>
-                        <div className="day-row-bar">
-                          <div className="day-row-fill" style={{ width: `${pct * 100}%` }}/>
-                        </div>
-                        <div className="day-row-cal">
-                          <span className="gradient-text font-bold">{dayCals}</span>
-                          <span className="text-xs text-muted">kcal</span>
+                        <div className="p-3 flex flex-col gap-2">
+                           {dayMeals.map(m => (
+                              <div key={m.id} className="flex justify-between items-center text-sm p-2 rounded-lg hover:bg-[rgba(255,255,255,0.02)] transition-colors">
+                                 <div className="flex-1">
+                                   <div className="font-medium capitalize text-gray-200">
+                                     {m.items && m.items.length > 0
+                                       ? m.items.slice(0, 2).map(i => i.name).join(', ') + (m.items.length > 2 ? ` +${m.items.length - 2} more` : '')
+                                       : m.notes || m.meal_type || 'Meal'}
+                                   </div>
+                                 </div>
+                                 <div className="text-right pl-4">
+                                   <div className="font-semibold text-gray-100">{m.total_calories} kcal</div>
+                                   <div className="text-[10px] text-gray-500">{Math.round(m.total_protein || 0)}p • {Math.round(m.total_carbs || 0)}c • {Math.round(m.total_fat || 0)}f</div>
+                                 </div>
+                              </div>
+                           ))}
                         </div>
                       </div>
                     );
