@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { fetchMealsRange, fetchProfile } from '../services/api';
-import { toPng } from 'html-to-image';
+import html2canvas from 'html2canvas';
 import './Overview.css';
 
 // ─── Helpers ─────────────────────────────────────────────
@@ -267,16 +267,36 @@ export default function Overview() {
   const handleScreenshot = async () => {
     if (!reportRef.current) return;
     try {
-      const dataUrl = await toPng(reportRef.current, {
-        quality: 1.0,
-        pixelRatio: 1, // Reduce memory footprint for long reports (fixes iOS blank canvas)
-        skipFonts: true, // Fixes Safari CORS issues with Google Fonts
+      const canvas = await html2canvas(reportRef.current, {
+        scale: 2,
         backgroundColor: '#0a0d14',
-        style: {
-          animation: 'none', // Prevent animate-fade-in from restarting at opacity 0
-          transform: 'none',
+        useCORS: true,
+        onclone: (clonedDoc) => {
+          // Fix Tailwind opacity syntax bugs in html2canvas by forcing exact hex colors
+          const els = clonedDoc.querySelectorAll('.text-white, .gradient-text, .text-gray-200, .text-muted');
+          els.forEach(el => {
+            if (el.classList.contains('gradient-text')) {
+              el.style.background = 'none';
+              el.style.webkitTextFillColor = 'initial';
+              el.style.color = '#6ee7b7';
+            } else if (el.classList.contains('text-white')) {
+              el.style.color = '#ffffff';
+            } else if (el.classList.contains('text-gray-200')) {
+              el.style.color = '#e5e7eb';
+            } else if (el.classList.contains('text-muted')) {
+              el.style.color = '#94a3b8';
+            }
+          });
+          
+          // Fallback variable colors for specific elements that might fail
+          const borders = clonedDoc.querySelectorAll('[style*="var(--color-border)"]');
+          borders.forEach(el => {
+             if (el.style.borderBottom) el.style.borderBottom = '1px solid rgba(255,255,255,0.08)';
+             if (el.style.backgroundColor) el.style.backgroundColor = 'rgba(255,255,255,0.08)';
+          });
         }
       });
+      const dataUrl = canvas.toDataURL('image/png');
       const link = document.createElement('a');
       link.href = dataUrl;
       link.download = `fitai-report-${range.from}-to-${range.to}.png`;
