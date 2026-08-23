@@ -271,6 +271,10 @@ export default function Overview() {
         quality: 1.0,
         pixelRatio: 2,
         backgroundColor: '#0a0d14',
+        style: {
+          animation: 'none', // Prevent animate-fade-in from restarting at opacity 0 on the clone
+          transform: 'none',
+        }
       });
       const link = document.createElement('a');
       link.href = dataUrl;
