@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { fetchMealsRange, fetchProfile } from '../services/api';
-import html2canvas from 'html2canvas';
+import { toPng } from 'html-to-image';
 import './Overview.css';
 
 // ─── Helpers ─────────────────────────────────────────────
@@ -267,12 +267,11 @@ export default function Overview() {
   const handleScreenshot = async () => {
     if (!reportRef.current) return;
     try {
-      const canvas = await html2canvas(reportRef.current, {
-        scale: 2, // High resolution
-        backgroundColor: '#0a0d14', // Match the app background
-        useCORS: true, // Allow cross-origin images if any
+      const dataUrl = await toPng(reportRef.current, {
+        quality: 1.0,
+        pixelRatio: 2,
+        backgroundColor: '#0a0d14',
       });
-      const dataUrl = canvas.toDataURL('image/png');
       const link = document.createElement('a');
       link.href = dataUrl;
       link.download = `fitai-report-${range.from}-to-${range.to}.png`;
