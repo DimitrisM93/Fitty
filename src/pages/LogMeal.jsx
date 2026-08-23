@@ -509,11 +509,24 @@ export default function LogMeal() {
 
       {/* Preview (only for images) */}
       {step === 'preview' && inputMode === 'photo' && (
-        <div className="preview-container animate-fade-in">
-          <img src={imageUrl} alt="Meal preview" className="preview-image"/>
+        <div className="preview-container animate-fade-in glass-card p-6">
+          <h2 className="text-xl font-bold mb-4 text-center">Ready to analyze?</h2>
+          <img src={imageUrl} alt="Meal preview" className="preview-image rounded-xl mb-4 w-full object-cover shadow-lg" style={{ maxHeight: '300px' }}/>
+          
+          <div className="input-group mb-2">
+            <label className="input-label text-left">Additional context (optional)</label>
+            <textarea 
+              className="input text-input-area" 
+              rows={2} 
+              placeholder="e.g. cooked in butter, drank a regular coke with it..." 
+              value={textQuery} 
+              onChange={(e) => setTextQuery(e.target.value)}
+            />
+          </div>
+
           <div className="flex gap-3 mt-4">
             <button onClick={reset} className="btn btn-ghost w-full">Retake</button>
-            <button onClick={analyze} className="btn btn-primary w-full">Analyze ✨</button>
+            <button onClick={analyze} className="btn btn-primary w-full shadow-glow">Analyze ✨</button>
           </div>
           {error && <p className="text-danger text-sm text-center mt-4">{error}</p>}
         </div>
