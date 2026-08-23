@@ -514,6 +514,20 @@ export default function Dashboard() {
                         ? meal.meal_type.charAt(0).toUpperCase() + meal.meal_type.slice(1)
                         : 'Meal'}
                     </p>
+                    <div className="meal-macros mt-2 flex gap-3 w-full max-w-[200px]">
+                      <div className="flex flex-col flex-1 gap-1">
+                        <div className="flex justify-between text-[10px] leading-none text-muted font-medium"><span>P</span><span>{meal.total_protein || 0}g</span></div>
+                        <div className="progress-bar" style={{height:'4px'}}><div className="progress-fill" style={{width:`${Math.min(((meal.total_protein||0)/150)*100, 100)}%`, background:'var(--grad-primary)'}}/></div>
+                      </div>
+                      <div className="flex flex-col flex-1 gap-1">
+                        <div className="flex justify-between text-[10px] leading-none text-muted font-medium"><span>C</span><span>{meal.total_carbs || 0}g</span></div>
+                        <div className="progress-bar" style={{height:'4px'}}><div className="progress-fill" style={{width:`${Math.min(((meal.total_carbs||0)/300)*100, 100)}%`, background:'var(--grad-cool)'}}/></div>
+                      </div>
+                      <div className="flex flex-col flex-1 gap-1">
+                        <div className="flex justify-between text-[10px] leading-none text-muted font-medium"><span>F</span><span>{meal.total_fat || 0}g</span></div>
+                        <div className="progress-bar" style={{height:'4px'}}><div className="progress-fill" style={{width:`${Math.min(((meal.total_fat||0)/80)*100, 100)}%`, background:'var(--grad-warm)'}}/></div>
+                      </div>
+                    </div>
                   </div>
                   <div className="meal-cal">
                     <span className="gradient-text font-bold">{meal.total_calories}</span>
