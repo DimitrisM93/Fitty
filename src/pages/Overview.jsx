@@ -219,10 +219,62 @@ export default function Overview() {
     return { year: d.getFullYear(), month: d.getMonth() };
   }, [range]);
 
+  const handleDownloadCSV = useCallback(() => {
+    if (!meals || meals.length === 0) return;
+    
+    // Sort meals by date
+    const sortedMeals = [...meals].sort((a, b) => {
+      const dateA = a.meal_date ? new Date(a.meal_date) : new Date(a.created_at);
+      const dateB = b.meal_date ? new Date(b.meal_date) : new Date(b.created_at);
+      return dateB - dateA;
+    });
+    
+    // Create CSV content
+    const headers = ['Date', 'Time', 'Meal Type', 'Name/Notes', 'Calories', 'Protein (g)', 'Carbs (g)', 'Fat (g)'];
+    const rows = sortedMeals.map(m => {
+      const d = m.meal_date ? new Date(m.meal_date) : new Date(m.created_at || Date.now());
+      const dateStr = d.toLocaleDateString('en-CA');
+      const timeStr = d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+      const mealName = m.items && m.items.length > 0 ? m.items.map(i => i.name).join(' + ') : m.notes || '';
+      return [
+        dateStr,
+        timeStr,
+        m.meal_type || 'meal',
+        `"${mealName.replace(/"/g, '""')}"`, // escape quotes
+        m.total_calories || 0,
+        m.total_protein || 0,
+        m.total_carbs || 0,
+        m.total_fat || 0
+      ].join(',');
+    });
+    
+    const csvContent = [headers.join(','), ...rows].join('\n');
+    
+    // Trigger download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `fitai-report-${range.from}-to-${range.to}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }, [meals, range]);
+
   return (
     <div className="page animate-fade-in">
-      <div className="page-header">
-        <h1><span className="gradient-text">Overview</span></h1>
+      <div className="page-header flex justify-between items-center mb-6">
+        <h1 style={{ marginBottom: 0 }}><span className="gradient-text">Overview</span></h1>
+        {meals.length > 0 && (
+          <button onClick={handleDownloadCSV} className="btn btn-sm" style={{ background: 'var(--color-surface-hover)', border: '1px solid var(--color-border)', color: 'white', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            Export CSV
+          </button>
+        )}
       </div>
 
       {/* Tab Switcher */}
