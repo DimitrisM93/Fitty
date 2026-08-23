@@ -406,10 +406,10 @@ export default function Overview() {
                         </div>
 
                         {/* Meals */}
-                        <div className="flex flex-col">
+                        <div className="flex flex-col pt-3 pb-2">
                            {dayMeals.map((m, idx) => (
                               <div key={m.id}>
-                                 <div className="p-5 flex justify-between items-center">
+                                 <div className="py-6 px-5 flex justify-between items-center">
                                     <div className="flex-1 pr-4">
                                       <div className="text-[11px] font-bold uppercase tracking-wider mb-1" style={{ color: 'var(--text-secondary)' }}>
                                         {m.meal_type ? m.meal_type : 'Meal'}
@@ -431,7 +431,7 @@ export default function Overview() {
                                     </div>
                                  </div>
                                  {idx !== dayMeals.length - 1 && (
-                                    <div style={{ height: '1px', backgroundColor: 'var(--color-border)', margin: '0 20px' }}></div>
+                                    <div style={{ height: '1px', backgroundColor: 'var(--color-border)', margin: '4px 20px' }}></div>
                                  )}
                               </div>
                            ))}
