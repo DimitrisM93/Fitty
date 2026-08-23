@@ -478,12 +478,12 @@ export default function Overview() {
                           paddingBottom: '28px'
                         }}>
                           <div className="flex justify-between items-end mb-4">
-                             <h3 className="font-bold text-xl tracking-wide" style={{ color: '#ffffff' }}>
+                             <h3 className="font-bold text-xl text-white tracking-wide">
                                {dateObj.toLocaleDateString('en', { weekday: 'short', month: 'short', day: 'numeric' })}
                              </h3>
                              <div className="text-right">
-                               <span className="font-bold text-2xl" style={{ color: '#6ee7b7' }}>{dayCals}</span>
-                               <span className="text-xs ml-1" style={{ color: '#94a3b8' }}>kcal</span>
+                               <span className="font-bold text-2xl gradient-text">{dayCals}</span>
+                               <span className="text-xs text-muted ml-1">kcal</span>
                              </div>
                           </div>
                           
@@ -509,10 +509,10 @@ export default function Overview() {
                               <div key={m.id}>
                                  <div className="flex justify-between items-center" style={{ padding: '24px 20px' }}>
                                     <div className="flex-1 pr-4">
-                                      <div className="text-[11px] font-bold uppercase tracking-wider mb-1" style={{ color: '#94a3b8' }}>
+                                      <div className="text-[11px] font-bold uppercase tracking-wider mb-1" style={{ color: 'var(--text-secondary)' }}>
                                         {m.meal_type ? m.meal_type : 'Meal'}
                                       </div>
-                                      <div className="font-medium text-[15px] leading-snug" style={{ color: '#ffffff' }}>
+                                      <div className="font-medium text-[15px] text-white leading-snug">
                                         {m.items && m.items.length > 0
                                           ? m.items.slice(0, 2).map(i => i.name).join(', ') + (m.items.length > 2 ? ` +${m.items.length - 2}` : '')
                                           : m.notes || 'Unnamed Meal'}
@@ -520,7 +520,7 @@ export default function Overview() {
                                     </div>
                                     
                                     <div className="text-right">
-                                      <div className="font-bold text-lg mb-1" style={{ color: '#ffffff' }}>{m.total_calories} <span className="text-[11px] font-normal" style={{ color: '#94a3b8' }}>kcal</span></div>
+                                      <div className="font-bold text-lg text-white mb-1">{m.total_calories} <span className="text-[11px] text-muted font-normal">kcal</span></div>
                                       <div className="flex justify-end gap-3 text-xs font-semibold">
                                         <span style={{color: 'var(--color-primary)'}}>{Math.round(m.total_protein || 0)}p</span>
                                         <span style={{color: 'var(--color-secondary)'}}>{Math.round(m.total_carbs || 0)}c</span>
