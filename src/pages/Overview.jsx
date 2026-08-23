@@ -378,7 +378,11 @@ export default function Overview() {
                     return (
                       <div key={date} className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl overflow-hidden mb-6 shadow-md">
                         {/* Header */}
-                        <div className="p-5 border-b border-[var(--color-border)]" style={{ background: 'linear-gradient(to right, rgba(255,255,255,0.02), rgba(255,255,255,0))' }}>
+                        <div className="p-5" style={{ 
+                          background: 'linear-gradient(to right, rgba(255,255,255,0.02), rgba(255,255,255,0))',
+                          borderBottom: '1px solid var(--color-border)',
+                          paddingBottom: '28px'
+                        }}>
                           <div className="flex justify-between items-end mb-4">
                              <h3 className="font-bold text-xl text-white tracking-wide">
                                {dateObj.toLocaleDateString('en', { weekday: 'short', month: 'short', day: 'numeric' })}
@@ -406,10 +410,10 @@ export default function Overview() {
                         </div>
 
                         {/* Meals */}
-                        <div className="flex flex-col pt-3 pb-2">
+                        <div className="flex flex-col" style={{ paddingTop: '8px' }}>
                            {dayMeals.map((m, idx) => (
                               <div key={m.id}>
-                                 <div className="py-6 px-5 flex justify-between items-center">
+                                 <div className="flex justify-between items-center" style={{ padding: '24px 20px' }}>
                                     <div className="flex-1 pr-4">
                                       <div className="text-[11px] font-bold uppercase tracking-wider mb-1" style={{ color: 'var(--text-secondary)' }}>
                                         {m.meal_type ? m.meal_type : 'Meal'}
