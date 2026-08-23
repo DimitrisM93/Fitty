@@ -1,5 +1,6 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { fetchMealsRange, fetchProfile } from '../services/api';
+import html2canvas from 'html2canvas';
 import './Overview.css';
 
 // ─── Helpers ─────────────────────────────────────────────
@@ -261,19 +262,49 @@ export default function Overview() {
     document.body.removeChild(link);
   }, [meals, range]);
 
+  const reportRef = useRef(null);
+
+  const handleScreenshot = async () => {
+    if (!reportRef.current) return;
+    try {
+      const canvas = await html2canvas(reportRef.current, {
+        scale: 2, // High resolution
+        backgroundColor: '#0a0d14', // Match the app background
+        useCORS: true, // Allow cross-origin images if any
+      });
+      const dataUrl = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.href = dataUrl;
+      link.download = `fitai-report-${range.from}-to-${range.to}.png`;
+      link.click();
+    } catch (error) {
+      console.error('Failed to capture screenshot', error);
+    }
+  };
+
   return (
-    <div className="page animate-fade-in">
+    <div className="page animate-fade-in" ref={reportRef}>
       <div className="page-header flex justify-between items-center mb-6">
         <h1 style={{ marginBottom: 0 }}><span className="gradient-text">Overview</span></h1>
         {meals.length > 0 && (
-          <button onClick={handleDownloadCSV} className="btn btn-sm" style={{ background: 'var(--color-surface-hover)', border: '1px solid var(--color-border)', color: 'white', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-              <polyline points="7 10 12 15 17 10" />
-              <line x1="12" y1="15" x2="12" y2="3" />
-            </svg>
-            Export CSV
-          </button>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button onClick={handleScreenshot} className="btn btn-sm" style={{ background: 'var(--color-surface-hover)', border: '1px solid var(--color-border)', color: 'white', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <circle cx="8.5" cy="8.5" r="1.5" />
+                <polyline points="21 15 16 10 5 21" />
+              </svg>
+              Image
+            </button>
+            <button onClick={handleDownloadCSV} className="btn btn-sm" style={{ background: 'var(--color-surface-hover)', border: '1px solid var(--color-border)', color: 'white', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              CSV
+            </button>
+          </div>
         )}
       </div>
 
