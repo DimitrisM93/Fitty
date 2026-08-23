@@ -269,10 +269,11 @@ export default function Overview() {
     try {
       const dataUrl = await toPng(reportRef.current, {
         quality: 1.0,
-        pixelRatio: 2,
+        pixelRatio: 1, // Reduce memory footprint for long reports (fixes iOS blank canvas)
+        skipFonts: true, // Fixes Safari CORS issues with Google Fonts
         backgroundColor: '#0a0d14',
         style: {
-          animation: 'none', // Prevent animate-fade-in from restarting at opacity 0 on the clone
+          animation: 'none', // Prevent animate-fade-in from restarting at opacity 0
           transform: 'none',
         }
       });
