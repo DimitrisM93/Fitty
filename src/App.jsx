@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { ToastProvider } from './context/ToastContext';
 import BottomNav from './components/BottomNav';
+import SidebarMenu from './components/SidebarMenu';
 import Dashboard from './pages/Dashboard';
 import LogMeal from './pages/LogMeal';
 import Activity from './pages/Activity';
@@ -14,6 +15,7 @@ import { isAuthenticated } from './services/api';
 
 export default function App() {
   const [unlocked, setUnlocked] = useState(isAuthenticated);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   if (!unlocked) {
     return <PinGate onUnlock={() => setUnlocked(true)} />;
@@ -32,7 +34,8 @@ export default function App() {
           <Route path="/oauth/callback" element={<OAuthCallback />} />
         </Routes>
       </main>
-      <BottomNav />
+      <SidebarMenu isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      <BottomNav onOpenMenu={() => setIsSidebarOpen(true)} />
     </ToastProvider>
   );
 }
