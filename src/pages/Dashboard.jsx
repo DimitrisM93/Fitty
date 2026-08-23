@@ -358,9 +358,9 @@ export default function Dashboard() {
           <LiveClock />
           <Link to="/">
             <img 
-              src="/favicon.svg" 
+              src="/favicon.jpg" 
               alt="Dashboard" 
-              style={{ width: '36px', height: '36px', filter: 'drop-shadow(0 0 12px rgba(110, 231, 183, 0.4))' }} 
+              style={{ width: '40px', height: '40px', borderRadius: '10px' }} 
             />
           </Link>
         </div>
