@@ -3,17 +3,45 @@ import {
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis,
   CartesianGrid, Tooltip,
 } from 'recharts';
-import { fetchWeightLogs, saveWeightLogApi, deleteWeightLogApi } from '../services/api';
+import { fetchWeightLogs, saveWeightLogApi, deleteWeightLogApi, fetchProfile } from '../services/api';
+import { getUserProfile } from '../services/storage';
 import { useToast } from '../context/ToastContext';
 import './Progress.css';
 
-function CustomTooltip({ active, payload }) {
+function calculateMetrics(weightVal, profile) {
+  if (!weightVal || !profile) return { bmi: null, bfp: null };
+  const w = parseFloat(weightVal);
+  const h = parseFloat(profile.height);
+  const age = parseInt(profile.age);
+  const isMale = profile.gender !== 'female';
+
+  if (!w || !h) return { bmi: null, bfp: null };
+  const bmiVal = w / Math.pow(h / 100, 2);
+  const bmiStr = bmiVal.toFixed(1);
+
+  let bfpStr = null;
+  if (age) {
+    const bfpVal = (1.20 * bmiVal) + (0.23 * age) - (10.8 * (isMale ? 1 : 0)) - 5.4;
+    bfpStr = bfpVal.toFixed(1);
+  }
+
+  return { bmi: bmiStr, bfp: bfpStr };
+}
+
+function CustomTooltip({ active, payload, profile }) {
   if (!active || !payload?.length) return null;
   const d = payload[0].payload;
+  const { bmi, bfp } = calculateMetrics(d.weight, profile);
   return (
     <div className="weight-tooltip">
       <div className="weight-tooltip-date">{d.label}</div>
       <div className="weight-tooltip-value">{d.weight} kg</div>
+      {(bmi || bfp) && (
+        <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px', display: 'flex', gap: '8px' }}>
+          {bmi && <span>BMI: <b style={{ color: 'white' }}>{bmi}</b></span>}
+          {bfp && <span>Fat: <b style={{ color: 'white' }}>{bfp}%</b></span>}
+        </div>
+      )}
     </div>
   );
 }
@@ -28,12 +56,19 @@ function formatLogDate(rawDate, options) {
 
 export default function Progress() {
   const [logs, setLogs] = useState([]);
+  const [profile, setProfile] = useState(getUserProfile);
   const [date, setDate] = useState(new Date().toLocaleDateString('en-CA'));
   const [weight, setWeight] = useState('');
   const showToast = useToast();
 
   useEffect(() => {
-    fetchWeightLogs().then(setLogs).catch(() => {});
+    Promise.all([
+      fetchWeightLogs().catch(() => []),
+      fetchProfile().catch(() => null),
+    ]).then(([logsData, profileData]) => {
+      setLogs(logsData);
+      if (profileData) setProfile(p => ({ ...p, ...profileData }));
+    });
   }, []);
 
   const handleAdd = async () => {
@@ -163,7 +198,7 @@ export default function Progress() {
                   tick={{ fontSize: 11 }}
                   tickFormatter={v => `${v}`}
                 />
-                <Tooltip content={<CustomTooltip />} />
+                <Tooltip content={<CustomTooltip profile={profile} />} />
                 <Area
                   type="monotone"
                   dataKey="weight"
@@ -202,32 +237,39 @@ export default function Progress() {
           </div>
         ) : (
           <div className="weight-history">
-            {[...logs].reverse().map(entry => (
-              <div key={entry.id} className="weight-entry">
-                <div className="weight-entry-info">
-                  <div className="weight-entry-icon">⚖️</div>
-                  <div className="weight-entry-text-container">
-                    <div className="weight-entry-value gradient-text">{entry.weight} kg</div>
-                    <div className="weight-entry-date">
-                      {formatLogDate(entry.log_date || entry.date, {
-                        weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'
-                      })}
+            {[...logs].reverse().map(entry => {
+              const { bmi, bfp } = calculateMetrics(entry.weight, profile);
+              return (
+                <div key={entry.id} className="weight-entry">
+                  <div className="weight-entry-info">
+                    <div className="weight-entry-icon">⚖️</div>
+                    <div className="weight-entry-text-container">
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                        <span className="weight-entry-value gradient-text">{entry.weight} kg</span>
+                        {bmi && <span className="chip chip-violet" style={{ fontSize: '11px', padding: '2px 8px' }}>BMI {bmi}</span>}
+                        {bfp && <span className="chip chip-orange" style={{ fontSize: '11px', padding: '2px 8px' }}>Fat {bfp}%</span>}
+                      </div>
+                      <div className="weight-entry-date" style={{ marginTop: '2px' }}>
+                        {formatLogDate(entry.log_date || entry.date, {
+                          weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'
+                        })}
+                      </div>
                     </div>
                   </div>
+                  <button
+                    className="weight-entry-delete"
+                    onClick={() => handleDelete(entry.id)}
+                    aria-label="Delete entry"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="3 6 5 6 21 6" />
+                      <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
+                      <path d="M10 11v6M14 11v6" />
+                    </svg>
+                  </button>
                 </div>
-                <button
-                  className="weight-entry-delete"
-                  onClick={() => handleDelete(entry.id)}
-                  aria-label="Delete entry"
-                >
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="3 6 5 6 21 6" />
-                    <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
-                    <path d="M10 11v6M14 11v6" />
-                  </svg>
-                </button>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
