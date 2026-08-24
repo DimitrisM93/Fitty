@@ -18,6 +18,14 @@ function CustomTooltip({ active, payload }) {
   );
 }
 
+function formatLogDate(rawDate, options) {
+  if (!rawDate) return '';
+  const dateStr = String(rawDate).split('T')[0];
+  const d = new Date(dateStr + 'T00:00:00');
+  if (isNaN(d.getTime())) return dateStr;
+  return d.toLocaleDateString('en', options);
+}
+
 export default function Progress() {
   const [logs, setLogs] = useState([]);
   const [date, setDate] = useState(new Date().toLocaleDateString('en-CA'));
@@ -63,13 +71,13 @@ export default function Progress() {
   // Prepare chart data — format dates for display
   const chartData = logs.map(l => ({
     ...l,
-    label: new Date(l.date + 'T00:00:00').toLocaleDateString('en', { month: 'short', day: 'numeric' }),
+    weight: parseFloat(l.weight),
+    label: formatLogDate(l.log_date || l.date, { month: 'short', day: 'numeric' }),
   }));
 
   // Stats
-  const weights = logs.map(l => l.weight);
+  const weights = logs.map(l => parseFloat(l.weight));
   const current = weights.length > 0 ? weights[weights.length - 1] : null;
-  const highest = weights.length > 0 ? Math.max(...weights) : null;
   const lowest = weights.length > 0 ? Math.min(...weights) : null;
   const change = weights.length >= 2 ? (weights[weights.length - 1] - weights[0]).toFixed(1) : null;
 
@@ -201,7 +209,7 @@ export default function Progress() {
                   <div className="weight-entry-text-container">
                     <div className="weight-entry-value gradient-text">{entry.weight} kg</div>
                     <div className="weight-entry-date">
-                      {new Date(entry.date + 'T00:00:00').toLocaleDateString('en', {
+                      {formatLogDate(entry.log_date || entry.date, {
                         weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'
                       })}
                     </div>
