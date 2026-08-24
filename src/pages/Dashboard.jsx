@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { fetchMeals, fetchMealsRange, deleteMeal, updateMeal, saveFavorite } from '../services/api';
-import { fetchProfile } from '../services/api';
+import { fetchProfile, fetchWeightLogs } from '../services/api';
 import { isConnected, fetchTodayStats, fetchWeeklySteps } from '../services/googleFit';
 import { saveActivitySnapshot, getActivityForDate } from '../services/db';
 import { useToast } from '../context/ToastContext';
@@ -188,15 +188,34 @@ export default function Dashboard() {
     }
   }, []);
 
-  // Initial load: profile + activity + meal dates for calendar dots
+  // Initial load: profile + activity + weight logs + meal dates for calendar dots
   useEffect(() => {
     (async () => {
       try {
-        const [serverProfile, cachedActivity] = await Promise.all([
-          fetchProfile(),
+        const [serverProfile, cachedActivity, weightLogs] = await Promise.all([
+          fetchProfile().catch(() => null),
           getActivityForDate(todayStr),
+          fetchWeightLogs().catch(() => []),
         ]);
-        if (serverProfile) setProfile(p => ({ ...p, ...serverProfile, goal: serverProfile.calorie_goal || p.goal }));
+
+        let latestWeight = serverProfile?.weight || '';
+        if (weightLogs && weightLogs.length > 0) {
+          const sorted = [...weightLogs].sort((a, b) => {
+            const dateA = a.log_date || a.date || '';
+            const dateB = b.log_date || b.date || '';
+            return dateB.localeCompare(dateA);
+          });
+          if (sorted[0]?.weight) {
+            latestWeight = sorted[0].weight;
+          }
+        }
+
+        setProfile(p => ({
+          ...p,
+          ...(serverProfile || {}),
+          weight: latestWeight || serverProfile?.weight || p.weight,
+          goal: serverProfile?.calorie_goal || p.goal,
+        }));
         if (cachedActivity) setActivity(cachedActivity);
 
         if (connected) {

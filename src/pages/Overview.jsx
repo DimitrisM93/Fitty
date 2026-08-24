@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { fetchMealsRange, fetchProfile } from '../services/api';
+import { fetchMealsRange, fetchProfile, fetchWeightLogs } from '../services/api';
 import html2canvas from 'html2canvas';
 import './Overview.css';
 
@@ -128,6 +128,7 @@ export default function Overview() {
   const [meals, setMeals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [goal, setGoal] = useState(2000);
+  const [latestWeight, setLatestWeight] = useState(null);
 
   const range = useMemo(() => {
     if (tab === 'weekly') return getWeekRange(offset);
@@ -157,8 +158,21 @@ export default function Overview() {
   }, [range]);
 
   useEffect(() => {
-    fetchProfile().then(p => {
+    Promise.all([
+      fetchProfile().catch(() => null),
+      fetchWeightLogs().catch(() => []),
+    ]).then(([p, logs]) => {
       if (p?.calorie_goal) setGoal(p.calorie_goal);
+      let w = p?.weight || null;
+      if (logs && logs.length > 0) {
+        const sorted = [...logs].sort((a, b) => {
+          const dateA = a.log_date || a.date || '';
+          const dateB = b.log_date || b.date || '';
+          return dateB.localeCompare(dateA);
+        });
+        if (sorted[0]?.weight) w = sorted[0].weight;
+      }
+      if (w) setLatestWeight(w);
     }).catch(() => {});
   }, []);
 
@@ -405,6 +419,12 @@ export default function Overview() {
               <div className="overview-stat-value" style={{ color: 'var(--color-accent)' }}>{daysWithData}</div>
               <div className="overview-stat-label">Days logged</div>
             </div>
+            {latestWeight && (
+              <div className="glass-card overview-stat-card">
+                <div className="overview-stat-value" style={{ color: '#6ee7b7' }}>{latestWeight} <span className="text-xs text-muted font-normal">kg</span></div>
+                <div className="overview-stat-label">Latest Weight</div>
+              </div>
+            )}
           </div>
 
           {/* Bar Chart */}

@@ -78,11 +78,27 @@ export function saveWeightLog(date, weight) {
   // Sort by date ascending
   logs.sort((a, b) => a.date.localeCompare(b.date));
   localStorage.setItem(getKey(STORAGE_KEYS.WEIGHT_LOGS), JSON.stringify(logs));
+
+  if (logs.length > 0) {
+    const latestWeight = logs[logs.length - 1].weight;
+    const profile = getUserProfile();
+    profile.weight = latestWeight;
+    setUserProfile(profile);
+  }
+
   return logs;
 }
 
 export function deleteWeightLog(id) {
   const logs = getWeightLogs().filter(l => l.id !== id);
   localStorage.setItem(getKey(STORAGE_KEYS.WEIGHT_LOGS), JSON.stringify(logs));
+
+  if (logs.length > 0) {
+    const latestWeight = logs[logs.length - 1].weight;
+    const profile = getUserProfile();
+    profile.weight = latestWeight;
+    setUserProfile(profile);
+  }
+
   return logs;
 }
