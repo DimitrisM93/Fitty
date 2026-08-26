@@ -467,7 +467,7 @@ export default function Dashboard() {
       </div>
 
       {/* Exercise Question Box */}
-      {exerciseAnswer === null && (
+      {exerciseAnswer === null && !(inactiveStreak >= 5 && isToday) && (
         <div className="glass-card p-5 mb-4 exercise-prompt-card animate-fade-in">
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <div className="flex items-center gap-3">
@@ -502,9 +502,9 @@ export default function Dashboard() {
         <div className="glass-card p-5 mb-4 exercise-alert-card animate-fade-in">
           <div className="flex items-start gap-3">
             <div className="alert-icon-badge">🔥</div>
-            <div className="flex-1">
-              <div className="flex items-center justify-between">
-                <h4 className="font-bold text-sm gradient-text-warm flex items-center gap-1.5">
+            <div className="flex-1" style={{ minWidth: 0 }}>
+              <div className="flex items-center justify-between gap-2" style={{ flexWrap: 'wrap' }}>
+                <h4 className="font-bold text-sm gradient-text-warm flex items-center gap-1.5" style={{ flexWrap: 'wrap' }}>
                   Time to hit the gym! 🏋️‍♂️
                 </h4>
                 <span className="chip chip-orange text-xs font-semibold">{inactiveStreak} days inactive</span>
@@ -512,7 +512,7 @@ export default function Dashboard() {
               <p className="text-xs text-secondary mt-1.5 leading-relaxed">
                 You haven't logged exercise in <strong>{inactiveStreak} days</strong>. Even a 20-minute workout today will boost your energy, metabolism, and progress!
               </p>
-              <div className="mt-3 flex items-center gap-2">
+              <div className="mt-3 flex items-center gap-2" style={{ flexWrap: 'wrap' }}>
                 <button
                   onClick={() => handleExerciseAnswer('yes')}
                   className="btn btn-primary btn-sm"
