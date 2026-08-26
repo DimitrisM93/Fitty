@@ -6,7 +6,10 @@ import './Overview.css';
 
 // ─── Helpers ─────────────────────────────────────────────
 function formatDate(d) {
-  return d.toLocaleDateString('en-CA');
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
 }
 
 function getWeekRange(offset = 0) {
@@ -136,12 +139,12 @@ function ExerciseCalendar({ range }) {
   const days = [];
   const from = new Date(range.from + 'T00:00:00');
   const to = new Date(range.to + 'T00:00:00');
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = formatDate(new Date());
   const duration = (to - from) / (1000 * 60 * 60 * 24);
   const d = new Date(from);
   
   while (d <= to) {
-    const dateStr = d.toISOString().split('T')[0];
+    const dateStr = formatDate(d);
     const isFuture = dateStr > todayStr;
     const isToday = dateStr === todayStr;
     const dayNum = d.getDate();

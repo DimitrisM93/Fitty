@@ -1,4 +1,5 @@
 import { getAuthToken } from './api';
+import { getLocalISODate } from './dateUtils';
 
 // Storage keys
 export const STORAGE_KEYS = {
@@ -113,7 +114,7 @@ export function getExerciseLogs() {
 
 export function getExerciseAnswerForDate(dateStr) {
   const logs = getExerciseLogs();
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = getLocalISODate(new Date());
   
   if (logs[dateStr]) {
     return logs[dateStr]; // 'yes' or 'no'
@@ -143,7 +144,7 @@ export function getInactiveStreakDays() {
   for (let i = 0; i < 30; i++) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
-    const dateStr = d.toISOString().split('T')[0];
+    const dateStr = getLocalISODate(d);
 
     const answer = logs[dateStr];
     if (answer === 'yes') {

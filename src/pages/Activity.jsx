@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { isConnected, connectGoogleFit, disconnectGoogleFit, fetchTodayStats, fetchWeeklySteps } from '../services/googleFit';
 import { saveActivitySnapshot, getActivityForDate, getActivityForWeek } from '../services/db';
+import { getLocalISODate } from '../services/dateUtils';
 import WeekChart from '../components/WeekChart';
 import { useToast } from '../context/ToastContext';
 import './Activity.css';
@@ -92,7 +93,7 @@ export default function Activity() {
   const [stats, setStats]         = useState({ calories: 0, steps: 0, heartRate: 0, activeMinutes: 0 });
   const [weekData, setWeekData]   = useState([]);
   const showToast = useToast();
-  const today = new Date().toLocaleDateString('en-CA');
+  const today = getLocalISODate(new Date());
 
   const loadData = useCallback(async (live = false) => {
     if (live) setRefreshing(true);
