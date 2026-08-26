@@ -64,9 +64,13 @@
   animation: fadeInUp 0.5s ease forwards;
 }
 
-.pin-logo {
-  font-size: 3rem;
+.pin-logo-img {
+  width: 64px;
+  height: 64px;
   animation: float 3s ease-in-out infinite;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
 @keyframes float {

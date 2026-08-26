@@ -106,7 +106,9 @@ export default function PinGate({ onUnlock }) {
         <div className="pin-bg-glow pin-bg-glow--1"/>
         <div className="pin-bg-glow pin-bg-glow--2"/>
         <div className="pin-card">
-          <div className="pin-logo">⚡</div>
+          <div className="pin-logo-img">
+            <img src="/favicon.png" alt="FitAI" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+          </div>
           <div className="spinner" style={{ marginTop: '1rem' }}/>
         </div>
       </div>
@@ -119,7 +121,9 @@ export default function PinGate({ onUnlock }) {
       <div className="pin-bg-glow pin-bg-glow--2"/>
 
       <div className="pin-card">
-        <div className="pin-logo">⚡</div>
+        <div className="pin-logo-img">
+          <img src="/favicon.png" alt="FitAI" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+        </div>
         <h1 className="pin-title">
           <span className="gradient-text">FitAI</span>
         </h1>
