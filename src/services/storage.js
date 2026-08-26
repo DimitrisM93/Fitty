@@ -1,5 +1,5 @@
 import { getAuthToken } from './api';
-import { getGreekTodayStr } from './dateUtils';
+import { getGreekTodayStr, getLocalISODate } from './dateUtils';
 
 // Storage keys
 export const STORAGE_KEYS = {
