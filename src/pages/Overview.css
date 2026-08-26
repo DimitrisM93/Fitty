@@ -296,7 +296,7 @@
 }
 
 .exercise-calendar-row::-webkit-scrollbar {
-  height: 4px;
+  height: 8px;
 }
 .exercise-calendar-row::-webkit-scrollbar-thumb {
   background: var(--color-border-strong);
