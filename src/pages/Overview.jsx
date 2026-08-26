@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { fetchMealsRange, fetchProfile, fetchWeightLogs } from '../services/api';
-import { getExerciseLogs } from '../services/storage';
+import { getExerciseLogs, saveExerciseAnswer } from '../services/storage';
 import html2canvas from 'html2canvas';
 import './Overview.css';
 
@@ -126,6 +126,13 @@ function ExerciseCalendar({ range }) {
     setLogs(getExerciseLogs());
   }, []);
 
+  const handleToggle = (dateStr, currentStatus, isFuture) => {
+    if (isFuture) return;
+    const newStatus = currentStatus === 'yes' ? 'no' : 'yes';
+    const updatedLogs = saveExerciseAnswer(dateStr, newStatus);
+    setLogs({ ...updatedLogs });
+  };
+
   const days = [];
   const from = new Date(range.from + 'T00:00:00');
   const to = new Date(range.to + 'T00:00:00');
@@ -150,7 +157,8 @@ function ExerciseCalendar({ range }) {
       label: duration > 14 ? dayNum : label,
       dayNum,
       status,
-      isToday
+      isToday,
+      isFuture
     });
     d.setDate(d.getDate() + 1);
   }
@@ -165,7 +173,13 @@ function ExerciseCalendar({ range }) {
       </div>
       <div className="exercise-calendar-row">
         {days.map((d, i) => (
-          <div key={i} className={`exercise-tick-cell ${d.status === 'yes' ? 'yes' : d.status === 'no' ? 'no' : ''} ${d.isToday ? 'today' : ''}`} title={d.dateStr}>
+          <div 
+            key={i} 
+            className={`exercise-tick-cell ${d.status === 'yes' ? 'yes' : d.status === 'no' ? 'no' : ''} ${d.isToday ? 'today' : ''}`} 
+            title={d.dateStr}
+            style={{ cursor: d.isFuture ? 'default' : 'pointer' }}
+            onClick={() => handleToggle(d.dateStr, d.status, d.isFuture)}
+          >
             <div className="tick-label">{d.label}</div>
             <div className="tick-circle">
               {d.status === 'yes' && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
