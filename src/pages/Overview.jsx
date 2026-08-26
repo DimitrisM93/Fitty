@@ -123,11 +123,13 @@ function HeatmapCalendar({ year, month, dailyData, goal }) {
 }
 
 // ─── Exercise Calendar ───────────────────────────────────
-function ExerciseCalendar({ range }) {
+function ExerciseCalendar({ range, onLogsChange }) {
   const [logs, setLogs] = useState({});
   
   useEffect(() => {
-    setLogs(getExerciseLogs());
+    const initLogs = getExerciseLogs();
+    setLogs(initLogs);
+    if (onLogsChange) onLogsChange(initLogs);
   }, []);
 
   const handleToggle = (dateStr, currentStatus, isFuture) => {
@@ -135,6 +137,7 @@ function ExerciseCalendar({ range }) {
     const newStatus = currentStatus === 'yes' ? 'no' : 'yes';
     const updatedLogs = saveExerciseAnswer(dateStr, newStatus);
     setLogs({ ...updatedLogs });
+    if (onLogsChange) onLogsChange(updatedLogs);
   };
 
   const days = [];
@@ -208,6 +211,7 @@ export default function Overview() {
   const [loading, setLoading] = useState(true);
   const [goal, setGoal] = useState(2000);
   const [latestWeight, setLatestWeight] = useState(null);
+  const [exerciseLogs, setExerciseLogs] = useState({});
 
   const range = useMemo(() => {
     if (tab === 'weekly') return getWeekRange(offset);
@@ -215,6 +219,21 @@ export default function Overview() {
     if (tab === 'monthly') return getMonthRange(offset);
     return { from: customRange.from, to: customRange.to, label: 'Custom Range' };
   }, [tab, offset, customRange]);
+
+  const daysExercised = useMemo(() => {
+    let count = 0;
+    if (!range || !exerciseLogs) return count;
+    const from = new Date(range.from.replace(/-/g, '/'));
+    const to = new Date(range.to.replace(/-/g, '/'));
+    const d = new Date(from);
+    while (d <= to) {
+      if (exerciseLogs[formatDate(d)] === 'yes') {
+        count++;
+      }
+      d.setDate(d.getDate() + 1);
+    }
+    return count;
+  }, [range, exerciseLogs]);
 
   useEffect(() => {
     if (tab !== 'custom') {
@@ -504,6 +523,10 @@ export default function Overview() {
                 <div className="overview-stat-label">Latest Weight</div>
               </div>
             )}
+            <div className="glass-card overview-stat-card">
+              <div className="overview-stat-value" style={{ color: '#fbbf24' }}>{daysExercised}</div>
+              <div className="overview-stat-label">Days Exercised</div>
+            </div>
           </div>
 
           {/* Bar Chart */}
@@ -543,8 +566,8 @@ export default function Overview() {
 
           {/* Monthly Heatmap (monthly tab only) */}
           {tab === 'monthly' && (
-            <div className="glass-card p-6 mb-4">
-              <p className="section-title">Calorie Heatmap</p>
+            <div className="glass-card p-6 mb-4 animate-fade-in">
+              <p className="section-title">Consistency Heatmap</p>
               <HeatmapCalendar
                 year={monthDate.year}
                 month={monthDate.month}
@@ -553,6 +576,8 @@ export default function Overview() {
               />
             </div>
           )}
+
+          <ExerciseCalendar range={range} onLogsChange={setExerciseLogs} />
 
           {/* Day Breakdown Detailed Report */}
           <div className="glass-card p-6 mb-4">
