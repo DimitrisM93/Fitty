@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { fetchMealsRange, fetchProfile, fetchWeightLogs } from '../services/api';
+import { getExerciseLogs } from '../services/storage';
 import html2canvas from 'html2canvas';
 import './Overview.css';
 
@@ -112,6 +113,53 @@ function HeatmapCalendar({ year, month, dailyData, goal }) {
         <div className="heatmap-cell intensity-4 mini"/>
         <div className="heatmap-cell intensity-5 mini"/>
         <span className="text-xs text-muted">More</span>
+      </div>
+    </div>
+  );
+}
+
+// ─── Exercise Calendar ───────────────────────────────────
+function ExerciseCalendar() {
+  const [logs, setLogs] = useState({});
+  
+  useEffect(() => {
+    setLogs(getExerciseLogs());
+  }, []);
+
+  // Display the last 14 days
+  const days = [];
+  const today = new Date();
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const dateStr = d.toISOString().split('T')[0];
+    days.push({
+      dateStr,
+      label: d.toLocaleDateString('en-US', { weekday: 'narrow' }),
+      dayNum: d.getDate(),
+      status: logs[dateStr] === 'yes' ? 'yes' : logs[dateStr] === 'no' ? 'no' : (dateStr < today.toISOString().split('T')[0] ? 'no' : null),
+      isToday: i === 0
+    });
+  }
+
+  return (
+    <div className="glass-card p-6 mb-4 animate-fade-in exercise-calendar-wrapper">
+      <div className="flex items-center justify-between mb-4">
+        <p className="section-title mb-0 flex items-center gap-2">
+          Workout History
+        </p>
+        <span className="text-xs text-muted">Last 14 days</span>
+      </div>
+      <div className="exercise-calendar-row">
+        {days.map((d, i) => (
+          <div key={i} className={`exercise-tick-cell ${d.status === 'yes' ? 'yes' : d.status === 'no' ? 'no' : ''} ${d.isToday ? 'today' : ''}`} title={d.dateStr}>
+            <div className="tick-label">{d.label}</div>
+            <div className="tick-circle">
+              {d.status === 'yes' && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+              {d.status === 'no' && <span style={{ opacity: 0.3, fontSize: '10px' }}>-</span>}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -439,6 +487,9 @@ export default function Overview() {
               </div>
             )}
           </div>
+
+          {/* Workout Calendar */}
+          <ExerciseCalendar />
 
           {/* Avg Macros */}
           <div className="glass-card p-6 mb-4">
