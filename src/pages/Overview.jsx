@@ -543,7 +543,7 @@ export default function Overview() {
           </div>
 
           {/* Workout Calendar */}
-          <ExerciseCalendar range={range} />
+          <ExerciseCalendar range={range} onLogsChange={setExerciseLogs} />
 
           {/* Avg Macros */}
           <div className="glass-card p-6 mb-4">
@@ -577,7 +577,6 @@ export default function Overview() {
             </div>
           )}
 
-          <ExerciseCalendar range={range} onLogsChange={setExerciseLogs} />
 
           {/* Day Breakdown Detailed Report */}
           <div className="glass-card p-6 mb-4">
