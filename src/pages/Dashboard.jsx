@@ -4,7 +4,7 @@ import { fetchMeals, fetchMealsRange, deleteMeal, updateMeal, saveFavorite } fro
 import { fetchProfile, fetchWeightLogs } from '../services/api';
 import { isConnected, fetchTodayStats, fetchWeeklySteps } from '../services/googleFit';
 import { saveActivitySnapshot, getActivityForDate } from '../services/db';
-import { getExerciseAnswerForDate, saveExerciseAnswer, getInactiveStreakDays } from '../services/storage';
+import { getExerciseAnswerForDate, saveExerciseAnswer, getInactiveStreakDays, getExerciseLogs } from '../services/storage';
 import { useToast } from '../context/ToastContext';
 import WeekChart from '../components/WeekChart';
 import './Dashboard.css';
@@ -144,6 +144,52 @@ function CalendarPicker({ selectedDate, onSelect, onClose, mealDates }) {
             </button>
           );
         })}
+      </div>
+    </div>
+  );
+}
+
+function ExerciseCalendar() {
+  const [logs, setLogs] = useState({});
+  
+  useEffect(() => {
+    setLogs(getExerciseLogs());
+  }, []);
+
+  // Display the last 14 days
+  const days = [];
+  const today = new Date();
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const dateStr = d.toISOString().split('T')[0];
+    days.push({
+      dateStr,
+      label: d.toLocaleDateString('en-US', { weekday: 'narrow' }),
+      dayNum: d.getDate(),
+      status: logs[dateStr] === 'yes' ? 'yes' : logs[dateStr] === 'no' ? 'no' : (dateStr < today.toISOString().split('T')[0] ? 'no' : null),
+      isToday: i === 0
+    });
+  }
+
+  return (
+    <div className="glass-card p-5 mb-4 animate-fade-in exercise-calendar-wrapper">
+      <div className="flex items-center justify-between mb-3">
+        <p className="font-bold text-sm flex items-center gap-2">
+          <span style={{ fontSize: '1.2em' }}>📅</span> Workout History
+        </p>
+        <span className="chip text-xs font-medium" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--color-border)' }}>Last 14 days</span>
+      </div>
+      <div className="exercise-calendar-row">
+        {days.map((d, i) => (
+          <div key={i} className={`exercise-tick-cell ${d.status === 'yes' ? 'yes' : d.status === 'no' ? 'no' : ''} ${d.isToday ? 'today' : ''}`} title={d.dateStr}>
+            <div className="tick-label">{d.label}</div>
+            <div className="tick-circle">
+              {d.status === 'yes' && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+              {d.status === 'no' && <span style={{ opacity: 0.3, fontSize: '10px' }}>-</span>}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -465,6 +511,9 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* Workout Calendar */}
+      <ExerciseCalendar />
 
       {/* Exercise Question Box */}
       {exerciseAnswer === null && !(inactiveStreak >= 5 && isToday) && (
