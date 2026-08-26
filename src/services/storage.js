@@ -7,6 +7,7 @@ export const STORAGE_KEYS = {
   GOOGLE_FIT_TOKEN_EXPIRY: 'fitai_gfit_expiry',
   USER_PROFILE: 'fitai_user_profile',
   WEIGHT_LOGS: 'fitai_weight_logs',
+  EXERCISE_LOGS: 'fitai_exercise_logs',
 };
 
 function getKey(base) {
@@ -102,3 +103,62 @@ export function deleteWeightLog(id) {
 
   return logs;
 }
+
+// ─── Exercise Logs ────────────────────────────────────────
+export function getExerciseLogs() {
+  const raw = localStorage.getItem(getKey(STORAGE_KEYS.EXERCISE_LOGS));
+  if (!raw) return {};
+  try { return JSON.parse(raw); } catch { return {}; }
+}
+
+export function getExerciseAnswerForDate(dateStr) {
+  const logs = getExerciseLogs();
+  const todayStr = new Date().toISOString().split('T')[0];
+  
+  if (logs[dateStr]) {
+    return logs[dateStr]; // 'yes' or 'no'
+  }
+  
+  // If the day has passed and no answer was recorded, default is 'no'
+  if (dateStr < todayStr) {
+    return 'no';
+  }
+  
+  // For today or future, if not answered yet, return null
+  return null;
+}
+
+export function saveExerciseAnswer(dateStr, answer) {
+  const logs = getExerciseLogs();
+  logs[dateStr] = answer;
+  localStorage.setItem(getKey(STORAGE_KEYS.EXERCISE_LOGS), JSON.stringify(logs));
+  return logs;
+}
+
+export function getInactiveStreakDays() {
+  const logs = getExerciseLogs();
+  const today = new Date();
+  let inactiveStreak = 0;
+
+  for (let i = 0; i < 30; i++) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const dateStr = d.toISOString().split('T')[0];
+
+    const answer = logs[dateStr];
+    if (answer === 'yes') {
+      break;
+    }
+    
+    // Past days without answer default to 'no'
+    if (answer === 'no' || (i > 0 && !answer)) {
+      inactiveStreak++;
+    } else if (i === 0 && !answer) {
+      // today unanswered counts in inactive streak count so far
+      inactiveStreak++;
+    }
+  }
+
+  return inactiveStreak;
+}
+

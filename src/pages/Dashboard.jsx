@@ -4,6 +4,7 @@ import { fetchMeals, fetchMealsRange, deleteMeal, updateMeal, saveFavorite } fro
 import { fetchProfile, fetchWeightLogs } from '../services/api';
 import { isConnected, fetchTodayStats, fetchWeeklySteps } from '../services/googleFit';
 import { saveActivitySnapshot, getActivityForDate } from '../services/db';
+import { getExerciseAnswerForDate, saveExerciseAnswer, getInactiveStreakDays } from '../services/storage';
 import { useToast } from '../context/ToastContext';
 import WeekChart from '../components/WeekChart';
 import './Dashboard.css';
@@ -163,7 +164,25 @@ export default function Dashboard() {
   const [saving, setSaving] = useState(false);
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [mealDates, setMealDates] = useState(new Set());
+  const [exerciseAnswer, setExerciseAnswer] = useState(() => getExerciseAnswerForDate(selectedDate));
+  const [inactiveStreak, setInactiveStreak] = useState(() => getInactiveStreakDays());
   const notesRef = useRef(null);
+
+  useEffect(() => {
+    setExerciseAnswer(getExerciseAnswerForDate(selectedDate));
+    setInactiveStreak(getInactiveStreakDays());
+  }, [selectedDate]);
+
+  const handleExerciseAnswer = useCallback((ans) => {
+    saveExerciseAnswer(selectedDate, ans);
+    setExerciseAnswer(ans);
+    setInactiveStreak(getInactiveStreakDays());
+    if (ans === 'yes') {
+      showToast('Workout logged! Great job 🔥', 'success');
+    } else {
+      showToast('Logged. Rest days are essential too! 💤', 'info');
+    }
+  }, [selectedDate, showToast]);
 
   useEffect(() => {
     if (editingMeal && notesRef.current) {
@@ -446,6 +465,68 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* Exercise Question Box */}
+      {exerciseAnswer === null && (
+        <div className="glass-card p-5 mb-4 exercise-prompt-card animate-fade-in">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <div className="flex items-center gap-3">
+              <div className="exercise-icon-badge">🏋️‍♂️</div>
+              <div>
+                <h3 className="font-bold text-sm text-primary">Did you exercise today?</h3>
+                <p className="text-muted text-xs mt-0.5">Quickly log your daily workout</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                id="exercise-yes-btn"
+                onClick={() => handleExerciseAnswer('yes')}
+                className="btn btn-primary btn-sm flex items-center gap-1.5"
+              >
+                <span>Yes</span> 💪
+              </button>
+              <button
+                id="exercise-no-btn"
+                onClick={() => handleExerciseAnswer('no')}
+                className="btn btn-secondary btn-sm flex items-center gap-1.5"
+              >
+                <span>No</span> 😴
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 5-Day Inactivity Gym Encouragement Alert Banner */}
+      {inactiveStreak >= 5 && isToday && (
+        <div className="glass-card p-5 mb-4 exercise-alert-card animate-fade-in">
+          <div className="flex items-start gap-3">
+            <div className="alert-icon-badge">🔥</div>
+            <div className="flex-1">
+              <div className="flex items-center justify-between">
+                <h4 className="font-bold text-sm gradient-text-warm flex items-center gap-1.5">
+                  Time to hit the gym! 🏋️‍♂️
+                </h4>
+                <span className="chip chip-orange text-xs font-semibold">{inactiveStreak} days inactive</span>
+              </div>
+              <p className="text-xs text-secondary mt-1.5 leading-relaxed">
+                You haven't logged exercise in <strong>{inactiveStreak} days</strong>. Even a 20-minute workout today will boost your energy, metabolism, and progress!
+              </p>
+              <div className="mt-3 flex items-center gap-2">
+                <button
+                  onClick={() => handleExerciseAnswer('yes')}
+                  className="btn btn-primary btn-sm"
+                >
+                  I'm Working Out Today! 💪
+                </button>
+                <Link to="/activity" className="btn btn-ghost btn-sm">
+                  View Activity
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Macro Breakdown */}
       <div className="glass-card p-6 mb-4">
