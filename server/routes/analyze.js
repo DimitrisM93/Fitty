@@ -5,7 +5,14 @@ import { requireAuth } from './auth.js';
 const router = Router();
 
 const MEAL_ANALYSIS_PROMPT = `Analyze this meal (image or description) and return its nutritional breakdown.
-CRITICAL: You MUST respond ONLY with valid JSON. Do NOT include ANY markdown formatting, backticks, conversational text, explanations, or thinking. Start your response with { and end it with }.
+
+CRITICAL CALORIE & MACRO ESTIMATION RULE (WORST-CASE / UPPER BOUND ESTIMATION):
+- Always assume the WORST-CASE SCENARIO for calories and macros (upper boundary of range).
+- If an item or meal calories could be in an estimated range (e.g. between 500 kcal and 700 kcal), ALWAYS select the HIGHER / UPPER estimate (e.g. 700 kcal).
+- Account for hidden fats, cooking oils, butter, rich sauces, dressings, and generous portion sizes.
+- Do NOT underestimate calories; err on the side of caution for calorie tracking by providing upper-bound calculations for all items and totals.
+
+CRITICAL FORMATTING: You MUST respond ONLY with valid JSON. Do NOT include ANY markdown formatting, backticks, conversational text, explanations, or thinking. Start your response with { and end it with }.
 
 Required JSON Schema:
 {

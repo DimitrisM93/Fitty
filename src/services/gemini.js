@@ -3,6 +3,12 @@ import { getGeminiKey } from './storage';
 const MEAL_ANALYSIS_PROMPT = `You are a professional nutritionist and food recognition AI.
 Analyze this meal image and provide a detailed nutritional breakdown.
 
+CRITICAL CALORIE & MACRO ESTIMATION RULE (WORST-CASE / UPPER BOUND ESTIMATION):
+- Always assume the WORST-CASE SCENARIO for calories and macros (upper boundary of range).
+- If an item or meal calories could be in an estimated range (e.g. between 500 kcal and 700 kcal), ALWAYS select the HIGHER / UPPER estimate (e.g. 700 kcal).
+- Account for hidden fats, cooking oils, butter, rich sauces, dressings, and generous portion sizes.
+- Do NOT underestimate calories; err on the side of caution for calorie tracking by providing upper-bound calculations for all items and totals.
+
 Return ONLY a valid JSON object with this exact structure (no markdown, no extra text):
 {
   "items": [
@@ -26,7 +32,6 @@ Return ONLY a valid JSON object with this exact structure (no markdown, no extra
   "notes": "Any important notes about the meal or estimation accuracy"
 }
 
-Be as accurate as possible. If you cannot identify a food item clearly, provide your best estimate.
 All macros should be in grams. Calories in kcal.`;
 
 
