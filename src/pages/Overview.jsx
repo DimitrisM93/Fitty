@@ -119,27 +119,40 @@ function HeatmapCalendar({ year, month, dailyData, goal }) {
 }
 
 // ─── Exercise Calendar ───────────────────────────────────
-function ExerciseCalendar() {
+function ExerciseCalendar({ range }) {
   const [logs, setLogs] = useState({});
   
   useEffect(() => {
     setLogs(getExerciseLogs());
   }, []);
 
-  // Display the last 14 days
   const days = [];
-  const today = new Date();
-  for (let i = 13; i >= 0; i--) {
-    const d = new Date(today);
-    d.setDate(d.getDate() - i);
+  const from = new Date(range.from + 'T00:00:00');
+  const to = new Date(range.to + 'T00:00:00');
+  const todayStr = new Date().toISOString().split('T')[0];
+  const duration = (to - from) / (1000 * 60 * 60 * 24);
+  const d = new Date(from);
+  
+  while (d <= to) {
     const dateStr = d.toISOString().split('T')[0];
+    const isFuture = dateStr > todayStr;
+    const isToday = dateStr === todayStr;
+    const dayNum = d.getDate();
+    const label = d.toLocaleDateString('en-US', { weekday: 'narrow' });
+    
+    let status = logs[dateStr];
+    if (status !== 'yes' && status !== 'no') {
+      status = isFuture ? null : 'no';
+    }
+
     days.push({
       dateStr,
-      label: d.toLocaleDateString('en-US', { weekday: 'narrow' }),
-      dayNum: d.getDate(),
-      status: logs[dateStr] === 'yes' ? 'yes' : logs[dateStr] === 'no' ? 'no' : (dateStr < today.toISOString().split('T')[0] ? 'no' : null),
-      isToday: i === 0
+      label: duration > 14 ? dayNum : label,
+      dayNum,
+      status,
+      isToday
     });
+    d.setDate(d.getDate() + 1);
   }
 
   return (
@@ -148,7 +161,7 @@ function ExerciseCalendar() {
         <p className="section-title mb-0 flex items-center gap-2">
           Workout History
         </p>
-        <span className="text-xs text-muted">Last 14 days</span>
+        <span className="text-xs text-muted">{range.label || 'Selected Period'}</span>
       </div>
       <div className="exercise-calendar-row">
         {days.map((d, i) => (
@@ -489,7 +502,7 @@ export default function Overview() {
           </div>
 
           {/* Workout Calendar */}
-          <ExerciseCalendar />
+          <ExerciseCalendar range={range} />
 
           {/* Avg Macros */}
           <div className="glass-card p-6 mb-4">
