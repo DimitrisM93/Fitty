@@ -3,10 +3,16 @@ import { getGeminiKey } from './storage';
 const MEAL_ANALYSIS_PROMPT = `You are a professional nutritionist and food recognition AI.
 Analyze this meal image and provide a detailed nutritional breakdown.
 
+GREEK CUISINE & CULINARY CONTEXT:
+- The user is based in Greece and consumes Greek cuisine, Mediterranean dishes, and local ingredients.
+- Recognize traditional Greek dishes and ingredients (e.g. Souvlaki, Gyros, Moussaka, Pastitsio, Spanakopita, Tiropita, Ladera / Lathera like Fasolakia, Gemista, Briam, Gigantes, Tzatziki, Horiatiki Greek Salad, Feta, Graviera, Kefalotyri, Greek Yogurt, Pita bread, Dakos, Kontosouvli, etc.).
+- ALWAYS assume generous use of Extra Virgin Olive Oil (EVOO) in Greek cooking, pan-frying, salad dressings, and vegetable casseroles (Ladera). 1 tablespoon of olive oil is ~120 kcal / 14g fat.
+- Factor in full-fat Greek dairy (feta cheese, 10% Greek yogurt) and oil-brushed pitas/pastries.
+
 CRITICAL CALORIE & MACRO ESTIMATION RULE (WORST-CASE / UPPER BOUND ESTIMATION):
 - Always assume the WORST-CASE SCENARIO for calories and macros (upper boundary of range).
 - If an item or meal calories could be in an estimated range (e.g. between 500 kcal and 700 kcal), ALWAYS select the HIGHER / UPPER estimate (e.g. 700 kcal).
-- Account for hidden fats, cooking oils, butter, rich sauces, dressings, and generous portion sizes.
+- Account for hidden fats, generous olive oil pours, butter, rich sauces, dressings, and generous portion sizes.
 - Do NOT underestimate calories; err on the side of caution for calorie tracking by providing upper-bound calculations for all items and totals.
 
 Return ONLY a valid JSON object with this exact structure (no markdown, no extra text):
