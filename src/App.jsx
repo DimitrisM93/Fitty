@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { ToastProvider } from './context/ToastContext';
+import TopHeader from './components/TopHeader';
 import BottomNav from './components/BottomNav';
 import SidebarMenu from './components/SidebarMenu';
 import Dashboard from './pages/Dashboard';
@@ -23,6 +24,7 @@ export default function App() {
 
   return (
     <ToastProvider>
+      <TopHeader />
       <main>
         <Routes>
           <Route path="/"          element={<Dashboard />} />
