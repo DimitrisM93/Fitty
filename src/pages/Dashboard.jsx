@@ -167,6 +167,9 @@ export default function Dashboard() {
   const [exerciseAnswer, setExerciseAnswer] = useState(() => getExerciseAnswerForDate(selectedDate));
   const [inactiveStreak, setInactiveStreak] = useState(() => getInactiveStreakDays());
   const notesRef = useRef(null);
+  
+  const connected = isConnected();
+  const showToast = useToast();
 
   useEffect(() => {
     setExerciseAnswer(getExerciseAnswerForDate(selectedDate));
@@ -190,9 +193,6 @@ export default function Dashboard() {
       notesRef.current.style.height = `${notesRef.current.scrollHeight}px`;
     }
   }, [editForm.notes, editingMeal]);
-
-  const connected = isConnected();
-  const showToast = useToast();
 
   const isToday = selectedDate === todayStr;
 
