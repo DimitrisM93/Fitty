@@ -373,16 +373,7 @@ export default function Dashboard() {
           <p className="text-muted text-sm">{greeting()}{profile.name ? `, ${profile.name}` : ''} 👋</p>
           <h1 className="mt-2">{headerTitle} <span className="gradient-text">Balance</span></h1>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '12px' }}>
-          <LiveClock />
-          <Link to="/">
-            <img 
-              src="/favicon.jpg" 
-              alt="Dashboard" 
-              style={{ width: '40px', height: '40px', borderRadius: '10px' }} 
-            />
-          </Link>
-        </div>
+        <LiveClock />
       </div>
 
       {/* Stats Row */}

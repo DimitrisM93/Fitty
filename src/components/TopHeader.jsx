@@ -21,23 +21,6 @@ export default function TopHeader() {
             Fit<span className="gradient-text">AI</span>
           </span>
         </Link>
-
-        <div className="top-header-right">
-          {isDashboard ? (
-            <span className="chip chip-green flex items-center gap-1">
-              <span className="pulse-dot"></span> Dashboard
-            </span>
-          ) : (
-            <Link
-              to="/"
-              className="quick-dash-btn"
-              title="Return to Dashboard"
-            >
-              <img src="/favicon.png" alt="" className="mini-favicon-icon" />
-              <span>Dashboard</span>
-            </Link>
-          )}
-        </div>
       </div>
     </header>
   );
