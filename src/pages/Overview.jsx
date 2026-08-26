@@ -137,8 +137,8 @@ function ExerciseCalendar({ range }) {
   };
 
   const days = [];
-  const from = new Date(range.from + 'T00:00:00');
-  const to = new Date(range.to + 'T00:00:00');
+  const from = new Date(range.from.replace(/-/g, '/'));
+  const to = new Date(range.to.replace(/-/g, '/'));
   const todayStr = formatDate(new Date());
   const duration = (to - from) / (1000 * 60 * 60 * 24);
   const d = new Date(from);
@@ -279,7 +279,7 @@ export default function Overview() {
   // Chart data
   const chartData = useMemo(() => {
     if (tab === 'weekly') {
-      const from = new Date(range.from + 'T00:00:00');
+      const from = new Date(range.from.replace(/-/g, '/'));
       return Array.from({ length: 7 }, (_, i) => {
         const d = new Date(from);
         d.setDate(from.getDate() + i);
@@ -290,8 +290,8 @@ export default function Overview() {
         };
       });
     } else {
-      const from = new Date(range.from + 'T00:00:00');
-      const to = new Date(range.to + 'T00:00:00');
+      const from = new Date(range.from.replace(/-/g, '/'));
+      const to = new Date(range.to.replace(/-/g, '/'));
       const data = [];
       const d = new Date(from);
       while (d <= to) {
@@ -308,7 +308,7 @@ export default function Overview() {
 
   // For monthly heatmap
   const monthDate = useMemo(() => {
-    const d = new Date(range.from + 'T00:00:00');
+    const d = new Date(range.from.replace(/-/g, '/'));
     return { year: d.getFullYear(), month: d.getMonth() };
   }, [range]);
 
@@ -569,7 +569,7 @@ export default function Overview() {
                     const dayP = dayMeals.reduce((s, m) => s + (m.total_protein || 0), 0);
                     const dayC = dayMeals.reduce((s, m) => s + (m.total_carbs || 0), 0);
                     const dayF = dayMeals.reduce((s, m) => s + (m.total_fat || 0), 0);
-                    const dateObj = new Date(date + 'T00:00:00');
+                    const dateObj = new Date(date.replace(/-/g, '/'));
                     return (
                       <div key={date} className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl overflow-hidden mb-6 shadow-md">
                         {/* Header */}

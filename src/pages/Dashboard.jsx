@@ -90,7 +90,7 @@ function MacroBar({ label, value, max, color }) {
 
 function CalendarPicker({ selectedDate, onSelect, onClose, mealDates }) {
   const [viewDate, setViewDate] = useState(() => {
-    const d = new Date(selectedDate + 'T00:00:00');
+    const d = new Date(selectedDate.replace(/-/g, '/'));
     return { year: d.getFullYear(), month: d.getMonth() };
   });
 
@@ -281,7 +281,7 @@ export default function Dashboard() {
 
   // Date navigation
   const shiftDate = useCallback((days) => {
-    const d = new Date(selectedDate + 'T00:00:00');
+    const d = new Date(selectedDate.replace(/-/g, '/'));
     d.setDate(d.getDate() + days);
     const str = d.toLocaleDateString('en-CA');
     // Don't go into the future
@@ -387,7 +387,7 @@ export default function Dashboard() {
     return 'Good evening';
   };
 
-  const dateLabel = new Date(selectedDate + 'T00:00:00').toLocaleDateString('en', { weekday: 'short', month: 'short', day: 'numeric' });
+  const dateLabel = new Date(selectedDate.replace(/-/g, '/')).toLocaleDateString('en', { weekday: 'short', month: 'short', day: 'numeric' });
   const headerTitle = isToday ? "Today's" : dateLabel + "'s";
 
   return (

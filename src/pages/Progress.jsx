@@ -50,7 +50,7 @@ function CustomTooltip({ active, payload, profile }) {
 function formatLogDate(rawDate, options) {
   if (!rawDate) return '';
   const dateStr = String(rawDate).split('T')[0];
-  const d = new Date(dateStr + 'T00:00:00');
+  const d = new Date(dateStr.replace(/-/g, '/'));
   if (isNaN(d.getTime())) return dateStr;
   return d.toLocaleDateString('en', options);
 }
