@@ -143,7 +143,6 @@ function ExerciseCalendar({ range }) {
   const todayStr = getGreekTodayStr();
   const duration = (to - from) / (1000 * 60 * 60 * 24);
   const d = new Date(from);
-  const debugText = `DEBUG: todayStr=${todayStr}, realTime=${new Date().toISOString()}`;
   
   while (d <= to) {
     const dateStr = formatDate(d);
@@ -176,7 +175,6 @@ function ExerciseCalendar({ range }) {
         </p>
         <span className="text-xs text-muted">{range.label || 'Selected Period'}</span>
       </div>
-      <div className="text-[10px] text-red-500 mb-2">{debugText}</div>
       <div className="exercise-calendar-row">
         {days.map((d, i) => (
           <div 
