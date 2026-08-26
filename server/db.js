@@ -14,8 +14,13 @@ export default pool;
 
 // Create tables if they don't exist
 export async function initDb() {
-  const client = await pool.connect();
+  if (!process.env.DATABASE_URL) {
+    console.warn('DATABASE_URL not set — skipping DB table initialization');
+    return;
+  }
+  let client;
   try {
+    client = await pool.connect();
     await client.query(`
       CREATE TABLE IF NOT EXISTS meals (
         id SERIAL PRIMARY KEY,
@@ -68,6 +73,6 @@ export async function initDb() {
     `);
     console.log('✅ Database tables ready');
   } finally {
-    client.release();
+    if (client) client.release();
   }
 }

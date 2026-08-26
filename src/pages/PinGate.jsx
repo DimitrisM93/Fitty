@@ -4,21 +4,24 @@ import './PinGate.css';
 
 export default function PinGate({ onUnlock }) {
   const [pinLength, setPinLength] = useState(4); // will update from server
-  const [digits, setDigits]       = useState([]);
+  const [digits, setDigits]       = useState(Array(4).fill(''));
   const [error, setError]         = useState('');
   const [loading, setLoading]     = useState(false);
   const [shake, setShake]         = useState(false);
   const [locked, setLocked]       = useState(false); // rate-limited
-  const inputRefs                 = useRef([]);
+  const inputRefs                 = useRef(Array(4).fill(null));
 
   // Fetch PIN length from server on mount
   useEffect(() => {
     fetch('/api/auth/config')
-      .then(r => r.json())
-      .then(({ pinLength: len }) => {
-        setPinLength(len);
-        setDigits(Array(len).fill(''));
-        inputRefs.current = Array(len).fill(null);
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data && data.pinLength) {
+          const len = data.pinLength;
+          setPinLength(len);
+          setDigits(Array(len).fill(''));
+          inputRefs.current = Array(len).fill(null);
+        }
       })
       .catch(() => {
         // Fallback if server unreachable
