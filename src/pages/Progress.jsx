@@ -5,7 +5,7 @@ import {
 } from 'recharts';
 import { fetchWeightLogs, saveWeightLogApi, deleteWeightLogApi, fetchProfile } from '../services/api';
 import { getUserProfile } from '../services/storage';
-import { getLocalISODate } from '../services/dateUtils';
+import { getGreekTodayStr } from '../services/dateUtils';
 import { useToast } from '../context/ToastContext';
 import './Progress.css';
 
@@ -58,7 +58,7 @@ function formatLogDate(rawDate, options) {
 export default function Progress() {
   const [logs, setLogs] = useState([]);
   const [profile, setProfile] = useState(getUserProfile);
-  const [date, setDate] = useState(getLocalISODate(new Date()));
+  const [date, setDate] = useState(getGreekTodayStr());
   const [weight, setWeight] = useState('');
   const showToast = useToast();
 

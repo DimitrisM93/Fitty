@@ -1,5 +1,5 @@
 import { getAuthToken } from './api';
-import { getLocalISODate } from './dateUtils';
+import { getGreekTodayStr } from './dateUtils';
 
 // Storage keys
 export const STORAGE_KEYS = {
@@ -114,7 +114,7 @@ export function getExerciseLogs() {
 
 export function getExerciseAnswerForDate(dateStr) {
   const logs = getExerciseLogs();
-  const todayStr = getLocalISODate(new Date());
+  const todayStr = getGreekTodayStr();
   
   if (logs[dateStr]) {
     return logs[dateStr]; // 'yes' or 'no'

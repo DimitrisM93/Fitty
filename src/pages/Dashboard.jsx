@@ -9,6 +9,8 @@ import { useToast } from '../context/ToastContext';
 import WeekChart from '../components/WeekChart';
 import './Dashboard.css';
 
+import { getGreekTodayStr } from '../services/dateUtils';
+
 function formatDate(d) {
   const yyyy = d.getFullYear();
   const mm = String(d.getMonth() + 1).padStart(2, '0');
@@ -106,7 +108,7 @@ function CalendarPicker({ selectedDate, onSelect, onClose, mealDates }) {
   }, [viewDate]);
 
   const monthLabel = new Date(viewDate.year, viewDate.month).toLocaleDateString('en', { month: 'long', year: 'numeric' });
-  const todayStr = formatDate(new Date());
+  const todayStr = getGreekTodayStr();
 
   const prevMonth = () => setViewDate(v => {
     const m = v.month - 1;
@@ -157,7 +159,7 @@ function CalendarPicker({ selectedDate, onSelect, onClose, mealDates }) {
 }
 
 export default function Dashboard() {
-  const todayStr = formatDate(new Date());
+  const todayStr = getGreekTodayStr();
   const [selectedDate, setSelectedDate] = useState(todayStr);
   const [meals, setMeals] = useState([]);
   const [activity, setActivity] = useState({ calories: 0, steps: 0, heartRate: 0, activeMinutes: 0 });

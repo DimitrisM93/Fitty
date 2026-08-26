@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { fetchMealsRange, fetchProfile, fetchWeightLogs } from '../services/api';
 import { getExerciseLogs, saveExerciseAnswer } from '../services/storage';
+import { getGreekTodayStr } from '../services/dateUtils';
 import html2canvas from 'html2canvas';
 import './Overview.css';
 
@@ -139,7 +140,7 @@ function ExerciseCalendar({ range }) {
   const days = [];
   const from = new Date(range.from.replace(/-/g, '/'));
   const to = new Date(range.to.replace(/-/g, '/'));
-  const todayStr = formatDate(new Date());
+  const todayStr = getGreekTodayStr();
   const duration = (to - from) / (1000 * 60 * 60 * 24);
   const d = new Date(from);
   

@@ -1,5 +1,5 @@
 import { openDB } from 'idb';
-import { getLocalISODate } from './dateUtils';
+import { getGreekTodayStr } from './dateUtils';
 
 const DB_NAME = 'fitai_db';
 const DB_VERSION = 1;
@@ -24,7 +24,7 @@ async function getDB() {
 // ---- Meals ----
 export async function saveMeal(mealData) {
   const db = await getDB();
-  const today = getLocalISODate(new Date());
+  const today = getGreekTodayStr();
   return db.add('meals', { ...mealData, date: today, timestamp: Date.now() });
 }
 
@@ -48,7 +48,7 @@ export async function getMealsForWeek() {
 // ---- Activity snapshots (cached from Google Fit) ----
 export async function saveActivitySnapshot(data) {
   const db = await getDB();
-  const today = getLocalISODate(new Date());
+  const today = getGreekTodayStr();
   // Replace today's snapshot
   const existing = await db.getAllFromIndex('activity', 'date', today);
   for (const e of existing) await db.delete('activity', e.id);
