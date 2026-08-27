@@ -889,3 +889,64 @@
   background: rgba(255,255,255,0.1);
   border-color: rgba(255,255,255,0.2);
 }
+
+/* ─── Filling Level Picker ──────────────────────────────── */
+.filling-picker {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.filling-pill {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 10px 6px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.2s, box-shadow 0.2s, transform 0.1s;
+  color: var(--text-secondary);
+}
+
+.filling-pill:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.2);
+}
+
+.filling-pill:active {
+  transform: scale(0.97);
+}
+
+.filling-pill--active {
+  background: linear-gradient(135deg, rgba(110,231,183,0.12), rgba(129,140,248,0.12));
+  border-color: rgba(110,231,183,0.45);
+  box-shadow: 0 0 14px rgba(110,231,183,0.15);
+  color: var(--text-primary);
+}
+
+.filling-pill-icon {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.filling-pill-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.filling-pill-desc {
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  line-height: 1;
+}
+
+.filling-pill--active .filling-pill-desc {
+  color: rgba(110,231,183,0.8);
+}
+

@@ -12,7 +12,14 @@ router.post('/meal', requireAuth, async (req, res) => {
     return res.status(500).json({ error: 'Gemini API key not configured on server.' });
   }
 
-  const { todayMeals = [], historyMeals = [], userProfile = {}, currentTime } = req.body;
+  const { todayMeals = [], historyMeals = [], userProfile = {}, currentTime, fillingLevel = 'full' } = req.body;
+
+  const FILLING_INSTRUCTIONS = {
+    snack:  'The user wants a LIGHT SNACK — target 150–300 kcal. Suggest something small and quick (e.g. Greek yogurt, a handful of nuts, a small dakos, fruit).',
+    light:  'The user wants a LIGHT MEAL — target 300–500 kcal. Suggest something satisfying but not heavy.',
+    full:   'The user wants a FULL, FILLING MEAL — target 500–800 kcal. Suggest something substantial that will keep them full for several hours.',
+  };
+  const fillingInstruction = FILLING_INSTRUCTIONS[fillingLevel] || FILLING_INSTRUCTIONS.full;
 
   // Build today summary
   const todaySummary = todayMeals.length === 0
@@ -68,6 +75,9 @@ GREEK CUISINE CONTEXT:
 
 TASK:
 Based on the current time, what was already eaten today, and historical patterns, suggest ONE specific meal. Be concrete (not generic). Reference Greek cuisine where appropriate.
+
+FILLING LEVEL REQUIREMENT (CRITICAL — respect this above all else):
+${fillingInstruction}
 
 CRITICAL: Respond ONLY with valid JSON. No markdown, no extra text. Start with { end with }.
 

@@ -97,7 +97,32 @@ const MEAL_TYPE_BADGE = {
   snack:     { icon: '🍎', label: 'Snack',     color: '#10b981' },
 };
 
-function MealSuggestionCard({ suggestion, loading, error, onFetch, onDismiss, onRefresh }) {
+const FILLING_OPTIONS = [
+  { value: 'snack',     label: 'Snack',     icon: '🍎', desc: '~150–300 kcal' },
+  { value: 'light',     label: 'Light',     icon: '🥗', desc: '~300–500 kcal' },
+  { value: 'full',      label: 'Full Meal', icon: '🍽️', desc: '~500–800 kcal' },
+];
+
+function FillingPicker({ value, onChange }) {
+  return (
+    <div className="filling-picker">
+      {FILLING_OPTIONS.map(opt => (
+        <button
+          key={opt.value}
+          className={`filling-pill${value === opt.value ? ' filling-pill--active' : ''}`}
+          onClick={() => onChange(opt.value)}
+          type="button"
+        >
+          <span className="filling-pill-icon">{opt.icon}</span>
+          <span className="filling-pill-label">{opt.label}</span>
+          <span className="filling-pill-desc">{opt.desc}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function MealSuggestionCard({ suggestion, loading, error, onFetch, onDismiss, onRefresh, fillingLevel, onFillingChange }) {
   const badge = MEAL_TYPE_BADGE[suggestion?.meal_type] || MEAL_TYPE_BADGE.snack;
 
   if (loading) {
@@ -139,10 +164,11 @@ function MealSuggestionCard({ suggestion, loading, error, onFetch, onDismiss, on
               <p className="suggestion-prompt-sub">AI suggestion based on your meal history</p>
             </div>
           </div>
-          <button id="meal-suggest-btn" className="btn btn-primary btn-sm" onClick={onFetch}>
-            Suggest
-          </button>
         </div>
+        <FillingPicker value={fillingLevel} onChange={onFillingChange} />
+        <button id="meal-suggest-btn" className="btn btn-primary w-full mt-3" onClick={onFetch}>
+          ✨ Suggest
+        </button>
       </div>
     );
   }
@@ -173,6 +199,8 @@ function MealSuggestionCard({ suggestion, loading, error, onFetch, onDismiss, on
           </button>
         </div>
       </div>
+
+      <FillingPicker value={fillingLevel} onChange={(v) => { onFillingChange(v); onRefresh(); }} />
 
       <p className="suggestion-reasoning">{suggestion.reasoning}</p>
 
@@ -300,6 +328,7 @@ export default function Dashboard() {
   const [suggestionLoading, setSuggestionLoading] = useState(false);
   const [suggestionError, setSuggestionError] = useState(null);
   const [suggestionDismissed, setSuggestionDismissed] = useState(false);
+  const [fillingLevel, setFillingLevel] = useState('full');
   const suggestionCacheRef = useRef({ data: null, ts: 0 });
   const notesRef = useRef(null);
 
@@ -332,6 +361,7 @@ export default function Dashboard() {
         historyMeals,
         userProfile: profile,
         currentTime,
+        fillingLevel,
       });
       suggestionCacheRef.current = { data: result, ts: Date.now() };
       setSuggestion(result);
@@ -340,7 +370,7 @@ export default function Dashboard() {
     } finally {
       setSuggestionLoading(false);
     }
-  }, [todayStr, profile]);
+  }, [todayStr, profile, fillingLevel]);
 
   const connected = isConnected();
   const showToast = useToast();
@@ -646,6 +676,8 @@ export default function Dashboard() {
           suggestion={suggestion}
           loading={suggestionLoading}
           error={suggestionError}
+          fillingLevel={fillingLevel}
+          onFillingChange={(v) => { setFillingLevel(v); suggestionCacheRef.current = { data: null, ts: 0 }; }}
           onFetch={() => handleGetSuggestion(false)}
           onRefresh={() => handleGetSuggestion(true)}
           onDismiss={() => setSuggestionDismissed(true)}
