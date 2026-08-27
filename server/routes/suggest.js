@@ -1,4 +1,4 @@
-﻿import { Router } from 'express';
+import { Router } from 'express';
 import { GoogleGenAI } from '@google/genai';
 import { requireAuth } from './auth.js';
 
@@ -86,7 +86,7 @@ JSON schema:
   try {
     const ai = new GoogleGenAI({ apiKey });
     const interaction = await ai.interactions.create({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3.6-flash',
       input: [{ type: 'user_input', content: [{ type: 'text', text: prompt }] }],
     });
     const text = (interaction.output_text || '{}').trim();
