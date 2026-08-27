@@ -1,4 +1,4 @@
-﻿import { Router } from 'express';
+import { Router } from 'express';
 import Groq from 'groq-sdk';
 import { requireAuth } from './auth.js';
 
@@ -84,7 +84,7 @@ JSON schema:
   try {
     const groq = new Groq({ apiKey: groqKey });
     const completion = await groq.chat.completions.create({
-      model: 'llama-3.3-70b-versatile',
+      model: 'llama-3.1-70b-versatile',
       messages: [{ role: 'user', content: prompt }],
       response_format: { type: 'json_object' },
       temperature: 0.5,
