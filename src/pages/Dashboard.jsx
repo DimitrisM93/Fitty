@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { fetchMeals, fetchMealsRange, deleteMeal, updateMeal, saveFavorite } from '../services/api';
+import { fetchMeals, fetchMealsRange, deleteMeal, updateMeal, saveFavorite, fetchMealSuggestion } from '../services/api';
 import { fetchProfile, fetchWeightLogs } from '../services/api';
 import { isConnected, fetchTodayStats, fetchWeeklySteps } from '../services/googleFit';
 import { saveActivitySnapshot, getActivityForDate } from '../services/db';
@@ -90,7 +90,128 @@ function MacroBar({ label, value, max, color }) {
   );
 }
 
+const MEAL_TYPE_BADGE = {
+  breakfast: { icon: '🌅', label: 'Breakfast', color: '#f59e0b' },
+  lunch:     { icon: '☀️', label: 'Lunch',     color: '#06b6d4' },
+  dinner:    { icon: '🌙', label: 'Dinner',    color: '#818cf8' },
+  snack:     { icon: '🍎', label: 'Snack',     color: '#10b981' },
+};
+
+function MealSuggestionCard({ suggestion, loading, error, onFetch, onDismiss, onRefresh }) {
+  const badge = MEAL_TYPE_BADGE[suggestion?.meal_type] || MEAL_TYPE_BADGE.snack;
+
+  if (loading) {
+    return (
+      <div className="suggestion-card suggestion-card--loading glass-card mb-4">
+        <div className="suggestion-shimmer-header">
+          <div className="shimmer-block" style={{ width: '60%', height: '18px' }} />
+          <div className="shimmer-block" style={{ width: '70px', height: '24px', borderRadius: '12px' }} />
+        </div>
+        <div className="shimmer-block mt-3" style={{ width: '100%', height: '14px' }} />
+        <div className="shimmer-block mt-2" style={{ width: '85%', height: '14px' }} />
+        <div className="suggestion-shimmer-macros mt-4">
+          {[1,2,3].map(i => <div key={i} className="shimmer-block" style={{ flex: 1, height: '44px', borderRadius: '10px' }} />)}
+        </div>
+        <p className="suggestion-thinking">✨ Thinking about your next meal…</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="suggestion-card glass-card mb-4">
+        <div className="suggestion-error">
+          <span>⚠️ {error}</span>
+          <button className="btn btn-ghost btn-sm" onClick={onFetch}>Try again</button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!suggestion) {
+    return (
+      <div className="suggestion-card suggestion-card--prompt glass-card mb-4">
+        <div className="suggestion-prompt-inner">
+          <div className="suggestion-prompt-left">
+            <div className="suggestion-spark">✨</div>
+            <div>
+              <h3 className="suggestion-prompt-title">What should I eat?</h3>
+              <p className="suggestion-prompt-sub">AI suggestion based on your meal history</p>
+            </div>
+          </div>
+          <button id="meal-suggest-btn" className="btn btn-primary btn-sm" onClick={onFetch}>
+            Suggest
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="suggestion-card suggestion-card--result glass-card mb-4 animate-fade-in">
+      <div className="suggestion-result-header">
+        <div className="suggestion-result-title-row">
+          <h3 className="suggestion-result-name">{suggestion.suggestion}</h3>
+          <span
+            className="suggestion-type-badge"
+            style={{ background: badge.color + '22', color: badge.color, border: `1px solid ${badge.color}44` }}
+          >
+            {badge.icon} {badge.label}
+          </span>
+        </div>
+        <div className="suggestion-result-actions">
+          <button className="suggestion-icon-btn" title="Refresh suggestion" onClick={onRefresh}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+            </svg>
+          </button>
+          <button className="suggestion-icon-btn" title="Dismiss" onClick={onDismiss}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <p className="suggestion-reasoning">{suggestion.reasoning}</p>
+
+      <div className="suggestion-macros">
+        <div className="suggestion-macro-item">
+          <span className="suggestion-macro-val">{suggestion.estimated_calories}</span>
+          <span className="suggestion-macro-lbl">kcal</span>
+        </div>
+        <div className="suggestion-macro-divider" />
+        <div className="suggestion-macro-item">
+          <span className="suggestion-macro-val" style={{ color: '#6ee7b7' }}>{suggestion.estimated_protein}g</span>
+          <span className="suggestion-macro-lbl">protein</span>
+        </div>
+        <div className="suggestion-macro-divider" />
+        <div className="suggestion-macro-item">
+          <span className="suggestion-macro-val" style={{ color: '#06b6d4' }}>{suggestion.estimated_carbs}g</span>
+          <span className="suggestion-macro-lbl">carbs</span>
+        </div>
+        <div className="suggestion-macro-divider" />
+        <div className="suggestion-macro-item">
+          <span className="suggestion-macro-val" style={{ color: '#f59e0b' }}>{suggestion.estimated_fat}g</span>
+          <span className="suggestion-macro-lbl">fat</span>
+        </div>
+      </div>
+
+      {suggestion.alternatives?.length > 0 && (
+        <div className="suggestion-alternatives">
+          <span className="suggestion-alt-label">Or try:</span>
+          {suggestion.alternatives.slice(0, 3).map((alt, i) => (
+            <span key={i} className="suggestion-alt-chip">{alt}</span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function CalendarPicker({ selectedDate, onSelect, onClose, mealDates }) {
+
   const [viewDate, setViewDate] = useState(() => {
     const d = new Date(selectedDate.replace(/-/g, '/'));
     return { year: d.getFullYear(), month: d.getMonth() };
@@ -174,8 +295,53 @@ export default function Dashboard() {
   const [mealDates, setMealDates] = useState(new Set());
   const [exerciseAnswer, setExerciseAnswer] = useState(() => getExerciseAnswerForDate(selectedDate));
   const [inactiveStreak, setInactiveStreak] = useState(() => getInactiveStreakDays());
+  // Meal suggestion state
+  const [suggestion, setSuggestion] = useState(null);
+  const [suggestionLoading, setSuggestionLoading] = useState(false);
+  const [suggestionError, setSuggestionError] = useState(null);
+  const [suggestionDismissed, setSuggestionDismissed] = useState(false);
+  const suggestionCacheRef = useRef({ data: null, ts: 0 });
   const notesRef = useRef(null);
-  
+
+  const handleGetSuggestion = useCallback(async (forceRefresh = false) => {
+    const CACHE_TTL = 30 * 60 * 1000; // 30 minutes
+    const cache = suggestionCacheRef.current;
+    if (!forceRefresh && cache.data && (Date.now() - cache.ts) < CACHE_TTL) {
+      setSuggestion(cache.data);
+      setSuggestionDismissed(false);
+      return;
+    }
+    setSuggestionLoading(true);
+    setSuggestionError(null);
+    setSuggestionDismissed(false);
+    try {
+      const sevenAgo = new Date();
+      sevenAgo.setDate(sevenAgo.getDate() - 7);
+      const from = sevenAgo.toLocaleDateString('en-CA');
+      // Fetch last 7 days (excluding today) for history
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const to = yesterday.toLocaleDateString('en-CA');
+      const [historyMeals, todayMeals] = await Promise.all([
+        fetchMealsRange(from, to),
+        fetchMeals(todayStr),
+      ]);
+      const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+      const result = await fetchMealSuggestion({
+        todayMeals,
+        historyMeals,
+        userProfile: profile,
+        currentTime,
+      });
+      suggestionCacheRef.current = { data: result, ts: Date.now() };
+      setSuggestion(result);
+    } catch (err) {
+      setSuggestionError(err.message || 'Something went wrong');
+    } finally {
+      setSuggestionLoading(false);
+    }
+  }, [todayStr, profile]);
+
   const connected = isConnected();
   const showToast = useToast();
 
@@ -474,7 +640,18 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Exercise Question Box */}
+      {/* Meal Suggestion Card — only shown on Today view */}
+      {isToday && !suggestionDismissed && (
+        <MealSuggestionCard
+          suggestion={suggestion}
+          loading={suggestionLoading}
+          error={suggestionError}
+          onFetch={() => handleGetSuggestion(false)}
+          onRefresh={() => handleGetSuggestion(true)}
+          onDismiss={() => setSuggestionDismissed(true)}
+        />
+      )}
+
       {exerciseAnswer === null && !(inactiveStreak >= 5 && isToday) && (
         <div className="glass-card p-5 mb-4 exercise-prompt-card animate-fade-in">
           <div className="flex items-center justify-between gap-3 flex-wrap">

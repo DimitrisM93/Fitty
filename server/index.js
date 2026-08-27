@@ -9,6 +9,7 @@ import mealsRouter from './routes/meals.js';
 import favoritesRouter from './routes/favorites.js';
 import weightLogsRouter from './routes/weightLogs.js';
 import profileRouter from './routes/profile.js';
+import suggestRouter from './routes/suggest.js';
 import { initDb } from './db.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -29,6 +30,7 @@ app.use('/api/meals',        mealsRouter);
 app.use('/api/favorites',    favoritesRouter);
 app.use('/api/weight-logs',  weightLogsRouter);
 app.use('/api/profile',      profileRouter);
+app.use('/api/suggest',      suggestRouter);
 
 // Health check
 app.get('/api/health', (_req, res) => res.json({ ok: true }));

@@ -175,3 +175,19 @@ export async function saveProfileApi(profile) {
   if (!res.ok) throw new Error('Failed to save profile');
   return res.json();
 }
+
+// ── Meal Suggestion ────────────────────────────────────────────
+export async function fetchMealSuggestion({ todayMeals, historyMeals, userProfile, currentTime }) {
+  const res = await fetch(`${BASE}/api/suggest/meal`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify({ todayMeals, historyMeals, userProfile, currentTime }),
+  });
+  if (res.status === 401) {
+    clearAuthToken();
+    throw new Error('Session expired — please re-enter your PIN.');
+  }
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Failed to get meal suggestion');
+  return data;
+}
