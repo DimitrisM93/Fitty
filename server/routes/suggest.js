@@ -13,11 +13,20 @@ router.post('/meal', requireAuth, async (req, res) => {
   const { todayMeals = [], historyMeals = [], userProfile = {}, currentTime, fillingLevel = 'full' } = req.body;
 
   const FILLING_INSTRUCTIONS = {
-    snack: 'The user wants a LIGHT SNACK - target 150-300 kcal. Suggest something small and quick (e.g. Greek yogurt, nuts, a small dakos, fruit).',
-    light: 'The user wants a LIGHT MEAL - target 300-500 kcal. Suggest something satisfying but not heavy.',
-    full:  'The user wants a FULL, FILLING MEAL - target 500-800 kcal. Suggest something substantial that will keep them full for hours.',
+    snack: {
+      desc: 'The user wants a LIGHT SNACK - target 150-300 kcal. Suggest something small and quick (e.g. Greek yogurt, nuts, a small dakos, fruit). DO NOT suggest a full meal.',
+      cal: 250, pro: 10, carbs: 20, fat: 10, type: 'snack'
+    },
+    light: {
+      desc: 'The user wants a LIGHT MEAL - target 300-500 kcal. Suggest something satisfying but not heavy.',
+      cal: 400, pro: 25, carbs: 35, fat: 15, type: 'lunch'
+    },
+    full:  {
+      desc: 'The user wants a FULL, FILLING MEAL - target 500-800 kcal. Suggest something substantial that will keep them full for hours.',
+      cal: 650, pro: 40, carbs: 60, fat: 20, type: 'dinner'
+    },
   };
-  const fillingInstruction = FILLING_INSTRUCTIONS[fillingLevel] || FILLING_INSTRUCTIONS.full;
+  const tier = FILLING_INSTRUCTIONS[fillingLevel] || FILLING_INSTRUCTIONS.full;
 
   const todaySummary = todayMeals.length === 0
     ? 'Nothing eaten yet today.'
@@ -65,7 +74,8 @@ GREEK CUISINE CONTEXT:
 - Suggest something appropriate for the time of day.
 
 FILLING LEVEL REQUIREMENT (CRITICAL - respect this above all):
-${fillingInstruction}
+${tier.desc}
+WARNING: DO NOT exceed the target calories for this tier, even if the user's remaining daily calories are higher!
 
 VARIETY REQUIREMENT:
 - DO NOT suggest the exact same meals the user ate in the last 2 days.
@@ -79,10 +89,10 @@ JSON schema:
   "suggestion": "Specific meal name",
   "meal_type": "breakfast|lunch|dinner|snack",
   "reasoning": "2-3 sentence explanation",
-  "estimated_calories": 500,
-  "estimated_protein": 35,
-  "estimated_carbs": 45,
-  "estimated_fat": 18,
+  "estimated_calories": ${tier.cal},
+  "estimated_protein": ${tier.pro},
+  "estimated_carbs": ${tier.carbs},
+  "estimated_fat": ${tier.fat},
   "alternatives": ["Alternative 1", "Alternative 2", "Alternative 3"]
 }`;
 
