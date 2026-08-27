@@ -98,6 +98,7 @@ export default function LogMeal() {
   const [textQuery, setTextQuery] = useState('');
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
+  const [retryAfter, setRetryAfter] = useState(0);
   const [quickForm, setQuickForm] = useState({
     meal_type: 'snack',
     total_calories: '',
@@ -110,6 +111,13 @@ export default function LogMeal() {
   const fileInputRef = useRef();
   const cameraInputRef = useRef();
   const showToast = useToast();
+
+  // Countdown timer for rate-limit cooldown
+  useEffect(() => {
+    if (retryAfter <= 0) return;
+    const t = setTimeout(() => setRetryAfter(s => s - 1), 1000);
+    return () => clearTimeout(t);
+  }, [retryAfter]);
 
   const [favorites, setFavorites] = useState([]);
   const [isCreatingFav, setIsCreatingFav] = useState(false);
@@ -211,6 +219,7 @@ export default function LogMeal() {
 
     setStep('analyzing');
     setError('');
+    setRetryAfter(0);
     try {
       let base64 = '';
       let mime = '';
@@ -225,7 +234,15 @@ export default function LogMeal() {
       setResult(analysis);
       setStep('result');
     } catch (err) {
-      setError(err.message || 'Analysis failed. Please try again.');
+      // Check for rate-limit response
+      if (err.message?.includes('rate_limit') || err.message?.includes('429')) {
+        const match = err.message.match(/(\d+)/);
+        const secs = match ? parseInt(match[1]) : 60;
+        setRetryAfter(secs);
+        setError('');
+      } else {
+        setError(err.message || 'Analysis failed. Please try again.');
+      }
       setStep('upload');
     }
   }, [imageFile, textQuery, inputMode]);
@@ -319,7 +336,16 @@ export default function LogMeal() {
               <p className="text-muted text-sm mb-4">Enter ingredients and portions (e.g., "200g roast potatoes and 1 chicken breast").</p>
               {error && <p className="text-danger text-sm text-center mb-4">{error}</p>}
               <textarea className="input text-input-area mb-4" rows={5} placeholder="200g roast potatoes..." value={textQuery} onChange={(e) => setTextQuery(e.target.value)}/>
-              <button className="btn btn-primary w-full" onClick={analyze} disabled={!textQuery.trim()}>Analyze Meal ✨</button>
+              {retryAfter > 0 && (
+                <p className="text-center text-sm mb-3" style={{ color: '#f59e0b' }}>⏳ Rate limit — retry in <strong>{retryAfter}s</strong></p>
+              )}
+              <button
+                className="btn btn-primary w-full"
+                onClick={analyze}
+                disabled={!textQuery.trim() || retryAfter > 0}
+              >
+                {retryAfter > 0 ? `Wait ${retryAfter}s…` : 'Analyze Meal ✨'}
+              </button>
             </>
           ) : inputMode === 'favorites' ? (
             <div className="favorites-container">
@@ -525,7 +551,13 @@ export default function LogMeal() {
 
           <div className="flex gap-3 mt-4">
             <button onClick={reset} className="btn btn-ghost w-full">Retake</button>
-            <button onClick={analyze} className="btn btn-primary w-full shadow-glow">Analyze ✨</button>
+            <button
+              onClick={analyze}
+              className="btn btn-primary w-full shadow-glow"
+              disabled={retryAfter > 0}
+            >
+              {retryAfter > 0 ? `Wait ${retryAfter}s…` : 'Analyze ✨'}
+            </button>
           </div>
           {error && <p className="text-danger text-sm text-center mt-4">{error}</p>}
         </div>

@@ -82,6 +82,15 @@ router.post('/meal', requireAuth, async (req, res) => {
     return res.json(parsed);
   } catch (err) {
     console.error('Gemini error:', err.message);
+
+    // Detect rate-limit (429) and extract retry seconds
+    const is429 = err.message?.includes('429') || err.message?.includes('quota') || err.message?.includes('Quota');
+    if (is429) {
+      const match = err.message.match(/retry in (\d+(?:\.\d+)?)s/i);
+      const retryAfter = match ? Math.ceil(parseFloat(match[1])) : 60;
+      return res.status(429).json({ error: 'rate_limit', retryAfter });
+    }
+
     return res.status(500).json({ error: 'Failed to analyze meal. ' + err.message });
   }
 });
