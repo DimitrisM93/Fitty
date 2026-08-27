@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { fetchMealsRange, fetchProfile, fetchWeightLogs } from '../services/api';
-import { getExerciseLogs, saveExerciseAnswer } from '../services/storage';
+import { fetchMealsRange, fetchProfile, fetchWeightLogs, fetchExerciseLogsApi, saveExerciseLogApi } from '../services/api';
 import { getGreekTodayStr } from '../services/dateUtils';
 import html2canvas from 'html2canvas';
 import './Overview.css';
@@ -123,21 +122,11 @@ function HeatmapCalendar({ year, month, dailyData, goal }) {
 }
 
 // ─── Exercise Calendar ───────────────────────────────────
-function ExerciseCalendar({ range, onLogsChange }) {
-  const [logs, setLogs] = useState({});
-  
-  useEffect(() => {
-    const initLogs = getExerciseLogs();
-    setLogs(initLogs);
-    if (onLogsChange) onLogsChange(initLogs);
-  }, []);
-
+function ExerciseCalendar({ range, logs, onToggle }) {
   const handleToggle = (dateStr, currentStatus, isFuture) => {
     if (isFuture) return;
     const newStatus = currentStatus === 'yes' ? 'no' : 'yes';
-    const updatedLogs = saveExerciseAnswer(dateStr, newStatus);
-    setLogs({ ...updatedLogs });
-    if (onLogsChange) onLogsChange(updatedLogs);
+    onToggle(dateStr, newStatus);
   };
 
   const days = [];
@@ -259,7 +248,8 @@ export default function Overview() {
     Promise.all([
       fetchProfile().catch(() => null),
       fetchWeightLogs().catch(() => []),
-    ]).then(([p, logs]) => {
+      fetchExerciseLogsApi().catch(() => ({})),
+    ]).then(([p, logs, fetchedExerciseLogs]) => {
       if (p?.calorie_goal) setGoal(p.calorie_goal);
       let w = p?.weight || null;
       if (logs && logs.length > 0) {
@@ -271,8 +261,18 @@ export default function Overview() {
         if (sorted[0]?.weight) w = sorted[0].weight;
       }
       if (w) setLatestWeight(w);
+      setExerciseLogs(fetchedExerciseLogs);
     }).catch(() => {});
   }, []);
+
+  const handleExerciseToggle = async (dateStr, newStatus) => {
+    try {
+      await saveExerciseLogApi(dateStr, newStatus);
+      setExerciseLogs(prev => ({ ...prev, [dateStr]: newStatus }));
+    } catch (error) {
+      console.error('Failed to save exercise log:', error);
+    }
+  };
 
   const grouped = useMemo(() => groupByDate(meals), [meals]);
 
@@ -543,7 +543,7 @@ export default function Overview() {
           </div>
 
           {/* Workout Calendar */}
-          <ExerciseCalendar range={range} onLogsChange={setExerciseLogs} />
+          <ExerciseCalendar range={range} logs={exerciseLogs} onToggle={handleExerciseToggle} />
 
           {/* Avg Macros */}
           <div className="glass-card p-6 mb-4">
