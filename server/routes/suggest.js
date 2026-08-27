@@ -82,9 +82,13 @@ JSON schema:
 }`;
 
   try {
-    const groq = new Groq({ apiKey: groqKey });
+    const isXai = groqKey.startsWith('xai-');
+    const groq = new Groq({ 
+      apiKey: groqKey,
+      baseURL: isXai ? 'https://api.x.ai/v1' : undefined
+    });
     const completion = await groq.chat.completions.create({
-      model: 'llama-3.1-8b-instant',
+      model: isXai ? 'grok-2-latest' : 'llama-3.1-8b-instant',
       messages: [{ role: 'user', content: prompt }],
       response_format: { type: 'json_object' },
       temperature: 0.5,
