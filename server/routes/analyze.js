@@ -66,7 +66,7 @@ router.post('/meal', requireAuth, async (req, res) => {
     }
 
     const interaction = await ai.interactions.create({
-      model: 'gemini-3.6-flash',
+      model: 'gemini-2.0-flash',
       input: [
         {
           type: 'user_input',
