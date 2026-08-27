@@ -165,8 +165,8 @@ function MealSuggestionCard({ suggestion, loading, error, onFetch, onDismiss, on
             </div>
           </div>
         </div>
-        <FillingPicker value={fillingLevel} onChange={onFillingChange} />
-        <button id="meal-suggest-btn" className="btn btn-primary w-full mt-3" onClick={onFetch}>
+        <FillingPicker value={fillingLevel} onChange={(v) => { onFillingChange(v); }} />
+        <button id="meal-suggest-btn" className="btn btn-primary w-full mt-3" onClick={() => onFetch()}>
           ✨ Suggest
         </button>
       </div>
@@ -200,7 +200,7 @@ function MealSuggestionCard({ suggestion, loading, error, onFetch, onDismiss, on
         </div>
       </div>
 
-      <FillingPicker value={fillingLevel} onChange={(v) => { onFillingChange(v); onRefresh(); }} />
+      <FillingPicker value={fillingLevel} onChange={(v) => { onFillingChange(v); }} />
 
       <p className="suggestion-reasoning">{suggestion.reasoning}</p>
 
@@ -333,10 +333,13 @@ export default function Dashboard() {
   const suggestionCacheRef = useRef({ data: null, ts: 0 });
   const notesRef = useRef(null);
 
-  const handleGetSuggestion = useCallback(async (forceRefresh = false) => {
+  const handleGetSuggestion = useCallback(async (forceRefresh = false, overrideFillingLevel = null) => {
+    const activeFillingLevel = overrideFillingLevel || fillingLevel;
     const CACHE_TTL = 30 * 60 * 1000; // 30 minutes
     const cache = suggestionCacheRef.current;
-    if (!forceRefresh && cache.data && (Date.now() - cache.ts) < CACHE_TTL) {
+    
+    // Only use cache if we didn't force refresh AND the filling level matches the cached one
+    if (!forceRefresh && cache.data && cache.fillingLevel === activeFillingLevel && (Date.now() - cache.ts) < CACHE_TTL) {
       setSuggestion(cache.data);
       setSuggestionDismissed(false);
       return;
@@ -362,9 +365,9 @@ export default function Dashboard() {
         historyMeals,
         userProfile: profile,
         currentTime,
-        fillingLevel,
+        fillingLevel: activeFillingLevel,
       });
-      suggestionCacheRef.current = { data: result, ts: Date.now() };
+      suggestionCacheRef.current = { data: result, ts: Date.now(), fillingLevel: activeFillingLevel };
       setSuggestion(result);
     } catch (err) {
       setSuggestionError(err.message || 'Something went wrong');
@@ -684,8 +687,11 @@ export default function Dashboard() {
           loading={suggestionLoading}
           error={suggestionError}
           fillingLevel={fillingLevel}
-          onFillingChange={(v) => { setFillingLevel(v); suggestionCacheRef.current = { data: null, ts: 0 }; }}
-          onFetch={() => handleGetSuggestion(false)}
+          onFillingChange={(v) => {
+            setFillingLevel(v);
+            handleGetSuggestion(true, v);
+          }}
+          onFetch={() => handleGetSuggestion(true)}
           onRefresh={() => handleGetSuggestion(true)}
           onDismiss={() => setSuggestionDismissed(true)}
         />

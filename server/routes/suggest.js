@@ -67,6 +67,11 @@ GREEK CUISINE CONTEXT:
 FILLING LEVEL REQUIREMENT (CRITICAL - respect this above all):
 ${fillingInstruction}
 
+VARIETY REQUIREMENT:
+- DO NOT suggest the exact same meals the user ate in the last 2 days.
+- Ensure variety in protein sources (e.g. if they had chicken for lunch, suggest fish, beef, or vegetarian for dinner).
+- Be creative and varied!
+
 Respond ONLY with valid JSON, no markdown, no extra text.
 
 JSON schema:
@@ -91,7 +96,7 @@ JSON schema:
       model: isXai ? 'grok-2-latest' : 'openai/gpt-oss-120b',
       messages: [{ role: 'user', content: prompt }],
       response_format: { type: 'json_object' },
-      temperature: 0.5,
+      temperature: 0.8,
     });
     const parsed = JSON.parse(completion.choices[0]?.message?.content || '{}');
     return res.json(parsed);
