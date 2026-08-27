@@ -105,15 +105,8 @@ export function deleteWeightLog(id) {
   return logs;
 }
 
-// ─── Exercise Logs ────────────────────────────────────────
-export function getExerciseLogs() {
-  const raw = localStorage.getItem(getKey(STORAGE_KEYS.EXERCISE_LOGS));
-  if (!raw) return {};
-  try { return JSON.parse(raw); } catch { return {}; }
-}
-
-export function getExerciseAnswerForDate(dateStr) {
-  const logs = getExerciseLogs();
+export function getExerciseAnswerForDate(logs, dateStr) {
+  if (!logs) return null;
   const todayStr = getGreekTodayStr();
   
   if (logs[dateStr]) {
@@ -129,15 +122,8 @@ export function getExerciseAnswerForDate(dateStr) {
   return null;
 }
 
-export function saveExerciseAnswer(dateStr, answer) {
-  const logs = getExerciseLogs();
-  logs[dateStr] = answer;
-  localStorage.setItem(getKey(STORAGE_KEYS.EXERCISE_LOGS), JSON.stringify(logs));
-  return logs;
-}
-
-export function getInactiveStreakDays() {
-  const logs = getExerciseLogs();
+export function getInactiveStreakDays(logs) {
+  if (!logs) return 0;
   const today = new Date();
   let inactiveStreak = 0;
 

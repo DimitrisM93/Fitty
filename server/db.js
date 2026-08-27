@@ -70,6 +70,14 @@ export async function initDb() {
         notes TEXT,
         created_at TIMESTAMPTZ DEFAULT NOW()
       );
+
+      CREATE TABLE IF NOT EXISTS exercise_logs (
+        id SERIAL PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        log_date DATE NOT NULL,
+        answer TEXT NOT NULL,
+        UNIQUE(user_id, log_date)
+      );
     `);
     console.log('✅ Database tables ready');
   } finally {

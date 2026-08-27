@@ -159,6 +159,23 @@ export async function deleteWeightLogApi(id) {
   await fetch(`${BASE}/api/weight-logs/${id}`, { method: 'DELETE', headers: authHeaders() });
 }
 
+// ── Exercise Logs ───────────────────────────────────────────────
+export async function fetchExerciseLogsApi() {
+  const res = await fetch(`${BASE}/api/exercise-logs`, { headers: authHeaders() });
+  if (!res.ok) throw new Error('Failed to fetch exercise logs');
+  return res.json();
+}
+
+export async function saveExerciseLogApi(date, answer) {
+  const res = await fetch(`${BASE}/api/exercise-logs`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify({ date, answer }),
+  });
+  if (!res.ok) throw new Error('Failed to save exercise log');
+  return res.json();
+}
+
 // ── Profile ───────────────────────────────────────────────────
 export async function fetchProfile() {
   const res = await fetch(`${BASE}/api/profile`, { headers: authHeaders() });

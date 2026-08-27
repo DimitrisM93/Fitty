@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { fetchMeals, fetchMealsRange, deleteMeal, updateMeal, saveFavorite, fetchMealSuggestion } from '../services/api';
-import { fetchProfile, fetchWeightLogs } from '../services/api';
+import { fetchProfile, fetchWeightLogs, fetchExerciseLogsApi, saveExerciseLogApi } from '../services/api';
 import { isConnected, fetchTodayStats, fetchWeeklySteps } from '../services/googleFit';
 import { saveActivitySnapshot, getActivityForDate } from '../services/db';
-import { getExerciseAnswerForDate, saveExerciseAnswer, getInactiveStreakDays, getExerciseLogs } from '../services/storage';
+import { getExerciseAnswerForDate, getInactiveStreakDays } from '../services/storage';
 import { useToast } from '../context/ToastContext';
 import WeekChart from '../components/WeekChart';
 import './Dashboard.css';
@@ -321,8 +321,9 @@ export default function Dashboard() {
   const [saving, setSaving] = useState(false);
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [mealDates, setMealDates] = useState(new Set());
-  const [exerciseAnswer, setExerciseAnswer] = useState(() => getExerciseAnswerForDate(selectedDate));
-  const [inactiveStreak, setInactiveStreak] = useState(() => getInactiveStreakDays());
+  const [exerciseLogs, setExerciseLogs] = useState({});
+  const [exerciseAnswer, setExerciseAnswer] = useState(null);
+  const [inactiveStreak, setInactiveStreak] = useState(0);
   // Meal suggestion state
   const [suggestion, setSuggestion] = useState(null);
   const [suggestionLoading, setSuggestionLoading] = useState(false);
@@ -376,18 +377,21 @@ export default function Dashboard() {
   const showToast = useToast();
 
   useEffect(() => {
-    setExerciseAnswer(getExerciseAnswerForDate(selectedDate));
-    setInactiveStreak(getInactiveStreakDays());
-  }, [selectedDate]);
+    setExerciseAnswer(getExerciseAnswerForDate(exerciseLogs, selectedDate));
+    setInactiveStreak(getInactiveStreakDays(exerciseLogs));
+  }, [selectedDate, exerciseLogs]);
 
-  const handleExerciseAnswer = useCallback((ans) => {
-    saveExerciseAnswer(selectedDate, ans);
-    setExerciseAnswer(ans);
-    setInactiveStreak(getInactiveStreakDays());
-    if (ans === 'yes') {
-      showToast('Workout logged! Great job 🔥', 'success');
-    } else {
-      showToast('Logged. Rest days are essential too! 💤', 'info');
+  const handleExerciseAnswer = useCallback(async (ans) => {
+    try {
+      await saveExerciseLogApi(selectedDate, ans);
+      setExerciseLogs(prev => ({ ...prev, [selectedDate]: ans }));
+      if (ans === 'yes') {
+        showToast('Workout logged! Great job 🔥', 'success');
+      } else {
+        showToast('Logged. Rest days are essential too! 💤', 'info');
+      }
+    } catch (error) {
+      showToast('Failed to save exercise log', 'error');
     }
   }, [selectedDate, showToast]);
 
@@ -415,11 +419,14 @@ export default function Dashboard() {
   useEffect(() => {
     (async () => {
       try {
-        const [serverProfile, cachedActivity, weightLogs] = await Promise.all([
+        const [serverProfile, cachedActivity, weightLogs, fetchedExerciseLogs] = await Promise.all([
           fetchProfile().catch(() => null),
           getActivityForDate(todayStr),
           fetchWeightLogs().catch(() => []),
+          fetchExerciseLogsApi().catch(() => ({})),
         ]);
+        
+        setExerciseLogs(fetchedExerciseLogs);
 
         let latestWeight = serverProfile?.weight || '';
         if (weightLogs && weightLogs.length > 0) {

@@ -8,6 +8,7 @@ import authRouter from './routes/auth.js';
 import mealsRouter from './routes/meals.js';
 import favoritesRouter from './routes/favorites.js';
 import weightLogsRouter from './routes/weightLogs.js';
+import exerciseLogsRouter from './routes/exerciseLogs.js';
 import profileRouter from './routes/profile.js';
 import suggestRouter from './routes/suggest.js';
 import { initDb } from './db.js';
@@ -29,6 +30,7 @@ app.use('/api/analyze',      analyzeRouter);
 app.use('/api/meals',        mealsRouter);
 app.use('/api/favorites',    favoritesRouter);
 app.use('/api/weight-logs',  weightLogsRouter);
+app.use('/api/exercise-logs', exerciseLogsRouter);
 app.use('/api/profile',      profileRouter);
 app.use('/api/suggest',      suggestRouter);
 
