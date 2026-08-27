@@ -1,5 +1,6 @@
-import { Router } from 'express';
+﻿import { Router } from 'express';
 import { GoogleGenAI } from '@google/genai';
+import Groq from 'groq-sdk';
 import { requireAuth } from './auth.js';
 
 const router = Router();
@@ -36,61 +37,54 @@ Required JSON Schema:
 // POST /api/analyze/meal
 // Body: { imageBase64?: string, mimeType?: string, textQuery?: string }
 router.post('/meal', requireAuth, async (req, res) => {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    return res.status(500).json({ error: 'Gemini API key not configured on server.' });
-  }
-
   const { imageBase64, mimeType = 'image/jpeg', textQuery } = req.body;
   if (!imageBase64 && !textQuery) {
     return res.status(400).json({ error: 'Must provide either an image or a text description.' });
   }
 
+  // TEXT-ONLY → Groq (free tier, 14400 req/day, no vision needed)
+  if (!imageBase64 && textQuery) {
+    const groqKey = process.env.GROQ_API_KEY;
+    if (!groqKey) return res.status(500).json({ error: 'GROQ_API_KEY not configured on server.' });
+    try {
+      const groq = new Groq({ apiKey: groqKey });
+      const completion = await groq.chat.completions.create({
+        model: 'llama-3.3-70b-versatile',
+        messages: [{ role: 'user', content: `${MEAL_ANALYSIS_PROMPT}\n\nUser description: ${textQuery}` }],
+        response_format: { type: 'json_object' },
+        temperature: 0.3,
+      });
+      const parsed = JSON.parse(completion.choices[0]?.message?.content || '{}');
+      return res.json(parsed);
+    } catch (err) {
+      console.error('Groq error:', err.message);
+      return res.status(500).json({ error: 'Failed to analyze meal. ' + err.message });
+    }
+  }
+
+  // PHOTO → Gemini (vision required, quota used only for photos)
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return res.status(500).json({ error: 'GEMINI_API_KEY not configured on server.' });
   try {
     const ai = new GoogleGenAI({ apiKey });
-
-    const contentParts = [
-      { type: 'text', text: MEAL_ANALYSIS_PROMPT }
-    ];
-    
-    if (textQuery) {
-      contentParts.push({ type: 'text', text: `User's description: ${textQuery}` });
-    }
-
-    if (imageBase64) {
-      contentParts.push({
-        type: 'image',
-        mime_type: mimeType,
-        data: imageBase64
-      });
-    }
+    const contentParts = [{ type: 'text', text: MEAL_ANALYSIS_PROMPT }];
+    if (textQuery) contentParts.push({ type: 'text', text: `User description: ${textQuery}` });
+    contentParts.push({ type: 'image', mime_type: mimeType, data: imageBase64 });
 
     const interaction = await ai.interactions.create({
       model: 'gemini-3.5-flash',
-      input: [
-        {
-          type: 'user_input',
-          content: contentParts
-        }
-      ]
+      input: [{ type: 'user_input', content: contentParts }],
     });
-    
-    const text = interaction.output_text || "{}";
-    const cleaned = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-    const parsed = JSON.parse(cleaned);
-
-    return res.json(parsed);
+    const cleaned = (interaction.output_text || '{}').replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    return res.json(JSON.parse(cleaned));
   } catch (err) {
     console.error('Gemini error:', err.message);
-
-    // Detect rate-limit (429) and extract retry seconds
     const is429 = err.message?.includes('429') || err.message?.includes('quota') || err.message?.includes('Quota');
     if (is429) {
       const match = err.message.match(/retry in (\d+(?:\.\d+)?)s/i);
       const retryAfter = match ? Math.ceil(parseFloat(match[1])) : 60;
       return res.status(429).json({ error: 'rate_limit', retryAfter });
     }
-
     return res.status(500).json({ error: 'Failed to analyze meal. ' + err.message });
   }
 });
