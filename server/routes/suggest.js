@@ -88,7 +88,7 @@ JSON schema:
       baseURL: isXai ? 'https://api.x.ai/v1' : undefined
     });
     const completion = await groq.chat.completions.create({
-      model: isXai ? 'grok-2-latest' : 'llama-3.1-8b-instant',
+      model: isXai ? 'grok-2-latest' : 'openai/gpt-oss-120b',
       messages: [{ role: 'user', content: prompt }],
       response_format: { type: 'json_object' },
       temperature: 0.5,
