@@ -96,7 +96,7 @@ JSON schema:
   try {
     const ai = new GoogleGenAI({ apiKey });
     const interaction = await ai.interactions.create({
-      model: 'gemini-3.6-flash',
+      model: 'gemini-3.5-flash',
       input: [{ type: 'user_input', content: [{ type: 'text', text: prompt }] }],
     });
     const text = (interaction.output_text || '{}').trim();
