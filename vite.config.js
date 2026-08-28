@@ -6,7 +6,14 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      // In dev, forward /api/* to the Express backend on port 3001
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+      },
+    },
+  },
+  preview: {
+    proxy: {
       '/api': {
         target: 'http://localhost:3001',
         changeOrigin: true,

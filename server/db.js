@@ -80,6 +80,19 @@ export async function initDb() {
       );
     `);
 
+    // Clean up any duplicate exercise_logs before adding the constraint
+    try {
+      await client.query(`
+        DELETE FROM exercise_logs a
+        USING exercise_logs b
+        WHERE a.id < b.id 
+          AND a.user_id = b.user_id 
+          AND a.log_date = b.log_date;
+      `);
+    } catch (e) {
+      console.error('Failed to clean up duplicates:', e);
+    }
+
     // Ensure the unique constraint exists in case the table was created before it was added
     try {
       await client.query(`
