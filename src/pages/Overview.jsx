@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { fetchMealsRange, fetchProfile, fetchWeightLogs, fetchExerciseLogsApi, saveExerciseLogApi } from '../services/api';
 import { getGreekTodayStr } from '../services/dateUtils';
 import html2canvas from 'html2canvas';
+import { showToast } from '../components/Toast';
 import './Overview.css';
 
 // ─── Helpers ─────────────────────────────────────────────
@@ -271,6 +272,7 @@ export default function Overview() {
       setExerciseLogs(prev => ({ ...prev, [dateStr]: newStatus }));
     } catch (error) {
       console.error('Failed to save exercise log:', error);
+      showToast('Failed to save. Check database connection.', 'error');
     }
   };
 
