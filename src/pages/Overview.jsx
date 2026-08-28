@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { fetchMealsRange, fetchProfile, fetchWeightLogs, fetchExerciseLogsApi, saveExerciseLogApi } from '../services/api';
 import { getGreekTodayStr } from '../services/dateUtils';
 import html2canvas from 'html2canvas';
-import { showToast } from '../components/Toast';
+import { useToast } from '../context/ToastContext';
 import './Overview.css';
 
 // ─── Helpers ─────────────────────────────────────────────
@@ -191,6 +191,7 @@ function ExerciseCalendar({ range, logs, onToggle }) {
 
 // ─── Main Component ──────────────────────────────────────
 export default function Overview() {
+  const showToast = useToast();
   const [tab, setTab] = useState('weekly'); // weekly | 15days | monthly | custom
   const [offset, setOffset] = useState(0);
   const [customRange, setCustomRange] = useState({
