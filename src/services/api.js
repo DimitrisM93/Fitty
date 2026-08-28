@@ -172,7 +172,10 @@ export async function saveExerciseLogApi(date, answer) {
     headers: authHeaders(),
     body: JSON.stringify({ date, answer }),
   });
-  if (!res.ok) throw new Error('Failed to save exercise log');
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || `HTTP error ${res.status}`);
+  }
   return res.json();
 }
 

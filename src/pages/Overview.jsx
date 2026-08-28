@@ -272,7 +272,7 @@ export default function Overview() {
       setExerciseLogs(prev => ({ ...prev, [dateStr]: newStatus }));
     } catch (error) {
       console.error('Failed to save exercise log:', error);
-      showToast('Failed to save. Check database connection.', 'error');
+      showToast(`Save failed: ${error.message}`, 'error');
     }
   };
 
