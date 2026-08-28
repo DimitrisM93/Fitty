@@ -79,6 +79,16 @@ export async function initDb() {
         UNIQUE(user_id, log_date)
       );
     `);
+
+    // Ensure the unique constraint exists in case the table was created before it was added
+    try {
+      await client.query(`
+        ALTER TABLE exercise_logs ADD CONSTRAINT exercise_logs_user_id_log_date_key UNIQUE (user_id, log_date);
+      `);
+    } catch (e) {
+      // Ignore if the constraint already exists
+    }
+
     console.log('✅ Database tables ready');
   } finally {
     if (client) client.release();
