@@ -45,7 +45,7 @@ router.post('/', requireAuth, async (req, res) => {
     res.json({ ok: true });
   } catch (error) {
     console.error('Error saving exercise log:', error);
-    res.status(500).json({ error: 'Failed to save exercise log' });
+    res.status(500).json({ error: `Failed to save exercise log: ${error.message || error}` });
   }
 });
 
