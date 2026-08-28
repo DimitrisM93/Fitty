@@ -10,7 +10,7 @@ router.get('/', requireAuth, async (req, res) => {
   try {
     const result = await pool.query(
       'SELECT log_date as date, answer FROM exercise_logs WHERE user_id = $1 ORDER BY log_date ASC',
-      [req.user.id]
+      [req.userId]
     );
     // Format to match old localStorage structure: { "YYYY-MM-DD": "yes", ... }
     const logs = {};
@@ -40,7 +40,7 @@ router.post('/', requireAuth, async (req, res) => {
        VALUES ($1, $2, $3)
        ON CONFLICT (user_id, log_date)
        DO UPDATE SET answer = EXCLUDED.answer`,
-      [req.user.id, date, answer]
+      [req.userId, date, answer]
     );
     res.json({ ok: true });
   } catch (error) {
