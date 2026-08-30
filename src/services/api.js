@@ -62,9 +62,18 @@ export async function analyzeMealViaServer(imageBase64, mimeType = 'image/jpeg',
     clearAuthToken();
     throw new Error('Session expired — please re-enter your PIN.');
   }
+  if (res.status === 413) {
+    throw new Error('Image size is too large. Please upload a smaller photo.');
+  }
 
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || 'Analysis failed');
+  let data;
+  try {
+    data = await res.json();
+  } catch (err) {
+    throw new Error(`Server error: ${res.status} ${res.statusText}`);
+  }
+
+  if (!res.ok) throw new Error(data?.error || 'Analysis failed');
   return data;
 }
 
