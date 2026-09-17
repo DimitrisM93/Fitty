@@ -64,39 +64,39 @@ After saving your changes, restart the backend server for the new prompts to tak
 
 ## 🤔 FAQ & API Clarification
 
-**Why does this app need its own API keys?**
-Fitty is designed to be a completely free, self-hosted application. Instead of charging you a monthly subscription to cover cloud AI costs, Fitty lets you plug in your own API keys. This means the app runs entirely on your own accounts, giving you full control, privacy, and no subscription fees.
+- **Why does this app need its own API keys?**
+  Fitty is designed to be a completely free, self-hosted application. Instead of charging you a monthly subscription to cover cloud AI costs, Fitty lets you plug in your own API keys. This means the app runs entirely on your own accounts, giving you full control, privacy, and no subscription fees.
 
-**Will I be charged for using the Gemini or Groq APIs?**
-**No!** Both Google Gemini (via Google AI Studio) and Groq offer very generous **Free Tiers** that are more than enough for personal use. 
-- **Google Gemini**: The free tier allows for plenty of daily requests, which is perfect for analyzing your daily meals and food images.
-- **Groq**: Provides lightning-fast, free access to top open-source models for text processing, suggestions, and generation.
+- **Will I be charged for using the Gemini or Groq APIs?**
+  **No!** Both Google Gemini (via Google AI Studio) and Groq offer very generous **Free Tiers** that are more than enough for personal use. 
+  - **Google Gemini**: The free tier allows for plenty of daily requests, which is perfect for analyzing your daily meals and food images.
+  - **Groq**: Provides lightning-fast, free access to top open-source models for text processing, suggestions, and generation.
+  
+  As long as you are using this app for your personal fitness tracking, you will stay well within the free limits of both services and won't pay a dime.
 
-As long as you are using this app for your personal fitness tracking, you will stay well within the free limits of both services and won't pay a dime.
+- **Why does the app use both Gemini and Groq AIs?**
+  Fitty leverages the best tool for each specific job. Google Gemini is fantastic at analyzing images of your food and determining precise nutritional breakdowns. Groq, on the other hand, runs open-source models at lightning speed, making it perfect for instantaneous dietary suggestions and rapid text processing without making you wait.
 
-**Why does the app use both Gemini and Groq AIs?**
-Fitty leverages the best tool for each specific job. Google Gemini is fantastic at analyzing images of your food and determining precise nutritional breakdowns. Groq, on the other hand, runs open-source models at lightning speed, making it perfect for instantaneous dietary suggestions and rapid text processing without making you wait.
+- **How does the AI meal tracking actually work?**
+  When you upload an image or type a description of your meal, the app sends it to the AI. The AI acts as a professional nutritionist: identifying the food items, estimating portion sizes, and calculating the calories, protein, carbs, and fats. It then automatically logs these into your daily dashboard.
 
-**How does the AI meal tracking actually work?**
-When you upload an image or type a description of your meal, the app sends it to the AI. The AI acts as a professional nutritionist: identifying the food items, estimating portion sizes, and calculating the calories, protein, carbs, and fats. It then automatically logs these into your daily dashboard.
+- **Is my meal and fitness data private?**
+  Yes! Because you host the application yourself and provide your own database, you are in complete control of your data. Nobody else has access to your personal logs. *(Note: Data sent to Gemini and Groq for analysis is subject to their respective privacy policies, but your historical logs remain entirely in your private database).*
 
-**Is my meal and fitness data private?**
-Yes! Because you host the application yourself and provide your own database, you are in complete control of your data. Nobody else has access to your personal logs. *(Note: Data sent to Gemini and Groq for analysis is subject to their respective privacy policies, but your historical logs remain entirely in your private database).*
+- **Can I use a different database instead of Postgres?**
+  Out of the box, Fitty is configured to use PostgreSQL. However, because the backend is built with standard Node.js, developers can easily modify the database configuration to support MySQL, SQLite, or other SQL databases with minimal code changes.
 
-**Can I use a different database instead of Postgres?**
-Out of the box, Fitty is configured to use PostgreSQL. However, because the backend is built with standard Node.js, developers can easily modify the database configuration to support MySQL, SQLite, or other SQL databases with minimal code changes.
+- **Do I need to be a developer to use Fitty?**
+  Not at all! While setting it up for the first time takes a few minutes (following the Vercel steps above), once it's running, it works exactly like any normal app you'd use on your phone.
 
-**Do I need to be a developer to use Fitty?**
-Not at all! While setting it up for the first time takes a few minutes (following the Vercel steps above), once it's running, it works exactly like any normal app you'd use on your phone.
+- **Is Fitty on the App Store or Google Play?**
+  No. Fitty is a Progressive Web App (PWA). This means you don't need to download it from an app store. You just open your custom URL in your mobile browser, tap "Add to Home Screen", and it installs directly to your phone and behaves like a native app. 
 
-**Is Fitty on the App Store or Google Play?**
-No. Fitty is a Progressive Web App (PWA). This means you don't need to download it from an app store. You just open your custom URL in your mobile browser, tap "Add to Home Screen", and it installs directly to your phone and behaves like a native app. 
+- **Does Fitty track my workouts too?**
+  Yes! Fitty isn't just for food. You can use it to log your workouts and overall fitness progress right alongside your meal nutrition so everything is in one place.
 
-**Does Fitty track my workouts too?**
-Yes! Fitty isn't just for food. You can use it to log your workouts and overall fitness progress right alongside your meal nutrition so everything is in one place.
-
-**Is it really 100% free forever?**
-Yes. Unlike other fitness apps that hide the best features behind a "Premium" paywall, Fitty gives you every single feature for free because you are the one hosting it.
+- **Is it really 100% free forever?**
+  Yes. Unlike other fitness apps that hide the best features behind a "Premium" paywall, Fitty gives you every single feature for free because you are the one hosting it.
 
 ---
 
