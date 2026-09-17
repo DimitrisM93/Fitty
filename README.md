@@ -44,6 +44,11 @@ Fitty uses AI to analyze meals and suggest foods. If you want to change the "sev
 
 After saving your changes, restart the backend server for the new prompts to take effect.
 
+---
+
+ 
+
+---
 
 ## 💻 Local Development Setup
 
