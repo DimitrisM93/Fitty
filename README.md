@@ -74,6 +74,18 @@ Fitty is designed to be a completely free, self-hosted application. Instead of c
 
 As long as you are using this app for your personal fitness tracking, you will stay well within the free limits of both services and won't pay a dime.
 
+**Why does the app use both Gemini and Groq AIs?**
+Fitty leverages the best tool for each specific job. Google Gemini is fantastic at analyzing images of your food and determining precise nutritional breakdowns. Groq, on the other hand, runs open-source models at lightning speed, making it perfect for instantaneous dietary suggestions and rapid text processing without making you wait.
+
+**How does the AI meal tracking actually work?**
+When you upload an image or type a description of your meal, the app sends it to the AI. The AI acts as a professional nutritionist: identifying the food items, estimating portion sizes, and calculating the calories, protein, carbs, and fats. It then automatically logs these into your daily dashboard.
+
+**Is my meal and fitness data private?**
+Yes! Because you host the application yourself and provide your own database, you are in complete control of your data. Nobody else has access to your personal logs. *(Note: Data sent to Gemini and Groq for analysis is subject to their respective privacy policies, but your historical logs remain entirely in your private database).*
+
+**Can I use a different database instead of Postgres?**
+Out of the box, Fitty is configured to use PostgreSQL. However, because the backend is built with standard Node.js, developers can easily modify the database configuration to support MySQL, SQLite, or other SQL databases with minimal code changes.
+
 ---
 
 ## 💻 Local Development Setup
