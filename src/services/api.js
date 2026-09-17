@@ -28,6 +28,17 @@ function authHeaders() {
   };
 }
 
+const globalFetch = window.fetch;
+async function fetch(url, options) {
+  const res = await globalFetch(url, options);
+  if (res.status === 401 && !url.includes('/api/auth/verify')) {
+    clearAuthToken();
+    window.location.reload();
+    throw new Error('Session expired');
+  }
+  return res;
+}
+
 // ── Auth ─────────────────────────────────────────────────────
 export async function verifyPin(pin) {
   const res = await fetch(`${BASE}/api/auth/verify`, {
@@ -58,10 +69,6 @@ export async function analyzeMealViaServer(imageBase64, mimeType = 'image/jpeg',
     body: JSON.stringify(body),
   });
 
-  if (res.status === 401) {
-    clearAuthToken();
-    throw new Error('Session expired — please re-enter your PIN.');
-  }
   if (res.status === 413) {
     throw new Error('Image size is too large. Please upload a smaller photo.');
   }
@@ -212,10 +219,6 @@ export async function fetchMealSuggestion({ todayMeals, historyMeals, userProfil
     headers: authHeaders(),
     body: JSON.stringify({ todayMeals, historyMeals, userProfile, currentTime }),
   });
-  if (res.status === 401) {
-    clearAuthToken();
-    throw new Error('Session expired — please re-enter your PIN.');
-  }
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || 'Failed to get meal suggestion');
   return data;
