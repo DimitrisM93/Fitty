@@ -1,6 +1,8 @@
 # Fitty
 
-Fitty is a full-stack fitness and meal tracking application powered by AI. It uses Gemini and Groq AI to automatically analyze your meals, calculate nutritional values, and help you track your fitness goals.
+Fitty is a full-stack fitness and meal tracking Progressive web app (PWA) powered by AI. It uses Gemini and Groq AI to automatically analyze your meals, calculate nutritional values, and help you track your fitness goals.
+
+
 
 ## Tech Stack
 - **Frontend**: React + Vite
@@ -31,7 +33,21 @@ Before deploying, you will need to get a few free API keys:
 
 ---
 
- 
+## 📱 Installing on your Phone (PWA)
+
+Since Fitty is a Progressive Web App (PWA), you can install it directly to your phone's home screen for a native app-like experience!
+
+### iOS (iPhone/iPad)
+1. Open your live Fitty URL in **Safari**.
+2. Tap the **Share** button (the square with an arrow pointing up at the bottom of the screen).
+3. Scroll down and tap **Add to Home Screen**.
+4. Tap **Add** in the top right corner.
+
+### Android
+1. Open your live Fitty URL in **Chrome**.
+2. Tap the **3-dot menu icon** in the top right corner.
+3. Tap **Install app** or **Add to Home screen**.
+4. Follow the prompt to add it to your home screen.
 
 ---
 
