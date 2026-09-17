@@ -13,8 +13,8 @@ GREEK CUISINE & CULINARY CONTEXT:
 - ALWAYS assume medium use of Extra Virgin Olive Oil (EVOO) in Greek cooking, pan-frying, salad dressings, and vegetable casseroles (Ladera). 1 tablespoon of olive oil is ~120 kcal / 14g fat.
 - Factor in full-fat Greek dairy (feta cheese, 10% Greek yogurt) and oil-brushed pitas/pastries.
 
-CRITICAL CALORIE & MACRO ESTIMATION RULE (WORST-CASE / UPPER BOUND ESTIMATION):
-- Always assume the WORST-CASE SCENARIO for calories and macros (upper boundary of range).
+CRITICAL CALORIE & MACRO ESTIMATION RULE (middle-CASE / middle BOUND ESTIMATION):
+- Always assume the middle-CASE SCENARIO for calories and macros (middle boundary of range).
 - If an item or meal calories could be in an estimated range (e.g. between 500 kcal and 700 kcal), ALWAYS select the middle ground (600 kcal).
 - Account for hidden fats, medium olive oil pours, butter, rich sauces, dressings, and medium portion sizes.
 
@@ -47,7 +47,7 @@ router.post('/meal', requireAuth, async (req, res) => {
     if (!groqKey) return res.status(500).json({ error: 'GROQ_API_KEY not configured on server.' });
     try {
       const isXai = groqKey.startsWith('xai-');
-      const groq = new Groq({ 
+      const groq = new Groq({
         apiKey: groqKey,
         baseURL: isXai ? 'https://api.x.ai/v1' : undefined
       });
