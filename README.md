@@ -65,3 +65,14 @@ If you want to run Fitty locally on your own machine instead, follow these steps
    ```
 
 5. Open your browser and navigate to `http://localhost:5173`. 
+
+---
+
+## 🛠️ Customizing the AI Prompts (Severity & Tone)
+
+Fitty uses AI to analyze meals and suggest foods. If you want to change the "severity" or tone of the AI (e.g., make the nutritionist stricter, more lenient, or change dietary preferences), you can modify the prompts directly in the backend code:
+
+1. **Meal Analysis Prompt**: Open `server/routes/analyze.js` and modify the `MEAL_ANALYSIS_PROMPT` variable.
+2. **Food Suggestion Prompt**: Open `server/routes/suggest.js` and modify the `prompt` variable inside the route handler.
+
+After saving your changes, restart the backend server for the new prompts to take effect.
