@@ -62,7 +62,17 @@ After saving your changes, restart the backend server for the new prompts to tak
 
 ---
 
- 
+## 🤔 FAQ & API Clarification
+
+**Why does this app need its own API keys?**
+Fitty is designed to be a completely free, self-hosted application. Instead of charging you a monthly subscription to cover cloud AI costs, Fitty lets you plug in your own API keys. This means the app runs entirely on your own accounts, giving you full control, privacy, and no subscription fees.
+
+**Will I be charged for using the Gemini or Groq APIs?**
+**No!** Both Google Gemini (via Google AI Studio) and Groq offer very generous **Free Tiers** that are more than enough for personal use. 
+- **Google Gemini**: The free tier allows for plenty of daily requests, which is perfect for analyzing your daily meals and food images.
+- **Groq**: Provides lightning-fast, free access to top open-source models for text processing, suggestions, and generation.
+
+As long as you are using this app for your personal fitness tracking, you will stay well within the free limits of both services and won't pay a dime.
 
 ---
 
