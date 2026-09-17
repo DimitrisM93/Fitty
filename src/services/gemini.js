@@ -42,13 +42,41 @@ All macros should be in grams. Calories in kcal.`;
 
 
 
-export function imageFileToBase64(file) {
+export function imageFileToBase64(file, maxWidth = 1024, quality = 0.7) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = (e) => {
-      // Strip the data URL prefix to get raw base64
-      const base64 = e.target.result.split(',')[1];
-      resolve({ base64, mimeType: file.type });
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        // Calculate new dimensions while maintaining aspect ratio
+        if (width > height) {
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxWidth) {
+            width = Math.round((width * maxWidth) / height);
+            height = maxWidth;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Convert to compressed base64 JPEG
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+        const base64 = compressedDataUrl.split(',')[1];
+        resolve({ base64, mimeType: 'image/jpeg' });
+      };
+      img.onerror = reject;
+      img.src = event.target.result;
     };
     reader.onerror = reject;
     reader.readAsDataURL(file);
