@@ -2,7 +2,7 @@
 
 Fitty is a full-stack fitness and meal tracking Progressive web app (PWA) powered by AI. It uses Gemini and Groq AI to automatically analyze your meals, calculate nutritional values, and help you track your fitness goals.
 
-💖 **If you like Fitty and want to support its open-source development, 👉[please consider buying me a coffee!](YOUR_BUY_ME_A_COFFEE_LINK_HERE)** ☕ 👈
+💖 **If you like Fitty and want to support its open-source development, [please consider buying me a coffee!](https://buymeacoffee.com/jimmyfitty)** ☕
 
 
 
