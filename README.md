@@ -86,6 +86,18 @@ Yes! Because you host the application yourself and provide your own database, yo
 **Can I use a different database instead of Postgres?**
 Out of the box, Fitty is configured to use PostgreSQL. However, because the backend is built with standard Node.js, developers can easily modify the database configuration to support MySQL, SQLite, or other SQL databases with minimal code changes.
 
+**Do I need to be a developer to use Fitty?**
+Not at all! While setting it up for the first time takes a few minutes (following the Vercel steps above), once it's running, it works exactly like any normal app you'd use on your phone.
+
+**Is Fitty on the App Store or Google Play?**
+No. Fitty is a Progressive Web App (PWA). This means you don't need to download it from an app store. You just open your custom URL in your mobile browser, tap "Add to Home Screen", and it installs directly to your phone and behaves like a native app. 
+
+**Does Fitty track my workouts too?**
+Yes! Fitty isn't just for food. You can use it to log your workouts and overall fitness progress right alongside your meal nutrition so everything is in one place.
+
+**Is it really 100% free forever?**
+Yes. Unlike other fitness apps that hide the best features behind a "Premium" paywall, Fitty gives you every single feature for free because you are the one hosting it.
+
 ---
 
 ## 💻 Local Development Setup
