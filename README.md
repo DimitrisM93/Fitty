@@ -98,6 +98,9 @@ After saving your changes, restart the backend server for the new prompts to tak
 - **Is it really 100% free forever?**
   Yes. Unlike other fitness apps that hide the best features behind a "Premium" paywall, Fitty gives you every single feature for free because you are the one hosting it.
 
+- **What if I find a bug or the app crashes?**
+  Fitty is a completely free, open-source indie app built in my spare time. Because of this, you might occasionally run into bugs, hiccups, or unexpected crashes. If something breaks, please bear with me and feel free to open an Issue on GitHub so I can take a look!
+
 ---
 
 ## 💻 Local Development Setup
