@@ -8,6 +8,24 @@ Fitty is a full-stack fitness and meal tracking Progressive web app (PWA) powere
   <img src="screenshots/viber_image_2026-09-28_22-44-38-229.jpg" width="22%" />
   <img src="screenshots/viber_image_2026-09-28_22-44-38-387.jpg" width="22%" />
 </p>
+<p align="center">
+  <img src="screenshots/viber_image_2026-09-28_22-44-38-595.jpg" width="22%" />
+  <img src="screenshots/viber_image_2026-09-28_22-44-39-008.jpg" width="22%" />
+  <img src="screenshots/viber_image_2026-09-28_22-44-39-024.jpg" width="22%" />
+  <img src="screenshots/viber_image_2026-09-28_22-44-39-124.jpg" width="22%" />
+</p>
+
+<details>
+<summary><b>📷 Click here to view even more screenshots</b></summary>
+<br>
+<p align="center">
+  <img src="screenshots/viber_image_2026-09-28_22-44-39-890.jpg" width="19%" />
+  <img src="screenshots/viber_image_2026-09-28_22-44-39-901.jpg" width="19%" />
+  <img src="screenshots/viber_image_2026-09-28_22-44-41-390.jpg" width="19%" />
+  <img src="screenshots/viber_image_2026-09-28_22-44-41-400.jpg" width="19%" />
+  <img src="screenshots/viber_image_2026-09-28_22-45-55-635.jpg" width="19%" />
+</p>
+</details>
 💖 **If you like Fitty and want to support its open-source development, [please consider buying me a coffee!](https://buymeacoffee.com/jimmyfitty)** ☕
 
 
