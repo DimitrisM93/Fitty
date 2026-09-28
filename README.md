@@ -1,4 +1,4 @@
-# Fitty
+# Jouly
 
 Fitty is a full-stack fitness and meal tracking Progressive web app (PWA) powered by AI. It uses Gemini and Groq AI to automatically analyze your meals, calculate nutritional values, and help you track your fitness goals.
 

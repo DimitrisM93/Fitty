@@ -18,7 +18,7 @@ export default function TopHeader() {
             <img src="/favicon.png" alt="FitAI Favicon" className="favicon-img" />
           </div>
           <span className="brand-title font-bold">
-            Fit<span className="gradient-text">ty</span>
+            Jou<span className="gradient-text">ly</span>
           </span>
         </Link>
       </div>
