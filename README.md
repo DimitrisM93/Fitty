@@ -26,8 +26,8 @@ The easiest way to host Fitty for yourself is by deploying it on Vercel.
 
 ### 1. Prepare your APIs
 Before deploying, you will need to get a few free API keys:
-- **Gemini API Key**: Get it for free at [Google AI Studio](https://aistudio.google.com/).
-- **Groq API Key**: Get it for free at [Groq Console](https://console.groq.com/).
+- **Gemini API Key**: Get it for free at [Google AI Studio](https://aistudio.google.com/). It is used for the image analysis of the meal.
+- **Groq API Key**: Get it for free at [Groq Console](https://console.groq.com/). It is used for the text analysis of the meal.
 
 ### 2. Deploy on Vercel
 1. **Import the Code**: Fork or clone this repository to your own GitHub account. **I highly recommend making your repository Private** so that if you ever accidentally commit your `.env` file, your keys remain safe. Go to [Vercel](https://vercel.com/) and create a new project by importing your GitHub repository.
