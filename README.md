@@ -26,7 +26,7 @@ Fitty is a full-stack fitness and meal tracking Progressive web app (PWA) powere
   <img src="screenshots/viber_image_2026-09-28_22-45-55-635.jpg" width="19%" />
 </p>
 </details>
-💖 **If you like Fitty and want to support its open-source development, [please consider buying me a coffee!](https://buymeacoffee.com/jimmyfitty)** ☕
+💖 **If you like Fitty and want to support its open-source development, [please consider buying me a coffee!] https://buymeacoffee.com/jimmyfitty ☕
 
 
 
