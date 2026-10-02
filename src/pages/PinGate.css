@@ -65,12 +65,9 @@
 }
 
 .pin-logo-img {
-  width: 128px;
-  height: 128px;
+  width: 220px;
+  height: 220px;
   animation: float 3s ease-in-out infinite;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
 @keyframes float {

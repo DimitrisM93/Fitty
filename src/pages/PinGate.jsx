@@ -124,9 +124,6 @@ export default function PinGate({ onUnlock }) {
         <div className="pin-logo-img">
           <img src="/favicon.png" alt="Vylia" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
         </div>
-        <h1 className="pin-title">
-          <span className="gradient-text">Vylia</span>
-        </h1>
         <p className="pin-subtitle">Enter your PIN to continue</p>
 
         {locked ? (
