@@ -124,7 +124,7 @@ export default function PinGate({ onUnlock }) {
         <div className="pin-logo-img">
           <img src="/favicon.png" alt="Vylia" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
         </div>
-        <p className="pin-subtitle">Enter your PIN to continue</p>
+        <p className="pin-subtitle">Say "friend" and enter</p>
 
         {locked ? (
           <div className="pin-locked animate-fade-in">
