@@ -53,7 +53,7 @@ export default app;
 // Listen only if not executed by Vercel
 if (!process.env.VERCEL) {
   app.listen(PORT, () => {
-    console.log(`✅ FitAI server running on port ${PORT}`);
+    console.log(`✅ Vylia server running on port ${PORT}`);
     console.log(`   Gemini key: ${process.env.GEMINI_API_KEY ? '✓ set' : '✗ MISSING – set GEMINI_API_KEY in .env'}`);
     console.log(`   PIN:        ${process.env.APP_PIN       ? '✓ set' : '✗ MISSING – set APP_PIN in .env'}`);
     console.log(`   Database:   ${process.env.DATABASE_URL  ? '✓ set' : '✗ MISSING – DATABASE_URL not found'}`);

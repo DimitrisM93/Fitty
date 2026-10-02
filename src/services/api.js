@@ -3,7 +3,7 @@
 // In production the Express server serves the frontend too, so relative URLs work.
 const BASE = '';
 
-const AUTH_TOKEN_KEY = 'fitai_auth_token';
+const AUTH_TOKEN_KEY = 'vylia_auth_token';
 
 export function getAuthToken() {
   return localStorage.getItem(AUTH_TOKEN_KEY) || '';

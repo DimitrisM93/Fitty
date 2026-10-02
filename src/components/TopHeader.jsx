@@ -12,13 +12,13 @@ export default function TopHeader() {
           to="/"
           className={`favicon-logo-btn ${isDashboard ? 'active' : ''}`}
           title="Quick go to Dashboard"
-          aria-label="Go to FitAI Dashboard"
+          aria-label="Go to Vylia Dashboard"
         >
           <div className="favicon-icon-wrapper">
-            <img src="/favicon.png" alt="FitAI Favicon" className="favicon-img" />
+            <img src="/favicon.png" alt="Vylia Favicon" className="favicon-img" />
           </div>
           <span className="brand-title font-bold">
-            Jou<span className="gradient-text">ly</span>
+            Vy<span className="gradient-text">lia</span>
           </span>
         </Link>
       </div>

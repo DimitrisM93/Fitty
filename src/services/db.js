@@ -1,7 +1,7 @@
 import { openDB } from 'idb';
 import { getGreekTodayStr } from './dateUtils';
 
-const DB_NAME = 'fitai_db';
+const DB_NAME = 'vylia_db';
 const DB_VERSION = 1;
 
 async function getDB() {

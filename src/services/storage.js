@@ -3,12 +3,12 @@ import { getGreekTodayStr, getLocalISODate } from './dateUtils';
 
 // Storage keys
 export const STORAGE_KEYS = {
-  GEMINI_API_KEY: 'fitai_gemini_key',
-  GOOGLE_FIT_TOKEN: 'fitai_gfit_token',
-  GOOGLE_FIT_TOKEN_EXPIRY: 'fitai_gfit_expiry',
-  USER_PROFILE: 'fitai_user_profile',
-  WEIGHT_LOGS: 'fitai_weight_logs',
-  EXERCISE_LOGS: 'fitai_exercise_logs',
+  GEMINI_API_KEY: 'vylia_gemini_key',
+  GOOGLE_FIT_TOKEN: 'vylia_gfit_token',
+  GOOGLE_FIT_TOKEN_EXPIRY: 'vylia_gfit_expiry',
+  USER_PROFILE: 'vylia_user_profile',
+  WEIGHT_LOGS: 'vylia_weight_logs',
+  EXERCISE_LOGS: 'vylia_exercise_logs',
 };
 
 function getKey(base) {

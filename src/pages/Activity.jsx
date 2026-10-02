@@ -189,7 +189,7 @@ export default function Activity() {
             </div>
             <div className="connect-step">
               <span className="step-num">3</span>
-              <p>Click the button below to authorize FitAI to read your data</p>
+              <p>Click the button below to authorize Vylia to read your data</p>
             </div>
           </div>
 

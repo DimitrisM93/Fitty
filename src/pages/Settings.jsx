@@ -268,7 +268,7 @@ export default function Settings() {
         <div className="about-header">
           <span className="about-logo">⚡</span>
           <div>
-            <h3>FitAI</h3>
+            <h3>Vylia</h3>
             <p className="text-xs text-muted">v1.0.0 · Built with Gemini AI</p>
           </div>
         </div>

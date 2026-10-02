@@ -371,7 +371,7 @@ export default function Overview() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', `fitai-report-${range.from}-to-${range.to}.csv`);
+    link.setAttribute('download', `vylia-report-${range.from}-to-${range.to}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -400,7 +400,7 @@ export default function Overview() {
       const dataUrl = canvas.toDataURL('image/png');
       const link = document.createElement('a');
       link.href = dataUrl;
-      link.download = `fitai-report-${range.from}-to-${range.to}.png`;
+      link.download = `vylia-report-${range.from}-to-${range.to}.png`;
       link.click();
     } catch (error) {
       console.error('Failed to capture screenshot', error);
