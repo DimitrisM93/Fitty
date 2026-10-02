@@ -65,8 +65,8 @@
 }
 
 .pin-logo-img {
-  width: 64px;
-  height: 64px;
+  width: 128px;
+  height: 128px;
   animation: float 3s ease-in-out infinite;
   border-radius: 16px;
   overflow: hidden;
