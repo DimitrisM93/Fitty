@@ -96,7 +96,7 @@ export default function Settings() {
       {/* Lock App */}
       <section className="settings-section glass-card p-6 mb-4">
         <div className="settings-section-header">
-          <div className="settings-icon" style={{ background: 'rgba(248,113,113,0.12)' }}>🔒</div>
+          <div className="settings-icon" style={{ background: 'rgba(153,59,59,0.12)' }}>🔒</div>
           <div>
             <h3>Lock App</h3>
             <p className="text-muted text-sm">Require PIN on next open</p>

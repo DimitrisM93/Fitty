@@ -153,7 +153,7 @@
 
 .date-pill:hover {
   border-color: var(--color-primary);
-  box-shadow: 0 0 12px rgba(110, 231, 183, 0.15);
+  box-shadow: 0 0 12px rgba(107, 130, 63, 0.15);
 }
 
 .date-chevron {
@@ -178,7 +178,7 @@
 }
 
 .today-btn:hover {
-  background: rgba(110, 231, 183, 0.1);
+  background: rgba(107, 130, 63, 0.1);
 }
 
 /* ─── Calendar Dropdown ─── */
@@ -285,7 +285,7 @@
 
 .calendar-cell.selected {
   background: var(--grad-primary);
-  color: #0a0d14;
+  color: #131713;
   font-weight: 700;
 }
 
@@ -301,7 +301,7 @@
 }
 
 .calendar-cell.selected .calendar-dot {
-  background: #0a0d14;
+  background: #131713;
 }
 
 /* Stat Grid */
@@ -504,7 +504,7 @@
 }
 
 .meal-action-delete.confirming {
-  background: rgba(248, 113, 113, 0.12);
+  background: rgba(153, 59, 59, 0.12);
   color: var(--color-danger);
   animation: pulse-border 0.6s ease-in-out infinite;
 }
@@ -517,8 +517,8 @@
 }
 
 @keyframes pulse-border {
-  0%, 100% { background: rgba(248, 113, 113, 0.08); }
-  50% { background: rgba(248, 113, 113, 0.18); }
+  0%, 100% { background: rgba(153, 59, 59, 0.08); }
+  50% { background: rgba(153, 59, 59, 0.18); }
 }
 
 /* Separator between action buttons */
@@ -598,22 +598,22 @@
 
 /* ─── Exercise Prompt Card & Gym Alert ─── */
 .exercise-prompt-card {
-  background: linear-gradient(135deg, rgba(110, 231, 183, 0.06) 0%, rgba(129, 140, 248, 0.06) 100%);
-  border: 1px solid rgba(110, 231, 183, 0.25);
+  background: linear-gradient(135deg, rgba(107, 130, 63, 0.06) 0%, rgba(165, 142, 101, 0.06) 100%);
+  border: 1px solid rgba(107, 130, 63, 0.25);
   transition: all var(--transition);
 }
 
 .exercise-prompt-card:hover {
-  border-color: rgba(110, 231, 183, 0.4);
-  box-shadow: 0 4px 20px rgba(110, 231, 183, 0.15);
+  border-color: rgba(107, 130, 63, 0.4);
+  box-shadow: 0 4px 20px rgba(107, 130, 63, 0.15);
 }
 
 .exercise-icon-badge {
   width: 40px;
   height: 40px;
   border-radius: var(--radius-md);
-  background: linear-gradient(135deg, rgba(110, 231, 183, 0.15), rgba(129, 140, 248, 0.15));
-  border: 1px solid rgba(110, 231, 183, 0.3);
+  background: linear-gradient(135deg, rgba(107, 130, 63, 0.15), rgba(165, 142, 101, 0.15));
+  border: 1px solid rgba(107, 130, 63, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -622,17 +622,17 @@
 }
 
 .exercise-alert-card {
-  background: linear-gradient(135deg, rgba(251, 146, 60, 0.12) 0%, rgba(248, 113, 113, 0.12) 100%);
-  border: 1px solid rgba(251, 146, 60, 0.35);
-  box-shadow: 0 4px 24px rgba(251, 146, 60, 0.15);
+  background: linear-gradient(135deg, rgba(214, 152, 56, 0.12) 0%, rgba(153, 59, 59, 0.12) 100%);
+  border: 1px solid rgba(214, 152, 56, 0.35);
+  box-shadow: 0 4px 24px rgba(214, 152, 56, 0.15);
 }
 
 .alert-icon-badge {
   width: 42px;
   height: 42px;
   border-radius: var(--radius-md);
-  background: linear-gradient(135deg, rgba(251, 146, 60, 0.25), rgba(248, 113, 113, 0.25));
-  border: 1px solid rgba(251, 146, 60, 0.4);
+  background: linear-gradient(135deg, rgba(214, 152, 56, 0.25), rgba(153, 59, 59, 0.25));
+  border: 1px solid rgba(214, 152, 56, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -701,14 +701,14 @@
 
 /* Prompt (idle) state */
 .suggestion-card--prompt {
-  border: 1px solid rgba(129, 140, 248, 0.25);
-  background: linear-gradient(135deg, rgba(129, 140, 248, 0.06), rgba(110, 231, 183, 0.04));
+  border: 1px solid rgba(165, 142, 101, 0.25);
+  background: linear-gradient(135deg, rgba(165, 142, 101, 0.06), rgba(107, 130, 63, 0.04));
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .suggestion-card--prompt:hover {
-  border-color: rgba(129, 140, 248, 0.4);
-  box-shadow: 0 0 20px rgba(129, 140, 248, 0.1);
+  border-color: rgba(165, 142, 101, 0.4);
+  box-shadow: 0 0 20px rgba(165, 142, 101, 0.1);
 }
 
 .suggestion-prompt-inner {
@@ -727,7 +727,7 @@
 .suggestion-spark {
   font-size: 1.5rem;
   flex-shrink: 0;
-  filter: drop-shadow(0 0 6px rgba(129, 140, 248, 0.6));
+  filter: drop-shadow(0 0 6px rgba(165, 142, 101, 0.6));
 }
 
 .suggestion-prompt-title {
@@ -745,8 +745,8 @@
 
 /* Result state */
 .suggestion-card--result {
-  border: 1px solid rgba(110, 231, 183, 0.2);
-  background: linear-gradient(135deg, rgba(110, 231, 183, 0.05), rgba(129, 140, 248, 0.04));
+  border: 1px solid rgba(107, 130, 63, 0.2);
+  background: linear-gradient(135deg, rgba(107, 130, 63, 0.05), rgba(165, 142, 101, 0.04));
 }
 
 .suggestion-result-header {
@@ -922,9 +922,9 @@
 }
 
 .filling-pill--active {
-  background: linear-gradient(135deg, rgba(110,231,183,0.12), rgba(129,140,248,0.12));
-  border-color: rgba(110,231,183,0.45);
-  box-shadow: 0 0 14px rgba(110,231,183,0.15);
+  background: linear-gradient(135deg, rgba(107,130,63,0.12), rgba(165,142,101,0.12));
+  border-color: rgba(107,130,63,0.45);
+  box-shadow: 0 0 14px rgba(107,130,63,0.15);
   color: var(--text-primary);
 }
 
@@ -947,6 +947,6 @@
 }
 
 .filling-pill--active .filling-pill-desc {
-  color: rgba(110,231,183,0.8);
+  color: rgba(107,130,63,0.8);
 }
 

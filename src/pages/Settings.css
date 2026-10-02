@@ -15,9 +15,9 @@
   flex-shrink: 0;
 }
 
-.gemini-icon  { background: rgba(110, 231, 183, 0.12); }
-.watch-icon   { background: rgba(129, 140, 248, 0.12); }
-.profile-icon { background: rgba(251, 146, 60, 0.12); }
+.gemini-icon  { background: rgba(107, 130, 63, 0.12); }
+.watch-icon   { background: rgba(165, 142, 101, 0.12); }
+.profile-icon { background: rgba(214, 152, 56, 0.12); }
 
 /* Key input */
 .key-input-wrapper {

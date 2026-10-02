@@ -19,7 +19,7 @@
 .pin-bg-glow--1 {
   width: 400px;
   height: 400px;
-  background: rgba(110, 231, 183, 0.12);
+  background: rgba(107, 130, 63, 0.12);
   top: -100px;
   left: -100px;
   animation: drift1 8s ease-in-out infinite alternate;
@@ -28,7 +28,7 @@
 .pin-bg-glow--2 {
   width: 350px;
   height: 350px;
-  background: rgba(129, 140, 248, 0.12);
+  background: rgba(165, 142, 101, 0.12);
   bottom: -80px;
   right: -80px;
   animation: drift2 10s ease-in-out infinite alternate;
@@ -60,7 +60,7 @@
   flex-direction: column;
   align-items: center;
   gap: var(--space-4);
-  box-shadow: var(--shadow-lg), 0 0 60px rgba(110, 231, 183, 0.08);
+  box-shadow: var(--shadow-lg), 0 0 60px rgba(107, 130, 63, 0.08);
   animation: fadeInUp 0.5s ease forwards;
 }
 
@@ -116,13 +116,13 @@
 
 .pin-digit:focus {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(110, 231, 183, 0.2);
+  box-shadow: 0 0 0 3px rgba(107, 130, 63, 0.2);
   transform: scale(1.05);
 }
 
 .pin-digit--filled {
   border-color: var(--color-primary);
-  background: rgba(110, 231, 183, 0.08);
+  background: rgba(107, 130, 63, 0.08);
 }
 
 .pin-inputs--compact {

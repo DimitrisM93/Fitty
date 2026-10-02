@@ -108,7 +108,7 @@
 }
 
 .sidebar-item--active {
-  background-color: rgba(110, 231, 183, 0.1);
+  background-color: rgba(107, 130, 63, 0.1);
   color: var(--color-primary);
 }
 

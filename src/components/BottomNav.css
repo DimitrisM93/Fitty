@@ -55,7 +55,7 @@
   border-radius: var(--radius-full);
   width: 56px;
   height: 56px;
-  color: #0a0d14;
+  color: #131713;
   box-shadow: var(--shadow-glow-green);
   text-decoration: none;
   transition: transform 0.2s, box-shadow 0.2s;
@@ -63,9 +63,9 @@
 }
 
 .nav-fab:hover, .nav-fab:active {
-  box-shadow: 0 0 32px rgba(110, 231, 183, 0.5);
+  box-shadow: 0 0 32px rgba(107, 130, 63, 0.5);
   transform: translateY(-2px);
-  color: #0a0d14;
+  color: #131713;
 }
 
 .nav-fab svg {

@@ -112,7 +112,7 @@
   align-items: center;
   justify-content: center;
   border-radius: 10px;
-  background: rgba(110, 231, 183, 0.1);
+  background: rgba(107, 130, 63, 0.1);
   font-size: 18px;
   flex-shrink: 0;
 }
@@ -151,7 +151,7 @@
 
 .weight-entry-delete:hover {
   color: var(--color-danger);
-  background: rgba(248, 113, 113, 0.1);
+  background: rgba(153, 59, 59, 0.1);
 }
 
 .weight-entry-delete svg {

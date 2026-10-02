@@ -390,7 +390,7 @@ export default function Overview() {
 
       const canvas = await html2canvas(reportRef.current, {
         scale: 2,
-        backgroundColor: '#0a0d14',
+        backgroundColor: '#131713',
         useCORS: true,
       });
       

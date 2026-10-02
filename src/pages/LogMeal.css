@@ -13,7 +13,7 @@
   padding: var(--space-6);
   border-radius: var(--radius-lg);
   background: var(--grad-primary);
-  color: #0a0d14;
+  color: #131713;
   transition: box-shadow var(--transition), transform var(--transition);
 }
 
@@ -100,7 +100,7 @@
 }
 .dropzone:hover {
   border-color: var(--color-primary);
-  background: rgba(110, 231, 183, 0.04);
+  background: rgba(107, 130, 63, 0.04);
 }
 .dropzone-icon { font-size: 2.5rem; margin-bottom: var(--space-2); }
 
@@ -127,8 +127,8 @@
 
 /* Error */
 .error-box {
-  background: rgba(248, 113, 113, 0.1);
-  border: 1px solid rgba(248, 113, 113, 0.3);
+  background: rgba(153, 59, 59, 0.1);
+  border: 1px solid rgba(153, 59, 59, 0.3);
   border-radius: var(--radius-md);
   padding: var(--space-3) var(--space-4);
   color: var(--color-danger);
@@ -150,7 +150,7 @@
   transform: translate(-50%, -50%);
   width: 300px;
   height: 300px;
-  background: radial-gradient(circle, rgba(110, 231, 183, 0.15) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(107, 130, 63, 0.15) 0%, transparent 70%);
   border-radius: 50%;
   animation: pulse 2s ease-in-out infinite;
 }
@@ -276,7 +276,7 @@
   height: 80px;
   border-radius: 50%;
   background: var(--grad-primary);
-  color: #0a0d14;
+  color: #131713;
   font-size: 2.5rem;
   font-weight: 900;
   display: flex;
@@ -370,7 +370,7 @@
 
 .fav-delete-btn:hover {
   color: var(--color-danger);
-  background: rgba(248, 113, 113, 0.1);
+  background: rgba(153, 59, 59, 0.1);
 }
 
 .fav-add-btn {
@@ -387,6 +387,6 @@
 }
 
 .fav-add-btn:hover {
-  background: rgba(110, 231, 183, 0.1);
+  background: rgba(107, 130, 63, 0.1);
 }
 .textarea-notes { min-height: 80px; resize: vertical; line-height: 1.5; padding: 12px 16px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: var(--font); font-size: 0.9375rem; color: var(--text-primary); outline: none; width: 100%; box-sizing: border-box; white-space: pre-wrap; word-wrap: break-word; }

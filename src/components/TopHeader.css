@@ -32,14 +32,14 @@
 }
 
 .favicon-logo-btn:hover {
-  background: rgba(110, 231, 183, 0.12);
-  border-color: rgba(110, 231, 183, 0.4);
+  background: rgba(107, 130, 63, 0.12);
+  border-color: rgba(107, 130, 63, 0.4);
   transform: translateY(-1px);
-  box-shadow: 0 0 16px rgba(110, 231, 183, 0.25);
+  box-shadow: 0 0 16px rgba(107, 130, 63, 0.25);
 }
 
 .favicon-logo-btn.active {
-  border-color: rgba(110, 231, 183, 0.3);
+  border-color: rgba(107, 130, 63, 0.3);
 }
 
 .favicon-icon-wrapper {
@@ -99,18 +99,18 @@
   font-weight: 600;
   padding: 6px 12px;
   border-radius: var(--radius-full);
-  background: rgba(110, 231, 183, 0.1);
-  border: 1px solid rgba(110, 231, 183, 0.25);
+  background: rgba(107, 130, 63, 0.1);
+  border: 1px solid rgba(107, 130, 63, 0.25);
   color: var(--color-primary);
   text-decoration: none;
   transition: all var(--transition);
 }
 
 .quick-dash-btn:hover {
-  background: rgba(110, 231, 183, 0.2);
+  background: rgba(107, 130, 63, 0.2);
   border-color: var(--color-primary);
   transform: translateY(-1px);
-  box-shadow: 0 0 12px rgba(110, 231, 183, 0.3);
+  box-shadow: 0 0 12px rgba(107, 130, 63, 0.3);
 }
 
 .mini-favicon-icon {
